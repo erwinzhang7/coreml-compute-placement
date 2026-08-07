@@ -1,0 +1,7 @@
+# Python 3.12 is required: coremltools ships no native extension for 3.13+, and without
+# it MLComputePlan and MLModel are unavailable, so nothing here works.
+coremltools>=9.0
+numpy
+# only needed to regenerate the models under models/
+torch==2.8.0        # coremltools reqs/pytorch.pip pins this on arm64
+transformers
