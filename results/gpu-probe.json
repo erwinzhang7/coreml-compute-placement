@@ -1,0 +1,47 @@
+{
+  "probe": "matmul vs elementwise, Core ML, CPU_AND_GPU, fp16",
+  "workloads": {
+    "matmul": {
+      "gflop_per_call": 103.1,
+      "shape": "512x2048 through 24x Linear(2048,2048)"
+    },
+    "elemwise": {
+      "mb_traffic_per_call": 1610.6,
+      "shape": "8192x2048 through 24x (x*s+o)"
+    }
+  },
+  "results": {
+    "M5 Max (Mac17,7, 40 GPU cores)": {
+      "matmul_ms": 2.63,
+      "elemwise_ms": 13.43,
+      "matmul_tflops": 39.2,
+      "elemwise_gbs": 120
+    },
+    "M4 Pro (Mac16,11, 20 GPU cores)": {
+      "matmul_ms": 16.21,
+      "elemwise_ms": 17.04,
+      "matmul_tflops": 6.4,
+      "elemwise_gbs": 95,
+      "runs_ms": {
+        "matmul": [
+          16.08,
+          16.35
+        ],
+        "elemwise": [
+          17.2,
+          16.87
+        ]
+      }
+    }
+  },
+  "ratios_m4pro_over_m5max": {
+    "matmul": 6.17,
+    "elemwise": 1.27
+  },
+  "controls": {
+    "gpu_core_count_ratio": 2.0,
+    "ane_ratio_same_npu": 1.14,
+    "siglip_gpu_ratio_observed": 6.07
+  },
+  "per_core_matmul_improvement": 3.08
+}

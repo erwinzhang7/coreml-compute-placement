@@ -32,9 +32,29 @@ the other chip, and nothing in the API tells you which situation you are in.
 | M5 Max | 233.0 | 1085.7 | **0.21x** |
 
 **ANE throughput is nearly constant across the two chips** (204 vs 233, and both have the
-same 16-core NPU). GPU throughput moves **6x** for **2x** the core count. The likely cause
-is M5's per-core GPU neural accelerators, which are precisely a transformer-matmul feature;
-that is inference from the numbers, not something measured here.
+same 16-core NPU). GPU throughput moves **6x** for **2x** the core count.
+
+That gap is **matmul-specific**. Two synthetic Core ML models of comparable runtime, one
+arithmetic-bound and one bandwidth-bound (`tools/probe_gpu.py`):
+
+| probe | M5 Max | M4 Pro | ratio |
+| --- | ---: | ---: | ---: |
+| matmul, 103.1 GFLOP/call | 2.63 ms (**39.2 TFLOPS**) | 16.21 ms (**6.4 TFLOPS**) | **6.17x** |
+| elementwise, 1610 MB/call | 13.43 ms (120 GB/s) | 17.04 ms (95 GB/s) | **1.27x** |
+
+The two separate by a factor of five. On bandwidth-bound work the M5 Max is only 1.27x
+faster, *less* than its 2x core-count advantage; on matmul it is 6.17x. Three checks:
+
+- The matmul ratio (6.17x) matches the SigLIP GPU gap (6.07x) almost exactly, so the
+  real-world difference is fully accounted for by matmul throughput.
+- The ANE is a control at **1.14x** - same 16-core NPU on both, barely moved. This is not
+  "M5 is a newer chip".
+- Dividing 6.17x by the 2x core count leaves **~3.08x more matmul throughput per GPU core**,
+  which is not a clock or process change.
+
+That signature is what M5's per-core GPU neural accelerators would produce, and Apple
+announced exactly that feature for M5. Note the limit of the claim: this measures the
+*effect* as matmul-specific, it does not identify the mechanism in silicon.
 
 The practical consequence: advice of the form "use the ANE for inference" or "the ANE is
 too slow, use the GPU" is chip-specific, and both are currently stated as though they were
@@ -119,7 +139,7 @@ placement analysis and the wattmeter agree.
 
 Please read these before citing any number above.
 
-- **Two chips.** M4 Pro and M5 Max. Nothing here says what M1/M2/M3, base M4, Max/Ultra
+- **Two chips.** M4 Pro and M5 Max, one machine each. Nothing here says what M1/M2/M3, base M4, Max/Ultra
   variants, or A-series parts do. The central claim is precisely that results do not
   generalise across chips, which applies to these results too.
 - **One model family.** A vision transformer, which is an unusually good ANE fit. CNNs and
@@ -175,6 +195,7 @@ every build and refuses to emit a model that does not match.
 | `tools/bench_concurrent.py` | both units simultaneously, separate processes, optional per-unit model variant |
 | `tools/bench_power.py` | sustained-load driver to pair with `powermetrics` |
 | `tools/bench_coreml.py` | single-configuration throughput |
+| `tools/probe_gpu.py` | builds matched matmul-bound and bandwidth-bound models, to separate matmul-specific hardware from general GPU uplift |
 
 ---
 
