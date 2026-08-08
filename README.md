@@ -95,12 +95,29 @@ Cross-device handoff costs more than the parallelism gains.
 So the default is best on one chip, worst on another, and better than pure placement in a
 third case. **There is no safe default. Measure and pin.**
 
-Related anomaly: on the M4 Pro, `ALL` with the rewritten model emits
-`MILCompilerForANE error: failed to compile ANE model using ANEF. Error=_ANECompiler :
-ANECCompile() FAILED` on every run, yet still returns results at 240.9 img/s. The same
-model under `CPU_AND_NE` produces no such error. Not seen on the M5 Max. Related in spirit
-to [coremltools#2758](https://github.com/apple/coremltools/issues/2758), where an
-`ANECCompile` failure was likewise not surfaced at load.
+Related anomaly, characterised in `results/anecc-probe.md`: on the M4 Pro, a **cold**
+compile of the ANE-rewritten model under `ALL` emits
+
+```
+E5RT encountered an STL exception. msg = MILCompilerForANE error: failed to compile
+ANE model using ANEF. Error=_ANECompiler : ANECCompile() FAILED.
+```
+
+and then runs anyway. It is narrow and deterministic: only that model, only `ALL`, only on
+a cold compile, only on M4 Pro. `CPU_AND_NE` and `CPU_AND_GPU` are clean on the same model,
+the naive model is clean under every unit, and a warm (already compiled) run is always
+clean. **Outputs are unaffected** - `ALL` and `CPU_AND_NE` agree to the last bit - and `ALL`
+is in fact the fastest configuration for that model at 240.9 img/s, so the failed ANE
+compile falls back silently and costs nothing measurable.
+
+Two practical notes. The message does **not** go to the calling process's stderr, so
+redirecting or capturing at the Python level will not see it; it surfaces from a helper
+process at teardown, which makes it easy to miss and hard to attribute. And because it only
+fires on a cold compile, it disappears as soon as the compiled artifact is cached, which is
+why it looks intermittent. Related in spirit to
+[coremltools#2758](https://github.com/apple/coremltools/issues/2758), where an
+`ANECCompile` failure was likewise not surfaced at load. This is Core ML framework
+behaviour rather than a conversion bug, so Feedback Assistant is the right destination.
 
 ---
 
