@@ -20,9 +20,14 @@ On the M4 Pro the Neural Engine is the **fastest** unit and the default is the *
 option. On the M5 Max the GPU is 4.7x faster than the ANE. Neither result generalises to
 the other chip, and nothing in the API tells you which situation you are in.
 
+The same non-generality shows up on an axis that has nothing to do with the ANE. Measuring
+memory bandwidth per engine, **the CPU complex reaches 91% of the bus on the M4 Pro and 49%
+on the M5 Max** — so on one chip the CPU is a peer of the GPU for bandwidth-bound work and
+on the other it is half as good. Finding 4.
+
 ---
 
-## The three findings
+## The four findings
 
 ### 1. The ANE/GPU ratio inverts within one chip family
 
@@ -121,6 +126,90 @@ behaviour rather than a conversion bug, so Feedback Assistant is the right desti
 
 ---
 
+### 4. The CPU's share of its own memory bus nearly doubles between chips
+
+The findings above are about which compute unit to pick. This one is about whether the CPU
+is a candidate at all, and it changes by chip the same way.
+
+Start with what you are buying:
+
+| chip | CPU cores | GPU cores | CPU:GPU | bus peak |
+| --- | ---: | ---: | ---: | ---: |
+| M4 Pro | 14 (10P + 4E) | 20 | **0.70** | 273 GB/s |
+| M5 Max | 18 (6 + 12) | 40 | **0.45** | 614 GB/s |
+
+Between the two, CPU cores grow **1.29x**, GPU cores **2.0x**, and the bus **2.25x**. Measured
+streaming-read bandwidth per engine (`tools/membw.c`, `tools/gpu_bw.py`):
+
+| chip | 1 core | CPU, all cores | GPU | CPU share of bus | CPU/GPU |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| M4 Pro | 89.8 | 249.5 | 253.5 | **91%** | **1.02x** |
+| M5 Max | 87.8 | 303.8 | 566.7 | **49%** | **1.87x** |
+
+GPU bandwidth grows **2.24x** against 2.0x the cores and a 2.25x bus — it tracks the hardware
+almost exactly. CPU bandwidth grows **1.22x**. The bus was sized for the GPU, and the CPU was
+not scaled with it. So on the M4 Pro the CPU is a peer of the GPU for bandwidth-bound work,
+and on the M5 Max it is roughly half as good.
+
+**It is not simply core count.** Both chips saturate their CPU-side path long before running
+out of cores:
+
+| threads | 1 | 2 | 3 | 4 | 6 | 8 | 12 | 18 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| M4 Pro (of 14) | 89.8 | 160.6 | 198.6 | 233.5 | 239.3 | 239.9 | 249.4 | — |
+| M5 Max (of 18) | 87.8 | 161.8 | 233.1 | 287.3 | 299.0 | **303.8** | 272.2 | 296.3 |
+
+The M5 Max is done at 8 threads; its remaining ten cores add nothing. Single-core bandwidth
+is also essentially identical across the two chips, 89.8 against 87.8, despite a 2.25x
+difference in bus width — whatever limits one core is not the DRAM. The CPU's path to memory
+tops out somewhere around 250-300 GB/s on both parts, and that ceiling barely moved while the
+bus more than doubled.
+
+Two framings, both true: commercially you are buying GPU cores, which is why nobody widened
+the CPU's path; mechanically that path has a ceiling that is now less than half the bus on
+the larger chip.
+
+#### Running both at once does not add much on either chip
+
+Aligned windows, with the contended rate solved for rather than assumed (`tools/contention.py`):
+
+| chip | threads | CPU alone | GPU alone | together | vs GPU alone |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| M4 Pro | 10 | 240.5 | 253.7 | 90.4 + 176.6 = 266.9 | **1.05x** |
+| M4 Pro | 14 | 250.2 | 253.5 | 147.8 + 113.2 = 261.0 | 1.03x |
+| M5 Max | 6 | 300.1 | 554.6 | 130.7 + 444.0 = 574.8 | **1.04x** |
+| M5 Max | 18 | 295.6 | 556.5 | 142.4 + 407.0 = 549.4 | 0.99x |
+
+Despite the very different CPU shares, both chips land in the same place: about **4-5%**
+above what the GPU achieves alone, and the exchange is close to one-for-one. Adding the CPU
+to a GPU-saturated bus is not additive on either part. Over-committing makes it worse — at
+full thread count the M4 Pro drops to 1.03x and the M5 Max to 0.99x, below GPU-only.
+
+The practical consequence mirrors finding 1. "The CPU has bandwidth going spare, offload to
+it" and "the CPU is useless for bandwidth-bound work" are both chip-specific claims stated
+generally. On the M4 Pro the two engines are interchangeable for bandwidth-bound work, which
+is scheduling freedom; on the M5 Max the CPU is the strictly worse engine. On neither does
+running both add meaningful throughput.
+
+This also bears on CPU/GPU-offload designs ported from discrete-GPU systems, where the
+premise is a slow link between two separate memory pools. Neither Apple part has that link,
+and on neither does recruiting the CPU add more than about 5%.
+
+#### What the measurement needs to get right
+
+Three methodology points, each of which produced a confident, wrong number first:
+
+- **Align the windows and measure the overlap.** Two processes each timing their own window
+  reported an aggregate *above* the hardware peak. `membw.c` emits its timed window as
+  `CLOCK_MONOTONIC` timestamps so the contended rate is solved for.
+- **Warm up before the first timed case.** The first configuration measured in a process runs
+  50-70% slow on GPU clock ramp, larger than the effect being measured.
+- **Interleave configurations, and keep the machine idle.** Batching all of A then all of B
+  confounds drift with configuration. A background job was observed changing the same
+  binary's result by 3x, and an earlier version of the M5 Max contention row in this table
+  was measured on a busy machine and reported 1.00x instead of 1.04x. `contention.py` waits
+  for the load average to settle and prints `UNRELIABLE` above 20% spread.
+
 ## Two smaller results
 
 **The `ml-ane-transformers` rewrite is worth 10-13% here, not more.** Applying the full
@@ -171,6 +260,12 @@ Please read these before citing any number above.
   been cross-checked against wall-clock and against ANE wattage, but it is a plan, not a
   trace.
 - Single-model, single-process. No multi-model residency, no sustained thermal soak.
+- **The bandwidth numbers in finding 4 are streaming reads**, which model weight streaming
+  during decode. They are not a claim about mixed read/write, random access, or what any
+  real kernel achieves. The GPU figure is the best of four MLX op shapes, so it is a floor
+  on what the hardware can do, not a ceiling.
+- **Finding 4's CPU figures depend on QoS steering**, which macOS honours as a hint, not a
+  guarantee. Core placement was not verified with `powermetrics` on every run.
 
 Spreads across 5 repeats were 0.0-3.5% (median 0.3%), so the differences reported here are
 far larger than run-to-run noise. Raw per-run values are in `results/`.
@@ -203,6 +298,25 @@ python3.12 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 `models/ane_siglip.py` verifies numerical equivalence against the HuggingFace model on
 every build and refuses to emit a model that does not match.
 
+Memory bandwidth (finding 4):
+
+```sh
+cc -O3 -o tools/membw tools/membw.c
+
+# per-tier CPU sweep; --qos bg steers to the efficiency tier
+./tools/membw --threads 10 --gb 16 --secs 3
+./tools/membw --threads 10 --gb 16 --secs 3 --qos bg
+
+# GPU, several op shapes
+python tools/gpu_bw.py --gb 4 --secs 3
+
+# both at once, aligned windows, interleaved repeats
+python tools/contention.py --threads 10 --secs 15 --reps 4
+```
+
+Run these on an otherwise idle machine. `contention.py` waits for the load average to settle
+and prints `UNRELIABLE` rather than a verdict if run-to-run spread exceeds 20%.
+
 ### Tools
 
 | tool | what it does |
@@ -213,6 +327,9 @@ every build and refuses to emit a model that does not match.
 | `tools/bench_power.py` | sustained-load driver to pair with `powermetrics` |
 | `tools/bench_coreml.py` | single-configuration throughput |
 | `tools/probe_gpu.py` | builds matched matmul-bound and bandwidth-bound models, to separate matmul-specific hardware from general GPU uplift |
+| `tools/membw.c` | CPU streaming-read bandwidth, per core tier via QoS, emitting its timed window as `CLOCK_MONOTONIC` timestamps |
+| `tools/gpu_bw.py` | GPU streaming bandwidth via MLX, several op shapes with explicit traffic accounting |
+| `tools/contention.py` | both engines in aligned windows, interleaved repeats, solves for the contended rate and refuses to render a verdict above 20% spread |
 
 ---
 

@@ -1,0 +1,75 @@
+host: Erwins-MacBook-Pro
+chip: Apple M5 Max  cores=18 (P=6 E=12)  mem=128GB
+date: 2026-08-09T05:20:43Z
+
+=== CPU thread sweep, 3 reps each (median reported) ===
+threads   perf-tier      eff-tier      
+1         87.8           87.9          
+2         161.8          123.8         
+3         233.1          155.2         
+4         287.3          158.7         
+6         299.0          159.9         
+8         303.8          158.6         
+12        272.2          160.5         
+18        296.3          161.2         
+
+=== GPU ===
+operand=4.0 GiB each, 3s per op
+
+op                               GB/s   iters
+sum (read 1x)                   555.8     389
+max (read 1x)                   566.7     396
+a+b (read 2x, write 1x)         500.7     117
+a*2 (read 1x, write 1x)         539.7     189
+
+best observed GPU bandwidth: 566.7 GB/s
+
+=== CPU+GPU contention, aligned windows, interleaved reps ===
+load average is 11.6 (limit 5.0); waiting up to 180s..............
+CPU threads=6   GPU operand=4 GiB   GPU window=15s   reps=4   load=4.92
+
+  rep 1/4 ... cpu 300 | gpu 554 | contended 131+444 (overlap 75%)
+  rep 2/4 ... cpu 300 | gpu 554 | contended 134+441 (overlap 75%)
+  rep 3/4 ... cpu 300 | gpu 558 | contended 130+444 (overlap 75%)
+  rep 4/4 ... cpu 300 | gpu 555 | contended 128+447 (overlap 75%)
+
+configuration                  GB/s
+CPU alone                     300.1   (n=4, spread  0.2%)
+GPU alone                     554.6   (n=4, spread  0.7%)
+CPU while GPU runs            130.7   (n=4, spread  4.5%)
+GPU while CPU runs            444.0   (n=4, spread  1.3%)
+
+mean GPU-window overlap       : 75%
+aggregate while contended     : 574.8 GB/s
+GPU retained                  : 80% of solo
+CPU retained                  : 44% of solo
+aggregate vs GPU alone        : 1.04x  (+20.2 GB/s)
+exchange rate                 : CPU gains 131, GPU loses 111 GB/s
+
+VERDICT: no headroom. The GPU alone effectively saturates the bus; CPU
+streaming redistributes bandwidth rather than adding any.
+
+=== all 18 threads ===
+load average is 5.7 (limit 5.0); waiting up to 180s..
+CPU threads=18   GPU operand=4 GiB   GPU window=15s   reps=3   load=4.88
+
+  rep 1/3 ... cpu 297 | gpu 557 | contended 147+398 (overlap 75%)
+  rep 2/3 ... cpu 296 | gpu 557 | contended 140+410 (overlap 75%)
+  rep 3/3 ... cpu 295 | gpu 551 | contended 142+407 (overlap 75%)
+
+configuration                  GB/s
+CPU alone                     295.6   (n=3, spread  0.6%)
+GPU alone                     556.5   (n=3, spread  1.0%)
+CPU while GPU runs            142.4   (n=3, spread  4.7%)
+GPU while CPU runs            407.0   (n=3, spread  3.0%)
+
+mean GPU-window overlap       : 75%
+aggregate while contended     : 549.4 GB/s
+GPU retained                  : 73% of solo
+CPU retained                  : 48% of solo
+aggregate vs GPU alone        : 0.99x  (-7.1 GB/s)
+exchange rate                 : CPU gains 142, GPU loses 150 GB/s
+
+VERDICT: no headroom. The GPU alone effectively saturates the bus; CPU
+streaming redistributes bandwidth rather than adding any.
+DONE 2026-08-09T05:32:29Z
