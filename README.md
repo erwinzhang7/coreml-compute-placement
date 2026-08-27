@@ -33,6 +33,17 @@ disappears once the compiled artifact is cached, which is why it reads as interm
 rather than deterministic. Four conditions are all required to see it, and they are pinned
 down in [`results/anecc-probe.md`](results/anecc-probe.md).
 
+**Run it on your own chip:**
+
+```sh
+./run.sh
+```
+
+That builds both model variants, sweeps the three compute-unit settings, and
+prints a table ready to paste. Two chips is a thin basis for a claim about chip
+families — if yours ranks them differently, that is the result I most want to
+see. There is an [issue template](.github/ISSUE_TEMPLATE/chip-report.yml) for it.
+
 ---
 
 ## The four findings
@@ -249,6 +260,26 @@ placement analysis and the wattmeter agree.
 
 ---
 
+## Results from other chips
+
+Measured here so far:
+
+| chip | macOS | fastest on the naive model | default (`ALL`) |
+| --- | --- | :---: | --- |
+| M4 Pro (Mac16,11), 20 GPU cores | 26.5.1 | ANE | slowest of the three |
+| M5 Max (Mac17,7), 40 GPU cores | 26.6 | GPU, by 4.7x | within 2% of the GPU |
+
+Two chips, one generation apart, disagreeing. That is enough to show the ranking
+is not a property of the framework, and not enough to say what it *is* a property
+of. M1/M2/M3, the base and Max variants of each, and anything with a different
+NPU core count would all narrow it down.
+
+`python3 tools/summarise.py results/sweep-<chip>.json` renders any sweep into the
+table above. Reports welcome as issues; a `results/sweep-<chip>.json` in a pull
+request is even better.
+
+---
+
 ## Limitations
 
 Please read these before citing any number above.
@@ -285,22 +316,25 @@ far larger than run-to-run noise. Raw per-run values are in `results/`.
 Requires macOS 15+ on Apple silicon and **Python 3.12** - coremltools ships no native
 extension for 3.13+, and without it `MLComputePlan` and `MLModel` do not exist.
 
+`./run.sh` does everything below in one step and prints the summary table. The
+individual steps, if you want to vary something:
+
 ```sh
 python3.12 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 
 # build the two model variants
-./.venv/bin/python models/convert_siglip.py --batch 16 --out siglip-naive-b16.mlpackage
+./.venv/bin/python models/convert_siglip.py --batch 16 --out siglip-vision-b16.mlpackage
 ./.venv/bin/python models/ane_siglip.py    --batch 16 --out siglip-ane-b16.mlpackage
 
 # where do the ops go?
-./.venv/bin/python tools/anecheck.py siglip-naive-b16.mlpackage --compute-units ALL
+./.venv/bin/python tools/anecheck.py siglip-vision-b16.mlpackage --compute-units ALL
 
 # throughput, repeated, with spread
-./.venv/bin/python tools/sweep.py --models siglip-naive-b16.mlpackage siglip-ane-b16.mlpackage
+./.venv/bin/python tools/sweep.py --models siglip-vision-b16.mlpackage siglip-ane-b16.mlpackage
 
 # both units at once, optionally with a different variant per unit
-./.venv/bin/python tools/bench_concurrent.py siglip-naive-b16.mlpackage \
-    --model-ane siglip-ane-b16.mlpackage --model-gpu siglip-naive-b16.mlpackage
+./.venv/bin/python tools/bench_concurrent.py siglip-vision-b16.mlpackage \
+    --model-ane siglip-ane-b16.mlpackage --model-gpu siglip-vision-b16.mlpackage
 ```
 
 `models/ane_siglip.py` verifies numerical equivalence against the HuggingFace model on
@@ -338,6 +372,7 @@ and prints `UNRELIABLE` rather than a verdict if run-to-run spread exceeds 20%.
 | `tools/membw.c` | CPU streaming-read bandwidth, per core tier via QoS, emitting its timed window as `CLOCK_MONOTONIC` timestamps |
 | `tools/gpu_bw.py` | GPU streaming bandwidth via MLX, several op shapes with explicit traffic accounting |
 | `tools/contention.py` | both engines in aligned windows, interleaved repeats, solves for the contended rate and refuses to render a verdict above 20% spread |
+| `tools/summarise.py` | renders a sweep JSON into the reporting table, stdlib only so it runs outside the virtualenv |
 
 ---
 

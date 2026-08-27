@@ -1,0 +1,78 @@
+name: Report results from your chip
+description: You ran ./run.sh on an Apple silicon Mac. Tell me what it said.
+title: "[results] "
+labels: ["results"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The whole claim in this repo is that the fastest compute unit depends on
+        the chip, and it is currently backed by exactly two of them. Every chip
+        anyone else measures either strengthens that or breaks it. Both are
+        useful, and a result that contradicts the README is the most useful of
+        all.
+
+        ```sh
+        ./run.sh
+        ```
+
+        That prints a table. Paste it below.
+
+  - type: input
+    id: chip
+    attributes:
+      label: Chip
+      description: The line `sysctl -n machdep.cpu.brand_string` prints.
+      placeholder: Apple M2 Max
+    validations:
+      required: true
+
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "26.6"
+    validations:
+      required: true
+
+  - type: textarea
+    id: table
+    attributes:
+      label: Table from ./run.sh
+      description: The block between the ══════ rules. Pasted as-is is perfect.
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ranking
+    attributes:
+      label: Which unit was fastest on the naive model?
+      options:
+        - ANE
+        - GPU
+        - "default (ALL)"
+        - Too close to call
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Worth knowing
+      options:
+        - label: The default (`ALL`) was slower than *both* pure placements
+        - label: I saw an `ANECCompile() FAILED` message in the output
+        - label: The machine was plugged in rather than on battery
+        - label: Nothing else heavy was running
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: >
+        Thermal state, whether it was a cold or warm compile, a different model,
+        or anything that looked wrong. Attaching the raw results/sweep-*.json is
+        welcome.
+    validations:
+      required: false
