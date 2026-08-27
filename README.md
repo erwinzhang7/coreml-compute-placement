@@ -25,6 +25,14 @@ memory bandwidth per engine, **the CPU complex reaches 91% of the bus on the M4 
 on the M5 Max** — so on one chip the CPU is a peer of the GPU for bandwidth-bound work and
 on the other it is half as good. Finding 4.
 
+There is also a failure the framework never tells you about. On the M4 Pro, a cold compile
+of the ANE-rewritten model under `ALL` emits `_ANECompiler : ANECCompile() FAILED`, falls
+back silently, and runs anyway — as the *fastest* configuration for that model, with
+bit-identical outputs. The message never reaches the calling process's stderr, and it
+disappears once the compiled artifact is cached, which is why it reads as intermittent
+rather than deterministic. Four conditions are all required to see it, and they are pinned
+down in [`results/anecc-probe.md`](results/anecc-probe.md).
+
 ---
 
 ## The four findings
