@@ -15,6 +15,7 @@ authors:
     alias: Erwin Zhang
     orcid: "https://orcid.org/0009-0005-6488-8779"
     affiliation: University of Toronto
+doi: "10.5281/zenodo.22136103"
 repository-code: "https://github.com/erwinzhang7/coreml-compute-placement"
 url: "https://erwinzhang.com/projects/#research"
 license: MIT

@@ -1,5 +1,7 @@
 # Where does your Core ML model actually run?
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22136103.svg)](https://doi.org/10.5281/zenodo.22136103)
+
 On Apple silicon a model can run on the Neural Engine, the GPU, or the CPU. Core ML picks
 for you, reports success either way, and never tells you what it chose. This repo measures
 what it chooses and what that costs.
