@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Where does your Core ML model actually run?"
+abstract: >-
+  Core ML picks whether an operation runs on the Neural Engine, the GPU or the
+  CPU, reports success either way, and never tells you what it chose. This
+  measures what it chooses and what that costs. On an M4 Pro the Neural Engine
+  is the fastest unit and the framework default is the slowest of the three; on
+  an M5 Max the GPU is 4.7x faster than the Neural Engine. Same model, same
+  batch, same macOS build, opposite answer.
+type: software
+authors:
+  - family-names: Zhang
+    given-names: Erzheng
+    alias: Erwin Zhang
+    orcid: "https://orcid.org/0009-0005-6488-8779"
+    affiliation: University of Toronto
+repository-code: "https://github.com/erwinzhang7/coreml-compute-placement"
+url: "https://erwinzhang.com/projects/#research"
+license: MIT
+keywords:
+  - Core ML
+  - Apple silicon
+  - Neural Engine
+  - machine learning systems
+  - performance engineering
+  - benchmarking
+version: 1.0.0
+date-released: "2026-08-27"

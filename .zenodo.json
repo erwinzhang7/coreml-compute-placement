@@ -1,0 +1,33 @@
+{
+  "title": "Where does your Core ML model actually run?",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Zhang, Erzheng",
+      "orcid": "0009-0005-6488-8779",
+      "affiliation": "University of Toronto"
+    }
+  ],
+  "description": "<p>On Apple silicon a model can run on the Neural Engine, the GPU, or the CPU. Core ML picks for you, reports success either way, and never tells you what it chose. This repository measures what it chooses and what that costs.</p><p>The headline result is that the right compute unit depends on the chip, and the framework default is sometimes the slowest of the available options. On an M4 Pro the Neural Engine is the fastest unit and <code>ComputeUnit.ALL</code> is the slowest of the three. On an M5 Max the GPU is 4.7x faster than the Neural Engine. Same model, same batch, same macOS build, opposite answer, and nothing in the API tells you which situation you are in.</p><p>Includes the measurement harness, cost-weighted per-operation placement reporting from <code>MLComputePlan</code>, concurrent-engine benchmarks, per-engine memory bandwidth measurement, and a characterisation of a silent <code>ANECCompile()</code> failure that falls back without surfacing to the calling process.</p>",
+  "keywords": [
+    "Core ML",
+    "Apple silicon",
+    "Neural Engine",
+    "ANE",
+    "GPU",
+    "machine learning systems",
+    "performance engineering",
+    "benchmarking",
+    "heterogeneous compute",
+    "inference"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/erwinzhang7/coreml-compute-placement",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}
