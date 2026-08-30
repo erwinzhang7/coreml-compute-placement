@@ -186,9 +186,22 @@ class LoadSampler(threading.Thread):
     compare absolute rates only between runs with the same --load-every.
     """
 
-    def __init__(self, every=2.0, threshold=5.0):
+    # `ps -o %cpu` on macOS is normalised so 100% is ONE core, not the machine.
+    # The first cut of this class summed those numbers and called anything above
+    # 25 "not quiet", which on a 14-core box is 25/1400 = 1.8% of capacity. It
+    # fired on the first two soaks it ever ran, reporting 45.7% and 54.1% as
+    # contention when the box was drawing about 3% of itself. Divide by the core
+    # count before judging.
+    #
+    # It also counted the ssh session doing the checking, 15.2% of a core, so
+    # looking at the box made it look busier. That is the pgrep-matches-itself
+    # trap wearing a different hat, and it is why `quiet` is now a fraction of
+    # machine capacity rather than a raw sum.
+    def __init__(self, every=2.0, threshold=5.0, quiet_frac=0.15):
         super().__init__(daemon=True)
         self.every, self.threshold = every, threshold
+        self.quiet_frac = quiet_frac
+        self.ncpu = os.cpu_count() or 1
         self.stop = threading.Event()
         self.me = os.getpid()
         self.peak_cpu = 0.0
@@ -234,17 +247,24 @@ class LoadSampler(threading.Thread):
             return {"readable": False, "why": self.failed}
         if not self.samples:
             return {"readable": False, "why": "no samples taken"}
+        # Both scales, because only one of them is comparable across machines.
+        # peak_other_cpu_pct is the raw ps sum, where 100 is one core.
+        # peak_other_cpu_of_machine is that divided by the core count, which is
+        # the number to threshold on and the number to compare between boxes.
+        frac = self.peak_cpu / (100.0 * self.ncpu)
         return {
             "readable": True,
             "samples": self.samples,
+            "cores": self.ncpu,
             "peak_other_cpu_pct": round(self.peak_cpu, 1),
+            "peak_other_cpu_of_machine": round(frac, 4),
             "peak_at_s": self.peak_at,
             "busiest_at_peak": self.peak_procs,
-            # A soak on a box that was never above this is a soak with no
-            # competition worth blaming. Read only in that direction: a quiet
-            # sample set does not prove the GPU was uncontended, since GPU work
-            # from another process need not show as CPU.
-            "quiet": self.peak_cpu < 25.0,
+            # A soak on a box never above this is a soak with no competition
+            # worth blaming. Read only in that direction: a quiet sample set does
+            # not prove the GPU was uncontended, since GPU work from another
+            # process need not show as CPU at all.
+            "quiet": frac < self.quiet_frac,
         }
 
 
@@ -421,14 +441,18 @@ def main():
     # paper, and had to be retracted.
     cl = header.get("concurrent_load") or {}
     if cl.get("readable"):
+        # Report the machine fraction, not the raw ps sum. `ps -o %cpu` counts one
+        # core as 100, so on a 14-core box a raw 54 is under 4% of the machine and
+        # saying "54%" invites reading it as half the hardware.
+        pct = cl["peak_other_cpu_of_machine"] * 100
         if cl["quiet"]:
-            print(f"box was quiet: peak other-process CPU {cl['peak_other_cpu_pct']}% "
-                  f"over {cl['samples']} samples")
+            print(f"box was quiet: peak other-process load {pct:.1f}% of "
+                  f"{cl['cores']} cores over {cl['samples']} samples")
         else:
             busy = ", ".join(f"{p['comm']} {p['cpu']}%" for p in cl["busiest_at_peak"])
-            print(f"WARNING: other work on this box. Peak other-process CPU "
-                  f"{cl['peak_other_cpu_pct']}% at t={cl['peak_at_s']}s ({busy}). "
-                  f"A decline in this run may not be the compute unit.")
+            print(f"WARNING: other work on this box. Peak other-process load "
+                  f"{pct:.1f}% of {cl['cores']} cores at t={cl['peak_at_s']}s "
+                  f"({busy}). A decline in this run may not be the compute unit.")
     else:
         print(f"concurrent load NOT recorded ({cl.get('why', 'unknown')}); a "
               f"decline in this run cannot be cleared of contention")

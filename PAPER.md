@@ -21,15 +21,18 @@ default**: on the M4 Pro it costs between 1.18x and 5.18x against the better
 explicit placement, and on three of five architectures it is slower than *both*
 explicit placements. On the M5 Max it is free at peak, which we report as
 prominently. Third, **peak throughput does not predict sustained throughput**:
-over a two-minute soak the ANE gives back at most 0.14% of its peak in 21 of 22
+over a two-minute soak the ANE gives back at most 0.14% of its peak in 44 of 45
 soaks on both chips and four separate machines, while the GPU gives back 0.8 to
-6.3% on an M4 Pro and 4.8 to 16.3% on an M5 Max across 41. Those 21 ANE soaks all
-sustain better than the best of the 41 GPU soaks. The twenty-second is a
-`whisper` run that gave back 2.52% after reaching the same peak as two runs that
-did not, which we report and do not explain in §3.4. A benchmark of a few seconds,
-which is the standard form, cannot see any of this. We also report that the sustained *fraction* is confounded by the thermal
-state a run starts in on a throttling chip, which makes the ANE's insensitivity
-to that confound the most robust result in this section.
+13.2% on an M4 Pro and 4.8 to 16.3% on an M5 Max across 62. Those 44 ANE soaks all
+sustain better than the best of the 62 GPU soaks. The forty-fifth is a
+`whisper` run that gave back 2.52% after reaching the same peak as seven runs that
+did not, one of them a repeat on the same machine, which we report and do not
+explain in §3.3. A benchmark of a few seconds, which is the standard form, cannot
+see any of this.
+
+We also report that the sustained *fraction* is confounded by the thermal state a
+run starts in on a throttling chip, which makes the ANE's insensitivity to that
+confound the most robust result in this section.
 
 We quantify measurement reproducibility explicitly, using two physically
 identical M4 Pro machines and five repeats, and report a within-machine range of
@@ -254,9 +257,75 @@ than the better one:
 The `whisper` case is the strongest form: the default returns 28.0 img/s where
 the ANE alone returns 56.3 and the GPU alone returns 145.1. **The default is
 half the throughput of the slower of the two engines it is choosing between.**
-This is consistent with `ALL` splitting a graph across engines and paying
-transfer and synchronisation costs that exceed the benefit, but we did not
-instrument the partition and do not claim the mechanism.
+
+#### The partition, and why the two chips differ
+
+Reading `MLComputePlan` for each model under each setting (`tools/placement_sweep.py`)
+answers the asymmetry directly. Placement is cost-weighted, so a fraction is a
+share of estimated work rather than a share of operations:
+
+| model | M4 Pro, `ALL` resolves to | M5 Max, `ALL` resolves to |
+| --- | --- | --- |
+| `mobilenet` | 100% ANE | 100% GPU |
+| `resnet50` | 87.6% ANE / 12.4% GPU | 100% GPU |
+| `siglip` | 78.9% ANE / 21.1% GPU | 100% GPU |
+| `bert` | 77.5% ANE / 17.3% GPU / 5.1% CPU | 100% GPU |
+| `whisper` | 64.1% ANE / 35.9% GPU | 100% GPU |
+
+**On the M5 Max `ALL` never splits.** It resolves to a single engine on all five
+architectures, that engine is the GPU, and the GPU is the right answer on that
+chip, so the default costs 1.01x to 1.09x. **On the M4 Pro it splits on four of
+five**, and it is there that it costs up to 5.18x.
+
+So the asymmetry is not that one runtime chooses better than the other. One of
+them declines to partition and the other does not.
+
+#### Two failure modes, and they occur separately
+
+The single cost figure mixes two things. Comparing `ALL` against the engine that
+received *most* of the work separates them:
+
+- **partition** = majority-engine throughput / `ALL` throughput. What splitting
+  costs, with the choice of majority engine held fixed.
+- **unit choice** = best-engine throughput / majority-engine throughput. What
+  picking the wrong majority engine costs, with the partition held fixed.
+
+Their product is the cost above. That multiplication is an algebraic identity and
+is not evidence of anything; what is empirical is which factor equals one.
+
+| model | partition | unit choice | total | failing on |
+| --- | ---: | ---: | ---: | --- |
+| `whisper` | 2.01x | 2.58x | 5.18x | both |
+| `resnet50` | 2.41x | 1.00x | 2.41x | partition only |
+| `bert` | 1.36x | 1.00x | 1.36x | partition only |
+| `siglip` | 1.19x | 1.00x | 1.19x | partition only |
+| `mobilenet` | 0.99x | 1.19x | 1.18x | unit choice only |
+
+`mobilenet` is the case that separates them cleanly. `ALL` puts 100% of it on the
+ANE, so there is no partition and no partition cost, 0.99x. Its entire 1.18x is
+the runtime choosing the ANE when the GPU is 1.19x faster. **The default can be
+wrong without splitting at all.**
+
+#### The size of the partition does not predict its cost
+
+The obvious hypothesis is that a more balanced split costs more, since it moves
+more work across the boundary. We registered that as a prediction in
+`tools/split_cost.py` before `resnet50` and `mobilenet` were measured on this
+chip, and **it failed**:
+
+| model | minority share | cost |
+| --- | ---: | ---: |
+| `mobilenet` | 0.0% | 1.18x |
+| `resnet50` | **12.4%** | **2.41x** |
+| `siglip` | 21.1% | 1.19x |
+| `bert` | 22.5% | 1.36x |
+| `whisper` | 35.9% | 5.18x |
+
+`resnet50` has the *smallest* split of the four that split and the second most
+expensive default. Moving 12.4% of the estimated work to the other engine costs
+58% of the throughput. So the partition cost is real and can be severe, but it is
+not a function of how much was moved, and a developer cannot bound it by reading
+the compute plan.
 
 The correct statement is not "the default is sometimes worst" but: **the cost of
 the default is not portable.** It is free on one of our two configurations and up
@@ -366,15 +435,15 @@ between runs:
 
 | model | ANE (n) | GPU (n) | GPU peak stability |
 | --- | --- | --- | ---: |
-| `siglip` | 0.9999, 1.0000, 1.0000, 1.0000, 1.0000 (5) | 0.949 to 0.992 (16) | 0.14% |
-| `resnet50` | 0.9992, 0.9998, 0.9998 (3) | 0.964, 0.970, 0.982, 0.986, 0.989 (5) | 0.15% |
-| `mobilenet` | 0.9997, 0.9998, 0.9998 (3) | 0.963, 0.968, 0.979, 0.979, 0.982 (5) | 0.58% |
-| `bert` | 0.9997, 1.0000, 1.0000 (3) | 0.952, 0.954, 0.968, 0.975, 0.982 (5) | 0.07% |
-| `whisper` | **0.9748**, 0.9998, 1.0000, 1.0000, 1.0000 (5) | 0.868 to 0.955 (6) | 0.34% |
-| **all** | **0.9748 to 1.0000 in 19** | **0.868 to 0.992 in 37** | |
+| `siglip` | 0.9996 to 1.0000 (10) | 0.949 to 0.992 (21) | 0.76% |
+| `resnet50` | 0.9988 to 1.0000 (8) | 0.962 to 0.989 (10) | 0.51% |
+| `mobilenet` | 0.9990 to 0.9998 (8) | 0.963 to 0.984 (10) | 0.84% |
+| `bert` | 0.9997 to 1.0000 (8) | 0.952 to 0.984 (8) | 0.08% |
+| `whisper` | **0.9748** to 1.0000 (8) | 0.868 to 0.967 (9) | 0.65% |
+| **all** | **0.9748 to 1.0000 in 42** | **0.868 to 0.992 in 58** | |
 
-**In 18 of 19 M4 Pro soaks the ANE gave back at most 0.14% of its peak, better
-than the best of 37 GPU soaks, which gave back 0.82%.** That holds across a
+**In 41 of 42 M4 Pro soaks the ANE gave back at most 0.12% of its peak, better
+than the best of 58 GPU soaks, which gave back 0.82%.** That holds across a
 vision transformer, a dense CNN, a depthwise CNN, a text encoder and an audio
 encoder.
 
@@ -383,9 +452,17 @@ one of the three M4 Pros gave back 2.52%: flat at 56.3 img/s for seven windows,
 then a monotone fall to 54.9 that plateaued. It is not a contended peak, which is
 the usual cause of a low reading here and the one that cost us the M5 Max figures
 in §3.3. Contention lowers the peak, and this run reached 56.34 img/s against
-56.34 and 56.35 for the two runs on other machines that did *not* decline. So the
-engine reached full rate and then lost it. The soak tool does not record what else
-was running, so the file cannot settle whether something started mid-run.
+56.25 to 56.35 for the seven other `whisper` ANE runs, none of which declined. So
+the engine reached full rate and then lost it. The soak tool did not record what
+else was running when that run was taken, so its own file cannot settle whether
+something started mid-run.
+
+**It did not reproduce.** A repeat on the same machine returned 0.9998, and that
+repeat carries a concurrent-load record showing the box at 3.7% of its 14 cores,
+so it was taken under conditions we can vouch for rather than assume. One repeat
+is not proof that the first reading was spurious, and we leave it in the table
+rather than dropping it, but nothing we have measured since supports treating it
+as a property of the engine.
 
 We report it rather than dropping it. With that run included the ANE and GPU
 ranges overlap at a single point; with it excluded they are disjoint. A reader
@@ -400,7 +477,7 @@ because "exactly" invites a mechanism that does not exist, a hard clamp at peak,
 where what the data supports is the weaker and sufficient claim that ANE
 throughput does not measurably decay over two minutes.
 
-The GPU peaks are stable to between 0.07% and 0.58% across repeats and across
+The GPU peaks are stable to between 0.08% and 0.84% across repeats and across
 boxes, so none of the M4 Pro variation is the thermal-state confound of §3.3;
 these are genuine run-to-run differences of 0.02 to 0.05 in the fraction.
 

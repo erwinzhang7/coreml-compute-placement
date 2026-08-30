@@ -77,11 +77,16 @@ def load(names):
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--refresh-set", action="store_true",
+                    help="rewrite results/soak/PAPER-SET.txt from what is on disk. "
+                         "Use when deliberately extending the dataset, then update "
+                         "the prose in the same commit.")
     ap.add_argument("--inject", action="store_true",
                     help="halve one M5 Max ANE median, reproducing the retracted "
                          "contended measurement, and require this to fail")
     args = ap.parse_args()
 
+    refresh = args.refresh_set
     m4, m5 = load(M4_SOURCES), load(M5_SOURCES)
     if args.inject:
         m5["mobilenet"]["CPU_AND_NE"] /= 2
@@ -152,8 +157,37 @@ def main():
     # exactly 1.000 in every one of ten soaks". Only 7 of 16 M4 Pro soaks are
     # exactly 1.0000. Rounding is not a result, so the check works at the
     # precision that distinguishes them.
+    # PINNED TO A STATED DATASET, NOT THE LIVE DIRECTORY. The fleet keeps
+    # producing soaks, and globbing meant every sync "broke" the paper: the
+    # counts moved four times in one session while the claim never did. That is
+    # churn masquerading as a check, and worse, it trains you to edit numbers to
+    # silence a red result.
+    #
+    # results/soak/PAPER-SET.txt lists the files 3.3 is computed from. Growing the
+    # directory is now informational; only a disagreement between the paper and
+    # ITS OWN set is a failure. Extending the dataset becomes a deliberate act:
+    # --refresh-set, then update the prose, then commit both together.
+    setf = REPO / "results" / "soak" / "PAPER-SET.txt"
+    soakdir = REPO / "results" / "soak"
+    on_disk = sorted(p.name for p in soakdir.glob("*.json"))
+    if refresh:
+        setf.write_text("\n".join(on_disk) + "\n")
+        print("refreshed PAPER-SET.txt to %d files; now update the prose to match\n"
+              % len(on_disk))
+    names = ([l.strip() for l in setf.read_text().splitlines() if l.strip()]
+             if setf.exists() else on_disk)
+    missing = [n for n in names if not (soakdir / n).exists()]
+    if missing:
+        fails.append("PAPER-SET.txt lists %d file(s) that no longer exist, starting "
+                     "with %s. The paper's numbers cannot be recomputed."
+                     % (len(missing), missing[0]))
+    extra = len(on_disk) - len(names)
+
     ane, gpu = [], []
-    for p in sorted((REPO / "results" / "soak").glob("*.json")):
+    for n in names:
+        p = soakdir / n
+        if not p.exists():
+            continue
         d = json.loads(p.read_text())
         s = d.get("sustained_fraction") or (d.get("summary") or {}).get("sustained_fraction")
         u = d.get("units") or (d.get("summary") or {}).get("units")
@@ -181,6 +215,11 @@ def main():
         print("%-38s %s  %r" % (label, "ok  " if ok else "FAIL", s))
         if not ok:
             fails.append("%s: PAPER.md does not contain %r" % (label, s))
+
+    if extra:
+        print("\nnote: %d soak file(s) on disk are not in PAPER-SET.txt. That is not a\n"
+              "failure. Run --refresh-set and update the prose when you want them in."
+              % extra)
 
     print()
     if fails:

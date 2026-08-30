@@ -1,0 +1,92 @@
+[
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      231.09241762730855,
+      231.20841559821906,
+      231.10934851000297,
+      231.2103691520103,
+      231.20531578587602
+    ],
+    "median": 231.20531578587602,
+    "min": 231.09241762730855,
+    "max": 231.2103691520103,
+    "stdev": 0.05902070749639585
+  },
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      149.48525685903576,
+      149.4396247545929,
+      149.40476985612568,
+      149.425439712968,
+      149.4303997559996
+    ],
+    "median": 149.4303997559996,
+    "min": 149.40476985612568,
+    "max": 149.48525685903576,
+    "stdev": 0.029797446231978605
+  },
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      240.6578231229784,
+      240.78993135836723,
+      240.73921492190928,
+      240.83378160603843,
+      240.88541952673086
+    ],
+    "median": 240.78993135836723,
+    "min": 240.6578231229784,
+    "max": 240.88541952673086,
+    "stdev": 0.08758904956371201
+  }
+]

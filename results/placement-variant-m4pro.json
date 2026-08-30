@@ -1,0 +1,45 @@
+{
+  "chip": "m4-pro",
+  "macos": "26.5.1",
+  "coremltools": "9.0",
+  "rows": [
+    {
+      "model": "siglip-ane-b16.mlpackage",
+      "units": "ALL",
+      "ops": 1658,
+      "by_cost_fraction": {},
+      "by_count_fraction": {
+        "ANE": 0.9849215922798552,
+        "?": 0.015078407720144753
+      },
+      "ane_fraction_by_cost": 0.0,
+      "median_images_per_s": 240.78993135836723
+    },
+    {
+      "model": "siglip-ane-b16.mlpackage",
+      "units": "CPU_AND_NE",
+      "ops": 1658,
+      "by_cost_fraction": {
+        "ANE": 1.0
+      },
+      "by_count_fraction": {
+        "ANE": 1.0
+      },
+      "ane_fraction_by_cost": 1.0,
+      "median_images_per_s": 231.20531578587602
+    },
+    {
+      "model": "siglip-ane-b16.mlpackage",
+      "units": "CPU_AND_GPU",
+      "ops": 1658,
+      "by_cost_fraction": {
+        "GPU": 1.0
+      },
+      "by_count_fraction": {
+        "GPU": 1.0
+      },
+      "ane_fraction_by_cost": 0.0,
+      "median_images_per_s": 149.4303997559996
+    }
+  ]
+}

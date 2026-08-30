@@ -6,7 +6,19 @@ are directly comparable.
 
 ## Read this before the tables
 
-Two things below were wrong for a while and are now corrected in place.
+Three things below were wrong for a while and are now corrected in place.
+
+0. **Only soaks carrying a `concurrent_load` field recorded what else was running.**
+   The sampler was added to `thermal_soak.py` after the `mx*` batch had already
+   been collected, so those 32 runs are blind to the one confound the field
+   exists to catch. The boxes were checked by hand and were quiet at the time
+   (largest non-soak process 0.2 GB at 0.0% CPU), but that is a point-in-time
+   check rather than a per-run record and is weaker evidence.
+
+   The field also marks a throughput difference. Sampling costs **0.18%** of
+   absolute rate, measured three runs each way with non-overlapping groups. It
+   does not move `sustained_fraction`, which is a within-run ratio where a
+   constant offset cancels. So compare absolute rates only within one group.
 
 1. Every soak taken before commit 54ac0a0 used a tool that called `pmset` between
    windows, clamped its final window to the deadline, and could publish an
