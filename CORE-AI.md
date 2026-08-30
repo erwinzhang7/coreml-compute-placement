@@ -83,14 +83,41 @@ presented as a result.
   already the first stated limitation). Until that is measured, the tension is an
   inference.
 
-## The harness cannot measure Core AI yet
+## Core AI cannot be measured on this hardware at all
 
-Every tool here drives Core ML from Python through `coremltools`. Core AI
-inference is Swift, with no Python runtime package, so none of it applies. A
-Swift benchmark runner is the one piece of work between this repo and covering
-the pipeline; `coreai-models/swift/Sources` has 212 files to model it on,
-including executable targets under `Tools/`.
+Not because the harness drives Core ML from Python, which was the earlier reading.
+The runtime framework does not exist on any machine here.
 
-Until that exists, everything in this file is a reading of Apple's source, not a
-measurement, which is the opposite of how the rest of this repo is sourced, and
-is the reason it lives in its own document instead of in the findings.
+    canImport(CoreAI)                       false, Swift 6.3.3, target macosx26.0
+    /System/Library/Frameworks/CoreAI.*     absent
+    /System/Library/PrivateFrameworks/      absent
+    Xcode 26.6 SDK                          CoreML.framework yes,
+                                            FoundationModels.framework yes,
+                                            CoreAI.framework NO
+
+Apple's own package says why. `coreai-models/Package.swift` declares
+
+```swift
+platforms: [.macOS("27.0"), .iOS("27.0")]
+```
+
+and its README requires **Xcode 27.0+**. This fleet runs macOS 26.5.1 and 26.6
+with Xcode 26.6, so the framework is a major OS version away.
+
+What that means for this repo:
+
+- The conversion side is usable today. `coreai-torch` is a pure-Python wheel, it
+  installs on 3.11+, and everything in this document about placement APIs and the
+  structure-based heuristic was read from source that runs anywhere.
+- The **execution** side is unreachable. No throughput number, no residency
+  measurement, and no check of whether `preferredComputeUnitKind` is honoured can
+  be taken until macOS 27 is on at least one box.
+- So the tension this document sets out, between a structure-only placement policy
+  and a measured chip-dependent optimum, stays a reading of Apple's source rather
+  than a measurement. That is the honest status and it is not fixable by writing
+  more code.
+
+A Swift benchmark runner is still the right shape when the OS arrives:
+`coreai-models/swift/Sources` has 212 files including executable targets under
+`Tools/` to model it on. It is not worth writing before then, because it could not
+be compiled, let alone run.

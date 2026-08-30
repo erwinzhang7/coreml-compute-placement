@@ -1,0 +1,133 @@
+{
+  "model": "whisper-b16.mlpackage",
+  "units": "CPU_AND_GPU",
+  "batch": 16,
+  "seconds": 120.0,
+  "window": 10.0,
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "model": "Mac16,11",
+    "macos": "26.5.1",
+    "coremltools": "9.0"
+  },
+  "power_start": {
+    "source": "AC",
+    "lowpowermode": "not-exposed-by-pmset"
+  },
+  "thermal_readable": true,
+  "summary": {
+    "windows": 11,
+    "best_images_per_s": 145.29,
+    "last_images_per_s": 137.07,
+    "sustained_fraction": 0.9434,
+    "mean_images_per_s": 139.13,
+    "complete_windows": 11,
+    "max_thermal": 0,
+    "interrupted": false
+  },
+  "power_end": {
+    "source": "AC",
+    "lowpowermode": "not-exposed-by-pmset"
+  },
+  "windows": [
+    {
+      "t": 0.0,
+      "seconds": 10.0212,
+      "calls": 91,
+      "images_per_s": 145.29,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 10.022,
+      "seconds": 10.0262,
+      "calls": 91,
+      "images_per_s": 145.22,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 20.048,
+      "seconds": 10.0824,
+      "calls": 91,
+      "images_per_s": 144.41,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 30.131,
+      "seconds": 10.0951,
+      "calls": 88,
+      "images_per_s": 139.47,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 40.226,
+      "seconds": 10.0751,
+      "calls": 86,
+      "images_per_s": 136.57,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 50.302,
+      "seconds": 10.0967,
+      "calls": 86,
+      "images_per_s": 136.28,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 60.399,
+      "seconds": 10.056,
+      "calls": 86,
+      "images_per_s": 136.83,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 70.455,
+      "seconds": 10.087,
+      "calls": 86,
+      "images_per_s": 136.41,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 80.542,
+      "seconds": 10.0943,
+      "calls": 86,
+      "images_per_s": 136.31,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 90.637,
+      "seconds": 10.0755,
+      "calls": 86,
+      "images_per_s": 136.57,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 100.713,
+      "seconds": 10.0384,
+      "calls": 86,
+      "images_per_s": 137.07,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    }
+  ]
+}

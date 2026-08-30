@@ -14,17 +14,20 @@ settings, in both burst and sustained regimes.
 
 Three results. First, **which unit is faster inverts between chips on three of
 five architectures**: a vision transformer, a dense-convolution CNN, and a text
-encoder. The two that do not invert still move by 4.5x and 6.6x. The
+encoder. The two that do not invert still move by 2.4x and 3.6x. The
 choice is therefore not a property of the model, and it does not transfer across
 a chip generation. Second, **the default `ComputeUnit.ALL` is not a safe
 default**: on the M4 Pro it costs between 1.18x and 5.18x against the better
 explicit placement, and on three of five architectures it is slower than *both*
 explicit placements. On the M5 Max it is free at peak, which we report as
 prominently. Third, **peak throughput does not predict sustained throughput**:
-over a two-minute soak the ANE holds its peak exactly on both chips, on four
-separate machines, while the GPU gives back 2 to 4% on an M4 Pro and 5 to 15% on
-an M5 Max. A benchmark of a few seconds, which is the standard form, cannot see
-this. We also report that the sustained *fraction* is confounded by the thermal
+over a two-minute soak the ANE gives back at most 0.14% of its peak in 21 of 22
+soaks on both chips and four separate machines, while the GPU gives back 0.8 to
+6.3% on an M4 Pro and 4.8 to 16.3% on an M5 Max across 41. Those 21 ANE soaks all
+sustain better than the best of the 41 GPU soaks. The twenty-second is a
+`whisper` run that gave back 2.52% after reaching the same peak as two runs that
+did not, which we report and do not explain in §3.4. A benchmark of a few seconds,
+which is the standard form, cannot see any of this. We also report that the sustained *fraction* is confounded by the thermal
 state a run starts in on a throttling chip, which makes the ANE's insensitivity
 to that confound the most robust result in this section.
 
@@ -187,7 +190,7 @@ is faster.
 | `whisper` | 0.388 | 0.109 | same winner, ratio moves 3.6x |
 
 **Three of five architectures flip which unit is faster between an M4 Pro and an
-M5 Max.** The two that do not flip still move by factors of 4.5 and 6.6, so even
+M5 Max.** The two that do not flip still move by factors of 2.4 and 3.6, so even
 where the ranking survives, the margin does not.
 
 This is not a property of vision transformers. A dense-convolution CNN
@@ -198,7 +201,7 @@ image models specifically: `bert` takes integer token input and inverts;
 `mobilenet` is the result that most constrains ANE folklore.
 Depthwise-separable convolution is the workload the Neural Engine is most often
 described as ideal for, and **the GPU is faster on both chips**, by 1.19x on the
-M4 Pro and 5.40x on the M5 Max.
+M4 Pro and 2.89x on the M5 Max.
 
 Underlying medians (img/s):
 
@@ -275,9 +278,9 @@ window to the deadline; both are fixed, and §4 records what the fix moved.
 | GPU | 0.987 | 0.979 | 0.960 | 176.6, 174.9, 171.8 |
 | `ALL` | 0.996 | 0.994 | 0.993 | 172.4, 171.9, 171.5 |
 
-**The ANE holds its peak exactly, on three separate machines.** The GPU gives back
-2% to 4%. The default gives back under 1%, and on this chip it sustains slightly
-*better* than the pure GPU placement rather than worse.
+**The ANE holds its peak to within 0.01%, on three separate machines.** The GPU
+gives back 2% to 4%. The default gives back under 1%, and on this chip it
+sustains slightly *better* than the pure GPU placement rather than worse.
 
 The absolute last-window rates agree to 2.7% across three boxes, which is the
 reproducibility this measurement has when the chip does not throttle.
@@ -357,28 +360,58 @@ measured at 39.2 TFLOPS against the M4 Pro's 6.4 (§3.4), so an engine performin
 several times the work per second draws proportionally more power and approaches a
 ceiling the smaller GPU never reaches.
 
-The ANE result is not specific to `siglip`. **All five architectures**, soaked on
-M4 Pro #2 under identical conditions, 120 s each:
+The ANE result is not specific to `siglip`. **28 soaks across five architectures
+and three physically distinct M4 Pro machines**, corrected tool, 90 s cooldown
+between runs:
 
-| model | ANE | GPU | `ALL` |
-| --- | ---: | ---: | ---: |
-| `siglip` | 1.000 | 0.949 | 1.000 |
-| `resnet50` | 0.999 | 0.964 | 0.994 |
-| `mobilenet` | 1.000 | 0.968 | 1.000 |
-| `bert` | 1.000 | 0.954 | 0.998 |
-| `whisper` | 1.000 | 0.937 | 0.977 |
-| **range** | **0.999 to 1.000** | **0.937 to 0.968** | 0.977 to 1.000 |
+| model | ANE (n) | GPU (n) | GPU peak stability |
+| --- | --- | --- | ---: |
+| `siglip` | 0.9999, 1.0000, 1.0000, 1.0000, 1.0000 (5) | 0.949 to 0.992 (16) | 0.14% |
+| `resnet50` | 0.9992, 0.9998, 0.9998 (3) | 0.964, 0.970, 0.982, 0.986, 0.989 (5) | 0.15% |
+| `mobilenet` | 0.9997, 0.9998, 0.9998 (3) | 0.963, 0.968, 0.979, 0.979, 0.982 (5) | 0.58% |
+| `bert` | 0.9997, 1.0000, 1.0000 (3) | 0.952, 0.954, 0.968, 0.975, 0.982 (5) | 0.07% |
+| `whisper` | **0.9748**, 0.9998, 1.0000, 1.0000, 1.0000 (5) | 0.868 to 0.955 (6) | 0.34% |
+| **all** | **0.9748 to 1.0000 in 19** | **0.868 to 0.992 in 37** | |
 
-**The separation is complete: every ANE figure is at or above 0.999, and every
-GPU figure is at or below 0.968.** The two ranges do not overlap, across five
-architectures spanning vision transformer, dense CNN, depthwise CNN, text encoder
-and audio encoder. Adding the M5 Max, where the ANE holds 1.000 and the GPU
-0.846 to 0.952 depending on starting state, the ANE is at 0.999 to 1.000 in every
-measured (chip, architecture) cell and the GPU has never once matched it.
+**In 18 of 19 M4 Pro soaks the ANE gave back at most 0.14% of its peak, better
+than the best of 37 GPU soaks, which gave back 0.82%.** That holds across a
+vision transformer, a dense CNN, a depthwise CNN, a text encoder and an audio
+encoder.
 
-The GPU loses something in every single case: 3.2% to 6.3% on the M4 Pro, 16.3% on
-the M5 Max. The default's loss ranges from nothing to 28% depending on chip and
-architecture.
+**One run is the exception and we do not explain it.** A `whisper` ANE soak on
+one of the three M4 Pros gave back 2.52%: flat at 56.3 img/s for seven windows,
+then a monotone fall to 54.9 that plateaued. It is not a contended peak, which is
+the usual cause of a low reading here and the one that cost us the M5 Max figures
+in §3.3. Contention lowers the peak, and this run reached 56.34 img/s against
+56.34 and 56.35 for the two runs on other machines that did *not* decline. So the
+engine reached full rate and then lost it. The soak tool does not record what else
+was running, so the file cannot settle whether something started mid-run.
+
+We report it rather than dropping it. With that run included the ANE and GPU
+ranges overlap at a single point; with it excluded they are disjoint. A reader
+should treat "the ANE does not degrade" as holding in 18 of 19 measurements, not
+as a law.
+
+We report the ANE column to four decimals deliberately. At three, every one of
+these sixteen prints as `1.000`, and an earlier draft of this table read
+"1.000 in 10 of 10" and claimed the ANE "returned exactly 1.000". That was a
+rounding artefact: only 7 of 16 are exactly 1.0000. The distinction matters
+because "exactly" invites a mechanism that does not exist, a hard clamp at peak,
+where what the data supports is the weaker and sufficient claim that ANE
+throughput does not measurably decay over two minutes.
+
+The GPU peaks are stable to between 0.07% and 0.58% across repeats and across
+boxes, so none of the M4 Pro variation is the thermal-state confound of §3.3;
+these are genuine run-to-run differences of 0.02 to 0.05 in the fraction.
+
+`whisper` declines most (0.938 to 0.955) and is the most arithmetic-dense model in
+the set, which is the direction the power explanation in §3.4 predicts, though
+with five models this is a consistent observation rather than a demonstrated
+relationship.
+
+The default sits with the GPU rather than below it. On this chip it sustains at
+least as well as the pure GPU placement on four of five architectures, which is
+the opposite of what an earlier version of this paper claimed (§4).
 
 This has a practical consequence the burst tables alone cannot support: **for a
 continuously loaded service the ANE's advertised rate is the rate you get, and no
@@ -733,6 +766,15 @@ control: it becomes `SpecializationOptions(preferredComputeUnitKind:)`, taking a
 *preferred* unit (`.cpu`, `.gpu`, `.neuralEngine`) rather than an allow-list, and
 moves to Swift. The Python conversion package has no placement surface at all.
 As with `ALL`, it is a preference, and nothing reports what was honoured.
+
+**None of it can be measured on this hardware.** `canImport(CoreAI)` is false
+under Swift 6.3.3, and the framework is absent from `/System/Library/Frameworks`,
+from PrivateFrameworks, and from the Xcode 26.6 SDK, which does carry
+`CoreML.framework` and `FoundationModels.framework`. Apple's own package declares
+`platforms: [.macOS("27.0")]` and requires Xcode 27.0+. This fleet is on macOS
+26.5.1 and 26.6. So every Core AI statement in this paper is a reading of Apple's
+published source, and no throughput, residency or honoured-placement number for it
+exists here or can be taken until the OS ships.
 
 Apple's published reference recipes (`apple/coreai-models`,
 `swift/Sources/CoreAIShared/Runtime/ModelStructure.swift`) select the preferred

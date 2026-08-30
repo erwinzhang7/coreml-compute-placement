@@ -25,9 +25,13 @@ Two things below were wrong for a while and are now corrected in place.
 | `CPU_AND_GPU` | 0.987 | 0.979 | 0.960 | 176.6, 174.9, 171.8 |
 | `ALL` (default) | 0.996 | 0.994 | 0.993 | 172.4, 171.9, 171.5 |
 
-**The ANE holds its peak exactly on all three.** The GPU gives back 2 to 4%. The
-default gives back under 1%, so on this chip it sustains slightly *better* than
-the pure GPU placement.
+**The ANE holds its peak to within 0.01% on all three.** The GPU gives back 2 to
+4%. The default gives back under 1%, so on this chip it sustains slightly
+*better* than the pure GPU placement.
+
+The three ANE cells print as `1.000` at the precision of this table. They are not
+exactly 1: at four decimals they are 1.0000, 1.0000 and 0.9999. An earlier draft
+read "holds its peak exactly", which is a rounding artefact rather than a result.
 
 Absolute last-window rates agree to 2.7% across three separate machines. That is
 what this measurement's reproducibility looks like on a chip that does not
@@ -70,10 +74,23 @@ difference itself.
 
 ### What survives
 
-The ANE. It measured 1.000 on four machines across two chips in every run
-regardless of starting state, which is what an engine that does not degrade should
-look like, and it is exactly the insensitivity that makes it immune to the
-confound above.
+The ANE, in 21 of 22 soaks. Across four machines and two chips those 21 measured
+0.9986 to 1.0000, giving back at most 0.14% of peak regardless of starting state,
+which is what an engine that does not degrade should look like, and it is that
+insensitivity that makes it immune to the confound above. All 21 sustain better
+than the best of 41 GPU soaks (0.9918).
+
+**The twenty-second is a `whisper` ANE soak on inference2 at 0.9748**, and it is
+not dismissed. It ran flat at 56.3 img/s for seven windows, then fell monotonically
+to 54.9 and plateaued. It is not the contended-peak artefact that cost us the M5
+Max numbers: contention lowers the peak, and this run reached 56.34 against 56.34
+and 56.35 for the two whisper ANE runs on other boxes that held their rate. The
+engine reached full speed and then lost 2.5% of it.
+
+We cannot say why, because **`thermal_soak.py` records the machine and the thermal
+level but not what else was running**. That is the same blind spot that made the
+M5 Max figures unexplainable until they were re-run on an idle box, and it is now
+the most valuable thing to fix in the tool.
 
 And the absolute rates, which are not close: M4 Pro GPU sustains 172 to 177 img/s,
 M5 Max 762 to 888.

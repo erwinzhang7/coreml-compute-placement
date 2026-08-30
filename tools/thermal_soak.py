@@ -70,10 +70,12 @@ import argparse
 import ctypes
 import ctypes.util
 import json
+import os
 import platform
 import signal
 import subprocess
 import sys
+import threading
 import time
 import warnings
 
@@ -140,6 +142,112 @@ def power_state():
     return out
 
 
+class LoadSampler(threading.Thread):
+    """Record what else was running, because a decline needs a suspect list.
+
+    The docstring at the top of this file names three causes a throughput fall
+    could have: heat, another process competing, or the display waking. The tool
+    recorded evidence for the first and third and NOT the second, which is the
+    one that has actually bitten this repo twice. The M5 Max ANE figures were
+    taken on a contended box, came out 2x low, and became a published claim about
+    silicon before they were re-run idle and retracted.
+
+    It bit again on a `whisper` ANE soak that gave back 2.52% while every other
+    ANE soak held to 0.14%. That run reached the SAME peak as two runs that did
+    not decline, so it is not a contended peak, and the question of whether
+    something started at t=70s cannot be answered from the file. It still cannot,
+    for that run. It can be for every run after this.
+
+    OFF THE MEASUREMENT THREAD, ON PURPOSE. Sampling inside the window loop is
+    exactly the defect an audit already found here: calling pmset between windows
+    put a measured 12.5 ms hole in what the tool calls a continuous soak. `ps`
+    costs more than pmset, so this samples from its own thread and the predict
+    loop never waits on it. The thread's own cost is real but constant across
+    runs and off the critical path, which is the trade being made.
+
+    What it keeps is deliberately small: the peak total non-self CPU seen, and
+    the busiest few processes at that moment. Not a full time series, because the
+    point is to answer "was this box quiet" and not to profile the machine.
+
+    IT IS NOT FREE, AND THE COST IS MEASURED RATHER THAN ASSUMED. Three runs each
+    way, alternating, mobilenet on the ANE:
+
+        sampler on   3633.3  3636.5  3637.8   mean 3635.8
+        sampler off  3641.4  3643.2  3643.0   mean 3642.5
+
+    0.18% slower with it on, and the two groups do not overlap, so that is a real
+    cost and not run-to-run noise. It would be dishonest to call it negligible
+    when the headline ANE result is a 0.14% give-back.
+
+    It does not touch that result, because `sustained_fraction` is last/best
+    WITHIN one run and a constant offset cancels. The same six runs give 1.0000,
+    1.0000, 0.9993 without and 1.0000, 1.0000, 0.9996 with. What does shift is the
+    ABSOLUTE rate, which the soak README tells readers to compare across runs, so
+    compare absolute rates only between runs with the same --load-every.
+    """
+
+    def __init__(self, every=2.0, threshold=5.0):
+        super().__init__(daemon=True)
+        self.every, self.threshold = every, threshold
+        self.stop = threading.Event()
+        self.me = os.getpid()
+        self.peak_cpu = 0.0
+        self.peak_at = None
+        self.peak_procs = []
+        self.samples = 0
+        self.failed = None
+        self.t0 = time.perf_counter()
+
+    def run(self):
+        while not self.stop.wait(self.every):
+            try:
+                out = subprocess.run(["ps", "-Ao", "pid=,pcpu=,comm="],
+                                     capture_output=True, text=True, timeout=10).stdout
+            except Exception as exc:                      # noqa: BLE001
+                self.failed = str(exc)
+                return
+            busy, total = [], 0.0
+            for line in out.splitlines():
+                parts = line.split(None, 2)
+                if len(parts) < 3:
+                    continue
+                try:
+                    pid, cpu = int(parts[0]), float(parts[1])
+                except ValueError:
+                    continue
+                # Exclude this process and its sampler. Counting ourselves would
+                # report every soak as heavily contended, which is the same
+                # self-matching error as `pgrep -f` finding its own command line.
+                if pid == self.me:
+                    continue
+                total += cpu
+                if cpu >= self.threshold:
+                    busy.append({"cpu": round(cpu, 1), "comm": parts[2].strip()[:60]})
+            self.samples += 1
+            if total > self.peak_cpu:
+                self.peak_cpu = total
+                self.peak_at = round(time.perf_counter() - self.t0, 1)
+                self.peak_procs = sorted(busy, key=lambda d: -d["cpu"])[:5]
+
+    def report(self):
+        if self.failed:
+            return {"readable": False, "why": self.failed}
+        if not self.samples:
+            return {"readable": False, "why": "no samples taken"}
+        return {
+            "readable": True,
+            "samples": self.samples,
+            "peak_other_cpu_pct": round(self.peak_cpu, 1),
+            "peak_at_s": self.peak_at,
+            "busiest_at_peak": self.peak_procs,
+            # A soak on a box that was never above this is a soak with no
+            # competition worth blaming. Read only in that direction: a quiet
+            # sample set does not prove the GPU was uncontended, since GPU work
+            # from another process need not show as CPU.
+            "quiet": self.peak_cpu < 25.0,
+        }
+
+
 def machine():
     def s(*cmd):
         return subprocess.run(cmd, capture_output=True, text=True).stdout.strip()
@@ -164,6 +272,10 @@ def main():
                     help="calls before the clock starts, to force compilation "
                          "and first-touch allocation out of window 1")
     ap.add_argument("--out", default="")
+    ap.add_argument("--load-every", type=float, default=2.0,
+                    help="seconds between concurrent-load samples, 0 to disable. "
+                         "Sampled from a separate thread so the predict loop "
+                         "never waits on it")
     args = ap.parse_args()
 
     model = ct.models.MLModel(args.model, compute_units=ct.ComputeUnit[args.units])
@@ -177,6 +289,10 @@ def main():
     if not therm.ok:
         print("WARNING: thermal pressure unreadable; a decline cannot be "
               "attributed to heat on this run", file=sys.stderr)
+
+    load = LoadSampler(every=args.load_every)
+    if args.load_every > 0:
+        load.start()
 
     for _ in range(args.warmup):
         model.predict(x)
@@ -210,6 +326,7 @@ def main():
         # not move any published figure, but a soak with holes in it is not a soak.
         if sample_power:
             header["power_end"] = power_state()
+            header["concurrent_load"] = load.report()
         if not args.out:
             return
         with open(args.out, "w") as fh:
@@ -291,6 +408,7 @@ def main():
                             if w["thermal"] is not None), default=None),
         "interrupted": stop["now"],
     }
+    load.stop.set()
     flush(sample_power=True)
 
     s = header["summary"]
@@ -298,6 +416,22 @@ def main():
     print(f"best {best:.1f} img/s, last {last:.1f} img/s, "
           f"sustained {s['sustained_fraction']:.3f} of peak "
           f"over {len(complete)} complete windows")
+    # Print it, do not just file it. The whole reason this field exists is that a
+    # contended soak looked exactly like a clean one at the terminal, went into a
+    # paper, and had to be retracted.
+    cl = header.get("concurrent_load") or {}
+    if cl.get("readable"):
+        if cl["quiet"]:
+            print(f"box was quiet: peak other-process CPU {cl['peak_other_cpu_pct']}% "
+                  f"over {cl['samples']} samples")
+        else:
+            busy = ", ".join(f"{p['comm']} {p['cpu']}%" for p in cl["busiest_at_peak"])
+            print(f"WARNING: other work on this box. Peak other-process CPU "
+                  f"{cl['peak_other_cpu_pct']}% at t={cl['peak_at_s']}s ({busy}). "
+                  f"A decline in this run may not be the compute unit.")
+    else:
+        print(f"concurrent load NOT recorded ({cl.get('why', 'unknown')}); a "
+              f"decline in this run cannot be cleared of contention")
     # Warn when the run cannot have started cold. Without a reference this is a
     # heuristic, but a peak far below the best seen on this machine is the signal
     # that the box had not recovered from a previous soak.

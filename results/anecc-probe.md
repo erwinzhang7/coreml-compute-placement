@@ -1,4 +1,4 @@
-# ANECCompile() failure under ComputeUnit.ALL — investigation log
+# ANECCompile() failure under ComputeUnit.ALL: investigation log
 
 Chased 2026-08-07 on `mini-experiments` (Mac16,11, M4 Pro, 20 GPU / 16 NPU, macOS 26.5.1,
 coremltools 9.0). Recorded including the wrong turns, because two of them are traps that
@@ -78,6 +78,6 @@ scratch tree) to find the threshold. A report is much more useful with a small a
 
 This is Core ML framework behaviour, not a conversion bug: the same `.mlpackage` compiles
 cleanly under two of three compute-unit settings. Per the coremltools maintainer's guidance
-on [#2758](https://github.com/apple/coremltools/issues/2758) — "If it works for one compute
+on [#2758](https://github.com/apple/coremltools/issues/2758), "If it works for one compute
 type, but not for another compute, that is an issue with the Core ML Framework, not the
-conversion" — Feedback Assistant is the right destination, not the coremltools repo.
+conversion", Feedback Assistant is the right destination, not the coremltools repo.
