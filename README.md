@@ -48,7 +48,7 @@ one above, with method, mechanism, threats to validity and citations. In short:
 - **§3.2** The default costs 1.18x to 5.18x on the M4 Pro, and on three of five is slower
   than *both* explicit placements. On the M5 Max it is free.
 - **§3.3** Peak does not predict sustained. Over two minutes the ANE gives back at most 0.14%
-  in 21 of 22 soaks; the GPU gives back 0.8 to 16.3% in 41.
+  in 44 of 45 soaks; the GPU gives back 0.8 to 16.3% in 62.
 - **§3.4** Mechanism: the M5's per-GPU-core neural accelerators, with a falsifiable prediction.
 - **§4** Threats to validity. Read these before citing any number.
 
@@ -176,7 +176,7 @@ better than a confirmation. On the M4 Pro under `ALL`:
 
 | units | ops | placement **by cost** | placement **by count** |
 | --- | ---: | --- | --- |
-| `ALL` | 1658 | **{} — nothing returned** | 98.5% ANE, 1.5% unknown |
+| `ALL` | 1658 | **{}, nothing returned** | 98.5% ANE, 1.5% unknown |
 | `CPU_AND_NE` | 1658 | 100% ANE | 100% ANE |
 | `CPU_AND_GPU` | 1658 | 100% GPU | 100% GPU |
 
@@ -187,7 +187,7 @@ to provide, so this is the case where the tool has least to say.
 
 It is the same cell that fails to compile. `results/anecc-probe.md` establishes by
 exhaustive sweep that `ANECCompile() FAILED` needs all four of **ANE-rewritten model,
-`ALL`, cold compile, M4 Pro** — and the sweep above reproduced that error five times
+`ALL`, cold compile, M4 Pro**, and the sweep above reproduced that error five times
 while measuring throughput. So Core ML's introspection goes silent in precisely the
 corner where its compilation breaks. We report the co-occurrence; four conditions
 matching exactly is not proof of causation.

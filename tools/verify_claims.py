@@ -40,6 +40,12 @@ import sys
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 PAPER = REPO / "PAPER.md"
+# The README summarises the paper's headline numbers, so it can go stale on its
+# own. It did: it still read "21 of 22 soaks ... in 41" long after the paper said
+# 44 of 45 and 62, because this script only ever read PAPER.md. A checker that
+# guards one copy of a claim and not the other is the "claims live in many
+# places" failure with a tool attached.
+README = REPO / "README.md"
 
 # Pinned sources. M4 Pro's four added models come from the dtype-corrected zoo
 # run; siglip predates the zoo and comes from its own sweep. M5 Max is one file.
@@ -93,10 +99,14 @@ def main():
         print("INJECTED: M5 Max mobilenet ANE halved, as the retracted runs had it\n")
 
     text = PAPER.read_text()
+    readme = README.read_text() if README.exists() else ""
     fails, checks = [], []
 
     def require(label, s):
         checks.append((label, s, s in text))
+
+    def require_readme(label, s):
+        checks.append((label, s, s in readme))
 
     # The medians table itself. Everything below is derived from these.
     for m in ARCHITECTURES:
@@ -205,6 +215,10 @@ def main():
                 % ((1 - min(above)) * 100 if above else 0, len(above), len(ane)))
         require("ANE beats every GPU soak, abstract",
                 "sustain better than the best of the %d GPU soaks" % len(gpu))
+        # Same numbers, the README's one-line summary of 3.3.
+        require_readme("README 3.3 summary",
+                       "in %d of %d soaks; the GPU gives back 0.8 to 16.3%% in %d"
+                       % (len(above), len(ane), len(gpu)))
         if len(ane) - len(above) > 1:
             fails.append("more than one ANE soak now falls below the best GPU soak "
                          "(%d of %d). The paper names exactly one exception; "
@@ -214,7 +228,8 @@ def main():
     for label, s, ok in checks:
         print("%-38s %s  %r" % (label, "ok  " if ok else "FAIL", s))
         if not ok:
-            fails.append("%s: PAPER.md does not contain %r" % (label, s))
+            where = "README.md" if label.startswith("README") else "PAPER.md"
+            fails.append("%s: %s does not contain %r" % (label, where, s))
 
     if extra:
         print("\nnote: %d soak file(s) on disk are not in PAPER-SET.txt. That is not a\n"
