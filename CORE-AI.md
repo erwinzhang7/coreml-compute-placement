@@ -6,7 +6,7 @@ pipeline rather than just the runtime.
 | piece | what it is |
 | --- | --- |
 | Core AI framework | Swift runtime API, OS-provided |
-| [`apple/coreai-torch`](https://github.com/apple/coreai-torch) | PyTorch → Core AI IR, `pip install coreai-torch` |
+| [`apple/coreai-torch`](https://github.com/apple/coreai-torch) | PyTorch to Core AI IR, `pip install coreai-torch` |
 | [`apple/coreai-optimization`](https://github.com/apple/coreai-optimization) | quantization and palettization |
 | [`apple/coreai-models`](https://github.com/apple/coreai-models) | 26 export recipes, Python primitives, Swift runtime utilities |
 | Core AI Debugger | Xcode integration, graph inspection, traces back to Python source |
@@ -17,7 +17,7 @@ Everything below was checked against the repositories themselves, at
 ## Placement did not go away. It was renamed and narrowed.
 
 `coreai-torch` contains **no** reference to compute units, the Neural Engine, or
-device placement anywhere in its 40 submodules — its exports are `TorchConverter`,
+device placement anywhere in its 40 submodules. Its exports are `TorchConverter`,
 `TorchMetalKernel`, `composite_ops`, `externalize`, `debugging`. There is no
 `coreai` runtime package on PyPI either. The Python surface is conversion only.
 
@@ -36,7 +36,7 @@ SpecializationOptions(preferredComputeUnitKind: .neuralEngine)  // or .gpu, .cpu
 | values | `.all`, `.cpuOnly`, `.cpuAndNE`, `.cpuAndGPU` | `.cpu`, `.gpu`, `.neuralEngine` |
 
 Note *preferred*. It is a request, and nothing in the API reports what was
-actually honoured — the same gap that made [finding 3](README.md#3-the-default-computeunitall-is-unpredictable-and-sometimes-worst)
+actually honoured. That is the same gap that made [finding 3](README.md#3-the-default-computeunitall-is-unpredictable-and-sometimes-worst)
 necessary for `ComputeUnit.ALL`.
 
 ## Apple's own placement policy has no chip term
@@ -56,7 +56,7 @@ takes `.gpu`, the speech recognizer takes `.cpu`.
 There is no chip anywhere in that decision.
 
 **This repo's central measured result is that the optimal unit inverts between
-chips for the same model** — ANE/GPU is 1.14x on an M4 Pro and 0.21x on an M5
+chips for the same model**. ANE/GPU is 1.14x on an M4 Pro and 0.21x on an M5
 Max. If a structure-only policy is right, that inversion should not matter. If
 this repo's measurement is right, then on an M5 Max a `chunkedStatic` model is
 routed to `.neuralEngine`: the unit measured here losing 4.7x to the GPU on that
@@ -92,5 +92,5 @@ the pipeline; `coreai-models/swift/Sources` has 212 files to model it on,
 including executable targets under `Tools/`.
 
 Until that exists, everything in this file is a reading of Apple's source, not a
-measurement — which is the opposite of how the rest of this repo is sourced, and
+measurement, which is the opposite of how the rest of this repo is sourced, and
 is the reason it lives in its own document instead of in the findings.

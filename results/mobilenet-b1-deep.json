@@ -1,0 +1,98 @@
+[
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "/tmp/b1/mobilenet-b1.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 1,
+    "iters": 500,
+    "repeats": 7,
+    "runs": [
+      3389.5767623217353,
+      3377.08723704395,
+      3394.1489476353154,
+      3452.9691381952985,
+      3403.9472652162813,
+      3347.203765051995,
+      3366.0664689596847
+    ],
+    "median": 3389.5767623217353,
+    "min": 3347.203765051995,
+    "max": 3452.9691381952985,
+    "stdev": 33.53595038958162
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "/tmp/b1/mobilenet-b1.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 1,
+    "iters": 500,
+    "repeats": 7,
+    "runs": [
+      1536.8584769749634,
+      1493.9465286600923,
+      1514.4298661471144,
+      1502.9881284985577,
+      1504.3624600108035,
+      1491.2691781549786,
+      1497.4578754091021
+    ],
+    "median": 1502.9881284985577,
+    "min": 1491.2691781549786,
+    "max": 1536.8584769749634,
+    "stdev": 15.653779139707074
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "/tmp/b1/mobilenet-b1.mlpackage",
+    "units": "ALL",
+    "batch": 1,
+    "iters": 500,
+    "repeats": 7,
+    "runs": [
+      3383.2570593686833,
+      3352.2203020717693,
+      3360.6968671395334,
+      3403.4433117674203,
+      3411.1094712157983,
+      3399.6452978596935,
+      3398.8547563886964
+    ],
+    "median": 3398.8547563886964,
+    "min": 3352.2203020717693,
+    "max": 3411.1094712157983,
+    "stdev": 22.611104707093602
+  }
+]

@@ -1,0 +1,1506 @@
+{
+  "model": "bert-b16.mlpackage",
+  "compute_units": "CPU_AND_NE",
+  "summary": {
+    "ane_offered": true,
+    "ops": 148,
+    "total_cost": 1.0000000000000007,
+    "by_count": {
+      "CPU": 7,
+      "ANE": 141
+    },
+    "by_count_fraction": {
+      "CPU": 0.0472972972972973,
+      "ANE": 0.9527027027027027
+    },
+    "by_cost_fraction": {
+      "CPU": 0.047537977250598405,
+      "ANE": 0.9524620227494011
+    },
+    "ane_fraction_by_cost": 0.9524620227494011,
+    "ane_fraction_by_count": 0.9527027027027027,
+    "ane_capable_but_not_placed": {},
+    "not_ane_capable": {
+      "ios18.cast": 3,
+      "ios18.greater_equal": 1,
+      "ios18.add": 1,
+      "select": 1,
+      "ios18.gather": 1
+    }
+  },
+  "operations": [
+    {
+      "function": "main",
+      "operator": "ios18.cast",
+      "preferred": "CPU",
+      "supported": [
+        "CPU"
+      ],
+      "cost": 4.707188957933732e-06
+    },
+    {
+      "function": "main",
+      "operator": "ios18.cast",
+      "preferred": "CPU",
+      "supported": [
+        "CPU"
+      ],
+      "cost": 4.707188957933732e-06
+    },
+    {
+      "function": "main",
+      "operator": "ios18.greater_equal",
+      "preferred": "CPU",
+      "supported": [
+        "CPU"
+      ],
+      "cost": 3.92418975301702e-06
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "CPU",
+      "supported": [
+        "CPU"
+      ],
+      "cost": 4.679371325938544e-06
+    },
+    {
+      "function": "main",
+      "operator": "select",
+      "preferred": "CPU",
+      "supported": [
+        "CPU"
+      ],
+      "cost": 1.0198909408856417e-05
+    },
+    {
+      "function": "main",
+      "operator": "ios18.cast",
+      "preferred": "CPU",
+      "supported": [
+        "CPU"
+      ],
+      "cost": 4.707188957933732e-06
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gather",
+      "preferred": "CPU",
+      "supported": [
+        "CPU"
+      ],
+      "cost": 0.04750505321323683
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0029347324875283447
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.003666057371195446
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004016802340740935
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084043626371418
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004253554905452492
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.008033602127668531
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0680567933007208
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.003666057371195446
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004016802340740935
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084043626371418
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004253554905452492
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.008033602127668531
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0680567933007208
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.003666057371195446
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004016802340740935
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084043626371418
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004253554905452492
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.008033602127668531
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0680567933007208
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.003666057371195446
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004016802340740935
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084043626371418
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004253554905452492
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.008033602127668531
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0680567933007208
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.003666057371195446
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004016802340740935
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084043626371418
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004253554905452492
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.008033602127668531
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0680567933007208
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.002008405639543811
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.003666057371195446
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004016802340740935
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0040168010638342655
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0053944244630653795
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084043626371418
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0042535508489515836
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.004253554905452492
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.008033602127668531
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0680567933007208
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.005524202329465119
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0020084005319171328
+    },
+    {
+      "function": "main",
+      "operator": "ios16.reduce_mean",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU"
+      ],
+      "cost": 0.0010120471766697046
+    }
+  ]
+}

@@ -94,6 +94,12 @@ def render(soaks):
                         f"-- discard it")
         elif start == "battery":
             warn.append(f"`{u}` ran on BATTERY, which throttles independently of heat")
+    # A table built from one unit still renders a winner and a plausible layout.
+    # Say what is missing, in the pasted output, where a reader will see it.
+    missing = [u for u in UNIT_LABEL if u not in {d["units"] for d in soaks}]
+    if missing:
+        warn.append("INCOMPLETE: no soak for " + ", ".join(f"`{m}`" for m in missing)
+                    + ". This table cannot be compared with a full one.")
     maxt = max((d["summary"].get("max_thermal") or 0) for d in soaks)
     if maxt:
         warn.append(f"thermal pressure reached {THERMAL.get(maxt, maxt)} -- the "

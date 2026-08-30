@@ -52,7 +52,16 @@ stock one will do.
 
 PARTIAL RESULTS SURVIVE A KILL. A soak is minutes long and the interesting ones
 are the longest. Windows are appended to the output file as they complete, so
-Ctrl-C costs the current window rather than the run.
+Ctrl-C costs the current window rather than the run. A window cut short by a
+signal is marked `complete: false` and excluded from the headline, because an
+earlier version appended it and let an arbitrarily short window become `last`.
+
+ONLY FULL WINDOWS ARE SCHEDULED, and power is sampled only at the start and end
+of a run. Both were audit findings. Clamping a final window to the deadline made
+it shorter than the ones it is compared against, and calling pmset between every
+window inserted a 12.5 ms unmeasured gap into what this tool calls a continuous
+soak. Measured impact of both together on the M5 Max GPU figure: 0.837 to 0.847,
+which is inside this measurement's own between-machine floor of 0.019.
 
     python tools/thermal_soak.py MODEL --units ANE --seconds 300
     python tools/thermal_soak.py MODEL --units CPU_AND_GPU --seconds 600 --window 5
@@ -187,14 +196,20 @@ def main():
     signal.signal(signal.SIGINT, onsig)
     signal.signal(signal.SIGTERM, onsig)
 
-    def flush():
+    def flush(sample_power=False):
         # power_end goes INTO header, not into a copy of it. Writing it only to
         # the serialised dict left header["power_end"] permanently absent, so the
         # "power source changed" guard compared "battery" against None and fired
-        # on every single run -- a warning that always fires is noise, and it is
-        # exactly the kind of always-on check that gets ignored the one time it
-        # matters.
-        header["power_end"] = power_state()
+        # on every single run.
+        #
+        # sample_power is OFF for the per-window flush. power_state() shells out
+        # to pmset twice, 12.5 ms measured, and doing that between every window
+        # inserted an unmeasured idle gap into what this tool calls a continuous
+        # soak, as well as eating into the deadline so the final window came up
+        # short. An audit caught it. The gap was ~0.125% of a 10 s window and did
+        # not move any published figure, but a soak with holes in it is not a soak.
+        if sample_power:
+            header["power_end"] = power_state()
         if not args.out:
             return
         with open(args.out, "w") as fh:
@@ -206,9 +221,14 @@ def main():
 
     t_start = time.perf_counter()
     deadline = t_start + args.seconds
-    while not stop["now"] and time.perf_counter() < deadline:
+    # Only schedule windows that can run to full length. A deadline-clamped final
+    # window is shorter than the ones it is compared against, amortises the same
+    # fixed per-window cost over fewer calls, and averages any drift over a
+    # shorter horizon -- so it is not comparable to a full window even though its
+    # rate is computed over its true elapsed time.
+    while not stop["now"] and time.perf_counter() + args.window <= deadline:
         w_start = time.perf_counter()
-        w_end = min(w_start + args.window, deadline)
+        w_end = w_start + args.window
         calls = 0
         # Thermal is sampled at both ends of the window: a level that changes
         # mid-window would otherwise be attributed to whichever end was polled.
@@ -227,6 +247,10 @@ def main():
             "thermal": lvl,
             "thermal_name": THERMAL_LEVELS.get(lvl, "unreadable"),
         }
+        # A window cut short by a signal is incomplete and must not become
+        # `last`. The tool claimed a kill cost the current window; it did not,
+        # it silently published it.
+        row["complete"] = not stop["now"]
         windows.append(row)
         flush()
         print(f"{row['t']:>6.0f}  {row['images_per_s']:>9.1f}  {calls:>6}  "
@@ -235,8 +259,20 @@ def main():
     if not windows:
         sys.exit("no complete windows; raise --seconds or lower --window")
 
-    rates = [w["images_per_s"] for w in windows]
+    complete = [w for w in windows if w.get("complete", True)]
+    if len(complete) < 2:
+        sys.exit(f"only {len(complete)} complete windows; raise --seconds or "
+                 f"lower --window")
+    rates = [w["images_per_s"] for w in complete]
     best, last = max(rates), rates[-1]
+    # The starting thermal state is part of the result on a chip that throttles.
+    # Six back-to-back soaks on an M5 Max gave GPU sustained 0.846, 0.847 and
+    # 0.952, and the ordering is monotone in the PEAK: a box that starts cool
+    # reaches a high peak and gives a lot back, a box already warm starts low and
+    # gives little back, and SCORES BETTER on a statistic meant to mean "holds its
+    # rate". So the fraction is a property of the unit AND the state it started
+    # in. Record the peak so a reader can see which they are looking at, and
+    # compare absolute last-window rates across runs rather than fractions.
     header["summary"] = {
         "windows": len(windows),
         "best_images_per_s": best,
@@ -244,18 +280,33 @@ def main():
         # The number to quote. 1.00 means the unit held its peak for the whole
         # soak; anything lower is throughput the burst benchmarks do not see.
         "sustained_fraction": round(last / best, 4) if best else None,
-        "mean_images_per_s": round(sum(rates) / len(rates), 2),
-        "max_thermal": max((w["thermal"] for w in windows
+        # Duration-weighted, not a mean of per-window rates: the windows are
+        # equal length by construction now, but a mean of rates is the wrong
+        # aggregate the moment they are not.
+        "mean_images_per_s": round(
+            sum(w["calls"] * batch for w in complete)
+            / sum(w["seconds"] for w in complete), 2),
+        "complete_windows": len(complete),
+        "max_thermal": max((w["thermal"] for w in complete
                             if w["thermal"] is not None), default=None),
         "interrupted": stop["now"],
     }
-    flush()
+    flush(sample_power=True)
 
     s = header["summary"]
     print()
     print(f"best {best:.1f} img/s, last {last:.1f} img/s, "
           f"sustained {s['sustained_fraction']:.3f} of peak "
-          f"over {len(windows)} windows")
+          f"over {len(complete)} complete windows")
+    # Warn when the run cannot have started cold. Without a reference this is a
+    # heuristic, but a peak far below the best seen on this machine is the signal
+    # that the box had not recovered from a previous soak.
+    print()
+    print("Peak this run: %.1f img/s. sustained_fraction is only comparable "
+          "between runs that STARTED in the same thermal state; a warm start "
+          "lowers the peak and RAISES the fraction. Compare last-window rates "
+          "(%.1f img/s here) across runs, not fractions."
+          % (best, last))
     if s["max_thermal"] in (0, None):
         print("thermal pressure stayed nominal. That does NOT rule heat out: "
               "pressure is macOS's signal that it is about to shed user work, "

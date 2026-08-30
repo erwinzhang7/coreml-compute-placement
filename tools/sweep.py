@@ -79,9 +79,36 @@ def bench_once(py, model, units, batch, iters, warmup):
     import coremltools as ct
     m = ct.models.MLModel(model, compute_units=ct.ComputeUnit[units])
     spec = m.get_spec()
-    name = spec.description.input[0].name
-    shape = tuple(spec.description.input[0].type.multiArrayType.shape)
-    x = {name: np.random.rand(*shape).astype(np.float32)}
+    inp = spec.description.input[0]
+    name = inp.name
+    shape = tuple(inp.type.multiArrayType.shape)
+
+    # Feed the dtype the model actually declares. Feeding float32 to everything
+    # was wrong in two ways an audit caught: siglip declares FLOAT16, so every
+    # call paid an fp32->fp16 conversion charged to the model; and bert declares
+    # INT32, so np.random.rand() in [0,1) cast to int made every token id zero.
+    # Neither changes tensor shapes, so no throughput comparison BETWEEN compute
+    # units or BETWEEN chips is affected, but cross-model absolute rates were.
+    from coremltools.proto import FeatureTypes_pb2 as _ft
+    _dt = {v: k for k, v in _ft.ArrayFeatureType.ArrayDataType.items()}[
+        inp.type.multiArrayType.dataType]
+    if _dt == "INT32":
+        arr = np.random.randint(1, 1000, size=shape, dtype=np.int32)
+    elif _dt == "FLOAT16":
+        arr = np.random.rand(*shape).astype(np.float16)
+    elif _dt == "DOUBLE":
+        arr = np.random.rand(*shape).astype(np.float64)
+    else:
+        arr = np.random.rand(*shape).astype(np.float32)
+    x = {name: arr}
+
+    # The reported rate is batch * iters / dt, and batch came from the command
+    # line without ever being compared to the model. A wrong value would scale
+    # every figure by declared/actual and look entirely plausible.
+    if shape and int(shape[0]) != int(batch):
+        raise SystemExit(
+            f"{model}: --batch {batch} does not match the model's input batch "
+            f"{shape[0]}. Every img/s would be wrong by {batch}/{shape[0]}x.")
     for _ in range(warmup):
         m.predict(x)
     t0 = time.perf_counter()

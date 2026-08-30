@@ -1,0 +1,338 @@
+[
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "resnet50-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      1089.5967769640476,
+      1098.7188933047296,
+      1087.9439785642849
+    ],
+    "median": 1089.5967769640476,
+    "min": 1087.9439785642849,
+    "max": 1098.7188933047296,
+    "stdev": 5.8029236416805166
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "resnet50-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      3242.762568406614,
+      3240.774353322858,
+      3235.233049159078
+    ],
+    "median": 3240.774353322858,
+    "min": 3235.233049159078,
+    "max": 3242.762568406614,
+    "stdev": 3.901980504688551
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "resnet50-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      3203.1310609612374,
+      3211.482397669376,
+      3270.2587947235716
+    ],
+    "median": 3211.482397669376,
+    "min": 3203.1310609612374,
+    "max": 3270.2587947235716,
+    "stdev": 36.58447374582093
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "mobilenet-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      3568.4349494832245,
+      3590.0381943242473,
+      3587.8595658573854
+    ],
+    "median": 3587.8595658573854,
+    "min": 3568.4349494832245,
+    "max": 3590.0381943242473,
+    "stdev": 11.893712140882966
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "mobilenet-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      10101.833747569981,
+      10148.836468981423,
+      10274.330063445332
+    ],
+    "median": 10148.836468981423,
+    "min": 10101.833747569981,
+    "max": 10274.330063445332,
+    "stdev": 89.17480685160139
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "mobilenet-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      10287.776462341106,
+      10383.331506780307,
+      10563.031340085518
+    ],
+    "median": 10383.331506780307,
+    "min": 10287.776462341106,
+    "max": 10563.031340085518,
+    "stdev": 139.7545731689362
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "bert-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      823.0318615740148,
+      826.6932363950178,
+      823.6558256514909
+    ],
+    "median": 823.6558256514909,
+    "min": 823.0318615740148,
+    "max": 826.6932363950178,
+    "stdev": 1.9587777130457595
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "bert-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      3397.810613355865,
+      3400.57589483249,
+      3382.148407671101
+    ],
+    "median": 3397.810613355865,
+    "min": 3382.148407671101,
+    "max": 3400.57589483249,
+    "stdev": 9.937502634297271
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "bert-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      3245.9422533808547,
+      3452.1865389435666,
+      3500.0872984037887
+    ],
+    "median": 3452.1865389435666,
+    "min": 3245.9422533808547,
+    "max": 3500.0872984037887,
+    "stdev": 135.04375339980783
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "whisper-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      66.26653014055802,
+      66.25412774894373,
+      66.0824035698462
+    ],
+    "median": 66.25412774894373,
+    "min": 66.0824035698462,
+    "max": 66.26653014055802,
+    "stdev": 0.10291226607047718
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "whisper-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      617.73736322159,
+      615.8990984057398,
+      615.8719834141042
+    ],
+    "median": 615.8990984057398,
+    "min": 615.8719834141042,
+    "max": 617.73736322159,
+    "stdev": 1.069236065464526
+  },
+  {
+    "host": {
+      "cpu": "Apple M5 Max",
+      "model": "Mac17,7",
+      "gpu_cores": "40",
+      "macos": "26.6",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=23134307)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "whisper-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 20,
+    "repeats": 3,
+    "runs": [
+      616.3470151350728,
+      602.2138419245674,
+      589.4200479609265
+    ],
+    "median": 602.2138419245674,
+    "min": 589.4200479609265,
+    "max": 616.3470151350728,
+    "stdev": 13.46903430205616
+  }
+]

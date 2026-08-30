@@ -4,67 +4,79 @@ Burst benchmarks measure what a compute unit can *reach*. These measure what it
 *holds*. They are the same model and batch as the committed sweeps, so the two
 are directly comparable.
 
-## Both chips, sustained fraction (last window / best window)
+## Read this before the tables
 
-Three machines, including **two identical M4 Pro Mac minis**, which is what makes
-the cross-chip numbers readable rather than suggestive.
+Two things below were wrong for a while and are now corrected in place.
 
-| compute unit | M4 Pro #1 | M4 Pro #2 | M5 Max | machine floor | chip gap |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `CPU_AND_NE` (ANE) | 1.000 | 1.000 | 0.999 | 0.000 | 0.001 |
-| `CPU_AND_GPU` | 0.973 | 0.949 | **0.837** | 0.024 | **0.124 — 5x the floor** |
-| `ALL` (default) | 0.998 | 1.000 | **0.721** | 0.002 | **0.278 — 132x the floor** |
+1. Every soak taken before commit 54ac0a0 used a tool that called `pmset` between
+   windows, clamped its final window to the deadline, and could publish an
+   interrupted window as the final value. All figures here are from the corrected
+   tool.
+2. **On the M5 Max the sustained fraction depends on how warm the machine started**,
+   so a single number for that chip is not meaningful. Details below.
 
-The two M4 Pros are the same chip in the same chassis on mains, so the spread
-between them is the reproducibility floor of this measurement — how much it moves
-for reasons that are not the chip.
+## M4 Pro, three physically distinct machines, corrected tool
 
-The GPU is the noisy one, so it was repeated **five times on one box**:
+`siglip`, batch 16, 120 s, mains, each box otherwise idle.
 
-| | GPU sustained |
-| --- | --- |
-| M4 Pro #2, n=5 | 0.949, 0.950, 0.951, 0.957, 0.960 (mean 0.954, sd 0.0045) |
-| within-machine range | **0.011** |
-| between-machine difference (#1 0.973 vs #2 mean 0.954) | **0.019** — 1.7x the within-machine range |
-| M4 Pro mean 0.963 → M5 Max 0.837 | **0.126** — **11x** within-machine, **7x** between-machine |
+| compute unit | box 1 | box 2 | box 3 | last-window img/s |
+| --- | ---: | ---: | ---: | --- |
+| `CPU_AND_NE` (ANE) | 1.000 | 1.000 | 1.000 | 204.4, 204.5, 204.4 |
+| `CPU_AND_GPU` | 0.987 | 0.979 | 0.960 | 176.6, 174.9, 171.8 |
+| `ALL` (default) | 0.996 | 0.994 | 0.993 | 172.4, 171.9, 171.5 |
 
-Two things fall out. The two minis genuinely differ a little — 0.019 against a
-run-to-run range of 0.011 — so identical hardware is not identical, and a single
-GPU soak should not be quoted to three decimals. And the cross-chip gap is an
-order of magnitude larger than either source of variation, so it is not machine
-noise.
+**The ANE holds its peak exactly on all three.** The GPU gives back 2 to 4%. The
+default gives back under 1%, so on this chip it sustains slightly *better* than
+the pure GPU placement.
 
-The ANE's 0.001 does **not** clear the floor and should be read as "the ANE holds
-its rate on both chips", not as a difference.
+Absolute last-window rates agree to 2.7% across three separate machines. That is
+what this measurement's reproducibility looks like on a chip that does not
+throttle.
 
-**The ANE holds. The GPU and the default do not, and only on the M5 Max.** That
-extends [finding 1](../../README.md#1-the-anegpu-ratio-inverts-within-one-chip-family)
-onto a second axis: the burst numbers say the *ranking* of the units differs
-between chips, and these say the *durability* does too.
+## M5 Max, and why there is no single number
 
-### Why this reads as the chip, not the cooling
+| run | unit | peak | last img/s | sustained |
+| --- | --- | ---: | ---: | ---: |
+| 1 | ANE | 235.3 | 235.2 | 1.000 |
+| 1 | GPU | 1049.7 | 887.8 | 0.846 |
+| 2 | GPU | 1041.8 | 882.4 | 0.847 |
+| 3 | GPU | 799.9 | 761.7 | **0.952** |
+| 1 | `ALL` | 1018.6 | 875.8 | 0.860 |
+| 2 | `ALL` | 1030.3 | 800.4 | 0.777 |
+| 3 | `ALL` | 784.7 | 773.6 | **0.986** |
 
-The M5 Max here is a laptop with a custom fan curve and its die near 97 °C, so
-cooling is the obvious alternative explanation. Two things argue against it being
-the driver:
+Sorted by starting peak the fraction is monotone in both units. A machine that
+starts cool reaches a high peak and gives a lot back; a machine already warm
+starts low, gives little back, and **scores better on a statistic that is supposed
+to mean "holds its rate"**. Run 3 of each pair followed five earlier soaks with 15
+to 20 s between them, and its peak is a quarter lower because the box never
+recovered.
 
-- **The ANE does not sag on that same machine.** 0.999 over two minutes, in the
-  same enclosure, at the same die temperature, in the same session as the GPU
-  run that lost 16%. A cooling limit that only touches one engine is not a
-  cooling limit; it is a per-engine power limit.
-- **The mechanism is downstream of the GPU being fast.** `tools/probe_gpu.py`
-  measures the M5 Max GPU at 39.2 TFLOPS against the M4 Pro's 6.4 — 6.17x on
-  matmul. An engine doing 4.7x the work per second draws far more power, so it
-  reaches a ceiling the M4 Pro's GPU never approaches. The M4 Pro GPU has no
-  headroom problem because it has no headroom to spend.
+So `sustained fraction` on this chip measures the compute unit *and* the state it
+started in. Compare absolute last-window rates across runs instead, and give a
+throttling machine a real cooldown before each soak.
 
-What the chassis *can* still affect is the exact number: 0.837 is this laptop
-with this fan curve. A stock MacBook Pro, or an M5 Max in a desktop enclosure,
-could land elsewhere. The **direction and rough size** survive, because they
-clear the machine floor by 5x and 132x; the third decimal does not.
+### Two claims withdrawn
 
-None of this touches finding 1's burst inversion, which is a within-machine ratio
-on each chip and independently explained by the matmul probe.
+**"The default is the worst sustainer on the M5 Max."** It was 0.721 against the
+GPU's 0.837 with the old tool. Corrected and repeated, `ALL` is 0.777, 0.860,
+0.986 and the GPU is 0.846, 0.847, 0.952. Indistinguishable, and the ordering
+flips depending on which runs are compared.
+
+**"The cross-chip gap is 5x to 132x the machine floor."** That was computed from
+single M5 Max figures. With the range, the GPU gap against the M4 Pro mean runs
+from 0.129 down to 0.023, and the low end is comparable to the between-machine
+difference itself.
+
+### What survives
+
+The ANE. It measured 1.000 on four machines across two chips in every run
+regardless of starting state, which is what an engine that does not degrade should
+look like, and it is exactly the insensitivity that makes it immune to the
+confound above.
+
+And the absolute rates, which are not close: M4 Pro GPU sustains 172 to 177 img/s,
+M5 Max 762 to 888.
 
 ### The M4 Pro soak reproduces the committed sweep
 
@@ -76,8 +88,8 @@ Run months later, on a freshly built venv, from a clean clone:
 | GPU | 178.8 | 178.8 |
 | `ALL` | 172.2 | 172.9 |
 
-On the M5 Max the same comparison does *not* line up — 1085.7 burst against
-1020.7 in the first soak window — and that is the finding rather than a
+On the M5 Max the same comparison does *not* line up. 1085.7 burst against
+1020.7 in the first soak window, and that is the finding rather than a
 discrepancy. The M5 Max GPU declines fast enough that even a 10 s window has
 already lost some of the peak a 2 s burst captures. On the M4 Pro there is
 almost nothing to lose, so the two agree.
@@ -91,7 +103,7 @@ is a MacBook Pro with a custom fan curve.
 An earlier version of this file said the chip/chassis pair was unseparated and
 left it there. That was too weak a reading: the two-mini floor plus the ANE's
 flat 0.999 on the hot laptop are evidence, and they point the same way. What
-remains genuinely unseparated is narrower — **how much of the 0.124 and 0.278 is
+remains genuinely unseparated is narrower: **how much of the 0.124 and 0.278 is
 the enclosure rather than the silicon.** Settling that needs an M5 Max in a
 desktop chassis, or an M4 Pro laptop, and neither exists here.
 
@@ -119,7 +131,7 @@ measurement:
 | README headline, 30-iteration burst | 4.66x |
 
 Nothing here contradicts the burst numbers. A 30-iteration burst is over in about
-two seconds, and the decline has barely started by then — which is exactly why
+two seconds, and the decline has barely started by then, which is exactly why
 the burst figure is higher than even the first 10 s window. The two measure
 different things, and only one of them is what a long-running job gets.
 
@@ -127,8 +139,8 @@ different things, and only one of them is what a long-running job gets.
 
 - **AC power.** Recorded per run in the JSON. An earlier GPU soak was discarded:
   the machine was plugged in mid-run and the guard in `thermal_soak.py` caught the
-  battery→AC transition. A 60 s GPU soak on battery gave 0.879, but that is **not**
-  comparable to the 0.837 above — the AC run is 120 s, and sustained fraction falls
+  battery-to-AC transition. A 60 s GPU soak on battery gave 0.879, but that is **not**
+  comparable to the 0.837 above. The AC run is 120 s, and sustained fraction falls
   with soak length by construction, since the denominator is the best window and
   the numerator is the last one. Comparing AC against battery needs equal
   durations and has not been done.
@@ -148,7 +160,7 @@ different things, and only one of them is what a long-running job gets.
 ## What is not established
 
 The **cause** of the GPU and `ALL` decline. Thermal pressure cannot settle it for
-the reason above, and the die temperature was not sampled during these runs —
+the reason above, and the die temperature was not sampled during these runs.
 that needs `sudo powermetrics --samplers smc`, which is deliberately not wired
 into `thermal_soak.py` so the tool stays runnable without root. Power limiting,
 clock ramp-down after a boost window, and thermal limiting at 97 °C are all

@@ -6,14 +6,20 @@ On Apple silicon a model can run on the Neural Engine, the GPU, or the CPU. Core
 for you, reports success either way, and never tells you what it chose. This repo measures
 what it chooses and what that costs.
 
-The short version: **the right compute unit depends on the chip, and Core ML's default is
-sometimes the slowest of the available options.**
+The short version: **the right compute unit does not transfer between configurations, and
+Core ML's default is sometimes the slowest of the available options.**
 
-Same model, same batch, same macOS build, two chips:
+The full write-up, with method, mechanism, threats to validity and citations, is in
+[**PAPER.md**](PAPER.md). It covers five model architectures rather than the one below.
+
+Same model, same batch, two chips. **Not the same macOS build**: the M4 Pro ran
+26.5.1 and the M5 Max ran 26.6. Core ML's placement heuristic ships inside the OS,
+so the two differences cannot be separated with these two machines. See
+[PAPER.md §3.6](PAPER.md) for what that does and does not undermine.
 
 | chip | GPU cores | NPU cores | ANE | GPU | default (`ALL`) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| M4 Pro (Mac16,11) | 20 | 16 | **204.4** | 178.8 | **172.2**  ← slowest |
+| M4 Pro (Mac16,11) | 20 | 16 | **204.4** | 178.8 | **172.2** (slowest) |
 | M5 Max (Mac17,7) | 40 | 16 | 233.0 | **1085.7** | 1068.0 |
 
 images/s, SigLIP-base-224 vision tower, batch 16, fp16. Median of 5 runs; spread below.
@@ -24,12 +30,12 @@ the other chip, and nothing in the API tells you which situation you are in.
 
 The same non-generality shows up on an axis that has nothing to do with the ANE. Measuring
 memory bandwidth per engine, **the CPU complex reaches 91% of the bus on the M4 Pro and 49%
-on the M5 Max** — so on one chip the CPU is a peer of the GPU for bandwidth-bound work and
+on the M5 Max**. So on one chip the CPU is a peer of the GPU for bandwidth-bound work and
 on the other it is half as good. Finding 4.
 
 There is also a failure the framework never tells you about. On the M4 Pro, a cold compile
 of the ANE-rewritten model under `ALL` emits `_ANECompiler : ANECCompile() FAILED`, falls
-back silently, and runs anyway — as the *fastest* configuration for that model, with
+back silently, and runs anyway, as the *fastest* configuration for that model, with
 bit-identical outputs. The message never reaches the calling process's stderr, and it
 disappears once the compiled artifact is cached, which is why it reads as intermittent
 rather than deterministic. Four conditions are all required to see it, and they are pinned
@@ -43,7 +49,7 @@ down in [`results/anecc-probe.md`](results/anecc-probe.md).
 
 That builds both model variants, sweeps the three compute-unit settings, and
 prints a table ready to paste. Two chips is a thin basis for a claim about chip
-families — if yours ranks them differently, that is the result I most want to
+families. If yours ranks them differently, that is the result I most want to
 see. There is an [issue template](.github/ISSUE_TEMPLATE/chip-report.yml) for it.
 
 ---
@@ -167,7 +173,7 @@ streaming-read bandwidth per engine (`tools/membw.c`, `tools/gpu_bw.py`):
 | M4 Pro | 89.8 | 249.5 | 253.5 | **91%** | **1.02x** |
 | M5 Max | 87.8 | 303.8 | 566.7 | **49%** | **1.87x** |
 
-GPU bandwidth grows **2.24x** against 2.0x the cores and a 2.25x bus — it tracks the hardware
+GPU bandwidth grows **2.24x** against 2.0x the cores and a 2.25x bus, so it tracks the hardware
 almost exactly. CPU bandwidth grows **1.22x**. The bus was sized for the GPU, and the CPU was
 not scaled with it. So on the M4 Pro the CPU is a peer of the GPU for bandwidth-bound work,
 and on the M5 Max it is roughly half as good.
@@ -177,12 +183,12 @@ out of cores:
 
 | threads | 1 | 2 | 3 | 4 | 6 | 8 | 12 | 18 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| M4 Pro (of 14) | 89.8 | 160.6 | 198.6 | 233.5 | 239.3 | 239.9 | 249.4 | — |
+| M4 Pro (of 14) | 89.8 | 160.6 | 198.6 | 233.5 | 239.3 | 239.9 | 249.4 | n/a |
 | M5 Max (of 18) | 87.8 | 161.8 | 233.1 | 287.3 | 299.0 | **303.8** | 272.2 | 296.3 |
 
 The M5 Max is done at 8 threads; its remaining ten cores add nothing. Single-core bandwidth
 is also essentially identical across the two chips, 89.8 against 87.8, despite a 2.25x
-difference in bus width — whatever limits one core is not the DRAM. The CPU's path to memory
+difference in bus width. Whatever limits one core is not the DRAM. The CPU's path to memory
 tops out somewhere around 250-300 GB/s on both parts, and that ceiling barely moved while the
 bus more than doubled.
 
@@ -203,7 +209,7 @@ Aligned windows, with the contended rate solved for rather than assumed (`tools/
 
 Despite the very different CPU shares, both chips land in the same place: about **4-5%**
 above what the GPU achieves alone, and the exchange is close to one-for-one. Adding the CPU
-to a GPU-saturated bus is not additive on either part. Over-committing makes it worse — at
+to a GPU-saturated bus is not additive on either part. Over-committing makes it worse: at
 full thread count the M4 Pro drops to 1.03x and the M5 Max to 0.99x, below GPU-only.
 
 The practical consequence mirrors finding 1. "The CPU has bandwidth going spare, offload to
@@ -338,14 +344,14 @@ python3.12 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python tools/bench_concurrent.py siglip-vision-b16.mlpackage \
     --model-ane siglip-ane-b16.mlpackage --model-gpu siglip-vision-b16.mlpackage
 
-# what a unit HOLDS rather than what it reaches — see results/soak/
+# what a unit HOLDS rather than what it reaches. See results/soak/
 ./.venv/bin/python tools/thermal_soak.py siglip-vision-b16.mlpackage \
     --units CPU_AND_GPU --seconds 120 --window 10 --out results/soak/mychip-gpu.json
 python3 tools/summarise_soak.py "results/soak/mychip-*.json"
 ```
 
-`./run.sh --soak` does the whole sustained pass for you — all three units, then a
-paste-ready table — and is the easier way in. Run it on an **idle** machine, and on a
+`./run.sh --soak` does the whole sustained pass for you: all three units, then a
+paste-ready table. It is the easier way in. Run it on an **idle** machine, and on a
 laptop **plug it in**: on battery the GPU throttles for reasons that have nothing to do
 with heat, and the summariser will flag the run if you forget.
 
@@ -395,13 +401,13 @@ and prints `UNRELIABLE` rather than a verdict if run-to-run spread exceeds 20%.
 Apple shipped Core AI at WWDC 2026, a pipeline layer above Core ML. Placement did not
 go away with it: `MLComputeUnits` becomes
 `SpecializationOptions(preferredComputeUnitKind:)`, an allow-list becomes a single
-*preferred* unit, and it moves to Swift — `coreai-torch` has no placement surface at all.
+*preferred* unit, and it moves to Swift. `coreai-torch` has no placement surface at all.
 
 Apple's own reference recipes choose that unit from **model structure with no chip
 term**: static-shape and segmenter models get `.neuralEngine`, dynamic-shape models get
 `.gpu`. Finding 1 above is that the right unit inverts *between chips* for the same
 model. [**CORE-AI.md**](CORE-AI.md) sets out the tension, what it would take to settle
-it, and why none of it is a measurement yet — the harness here drives Core ML from
+it, and why none of it is a measurement yet. The harness here drives Core ML from
 Python, and Core AI inference is Swift.
 
 ---

@@ -56,7 +56,19 @@ PY="$(command -v python3.12 || true)"
 CHIP="$(sysctl -n machdep.cpu.brand_string)"
 MODEL_ID="$(sysctl -n hw.model)"
 OS="$(sw_vers -productVersion)"
-[[ -n "$LABEL" ]] || LABEL="$(echo "$CHIP" | tr '[:upper:] ' '[:lower:]-' | sed 's/^apple-//')"
+# LABEL derives from the chip brand string, so two physically different machines
+# with the same chip produce the same label and overwrite each other's results.
+# This study runs TWO identical M4 Pro Mac minis specifically to measure
+# machine-to-machine variation, so a collision would silently destroy the control
+# it depends on. An audit caught it; the soaks had been hand-named and got lucky.
+# LocalHostName disambiguates without leaking anything a public result should not
+# carry, and is stable across reboots.
+[[ -n "$LABEL" ]] || {
+    LABEL="$(echo "$CHIP" | tr '[:upper:] ' '[:lower:]-' | sed 's/^apple-//')"
+    HOSTTAG="$(scutil --get LocalHostName 2>/dev/null | tr '[:upper:]' '[:lower:]' \
+               | sed 's/[^a-z0-9]//g' | tail -c 9)"
+    [[ -n "$HOSTTAG" ]] && LABEL="${LABEL}-${HOSTTAG}"
+}
 
 echo "── $CHIP ($MODEL_ID), macOS $OS, batch $BATCH ──"
 

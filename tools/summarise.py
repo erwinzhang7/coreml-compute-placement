@@ -106,6 +106,16 @@ def main():
     summary = summarise(rows)
     print(render(rows, summary))
 
+    # A sweep missing a compute unit still renders a fastest column and a spread,
+    # computed over whatever happens to be present. Name the gap rather than
+    # letting a two-unit table read like a three-unit one.
+    for s in summary:
+        absent = [u for u in UNIT_LABEL if u not in s["cells"]]
+        if absent:
+            print(f"\n> `{s['model']}`: INCOMPLETE, no result for "
+                  + ", ".join(UNIT_LABEL[u] for u in absent)
+                  + ". Fastest and spread are over the units present only.")
+
     # The interesting question is not the absolute rate, it is whether the
     # ranking matches what the README found on the two chips measured there.
     for s in summary:

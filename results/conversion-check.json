@@ -1,0 +1,77 @@
+{
+  "host": {
+    "cpu": "Apple M5 Max",
+    "model": "Mac17,7",
+    "macos": "26.6",
+    "coremltools": "9.0",
+    "torch": "2.8.0",
+    "python": "3.12.13"
+  },
+  "gate": {
+    "metric": "min_cosine",
+    "threshold": 0.999
+  },
+  "models": [
+    {
+      "model": "bert",
+      "package": "bert-b16.mlpackage",
+      "batch": 16,
+      "input": "input_ids",
+      "shape": [
+        16,
+        128
+      ],
+      "max_abs_err": 0.004068851470947266,
+      "max_rel_err": 3.647585391998291,
+      "min_cosine": 0.9999991655349731,
+      "status": "PASS"
+    },
+    {
+      "model": "mobilenet",
+      "package": "mobilenet-b16.mlpackage",
+      "batch": 16,
+      "input": "pixel_values",
+      "shape": [
+        16,
+        3,
+        224,
+        224
+      ],
+      "max_abs_err": 0.04744219779968262,
+      "max_rel_err": 1008.0337524414062,
+      "min_cosine": 0.9999772310256958,
+      "status": "PASS"
+    },
+    {
+      "model": "resnet50",
+      "package": "resnet50-b16.mlpackage",
+      "batch": 16,
+      "input": "pixel_values",
+      "shape": [
+        16,
+        3,
+        224,
+        224
+      ],
+      "max_abs_err": 0.02858114242553711,
+      "max_rel_err": 388.3838806152344,
+      "min_cosine": 0.9999526143074036,
+      "status": "PASS"
+    },
+    {
+      "model": "whisper",
+      "package": "whisper-b16.mlpackage",
+      "batch": 16,
+      "input": "input_features",
+      "shape": [
+        16,
+        80,
+        3000
+      ],
+      "max_abs_err": 0.0027141571044921875,
+      "max_rel_err": 2.2883174419403076,
+      "min_cosine": 0.9999997019767761,
+      "status": "PASS"
+    }
+  ]
+}
