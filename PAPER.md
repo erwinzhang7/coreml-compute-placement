@@ -19,12 +19,12 @@ choice is therefore not a property of the model, and it does not transfer across
 a chip generation. Second, **the default `ComputeUnit.ALL` is not a safe
 default**: on the M4 Pro it costs between 1.18x and 5.18x against the better
 explicit placement, and on three of five architectures it is slower than *both*
-explicit placements. On the M5 Max it is free at peak, which we report as
-prominently. Third, **peak throughput does not predict sustained throughput**:
-over a two-minute soak the ANE gives back at most 0.14% of its peak in 44 of 45
-soaks on both chips and four separate machines, while the GPU gives back 0.8 to
-13.2% on an M4 Pro and 4.8 to 16.3% on an M5 Max across 60. Those 44 ANE soaks all
-sustain better than the best of the 60 GPU soaks. The forty-fifth is a
+explicit placements. On the M5 Max it is close to free at peak, costing 1.01x to
+1.09x, which we report as prominently. Third, **peak throughput does not predict sustained throughput**:
+over a two-minute soak the ANE gives back at most 0.14% of its peak in 41 of 42
+soaks on both chips and four separate machines, while the GPU gives back 1.1 to
+13.2% on an M4 Pro and 4.8 to 16.3% on an M5 Max across 60. Those 41 ANE soaks all
+sustain better than the best of the 60 GPU soaks. The forty-second is a
 `whisper` run that gave back 2.52% after reaching the same peak as seven runs that
 did not, one of them a repeat on the same machine, which we report and do not
 explain in §3.3. A benchmark of a few seconds, which is the standard form, cannot
@@ -36,8 +36,12 @@ confound the most robust result in this section.
 
 We quantify measurement reproducibility explicitly, using two physically
 identical M4 Pro machines and five repeats, and report a within-machine range of
-0.011 and a between-machine difference of 0.019 on the noisiest metric. The
-cross-chip effects we report exceed both by an order of magnitude.
+0.011 and a between-machine difference of 0.019 on the noisiest metric. **The
+cross-chip sustained fraction does not reliably clear that floor**: repeated, the
+gap against the M4 Pro mean runs from 0.129 down to 0.023, and the low end is
+comparable to the between-machine difference itself (§3.6). What does clear it by
+a wide margin is the absolute rate — 172 to 177 img/s for the M4 Pro GPU against
+762 to 888 for the M5 Max — and the burst ratios of §3.1 and §3.2.
 
 All measurement code, model conversion code, and raw per-run JSON are in this
 repository, and a single command reproduces the tables on any Apple silicon Mac.
@@ -70,8 +74,11 @@ term**. See [CORE-AI.md](CORE-AI.md).
    chips x 3 settings) showing the optimal unit inverts.
 2. A quantification of what the default costs, including cases where it is worse
    than every explicit alternative.
-3. A sustained-throughput measurement showing peak and sustained rank the units
-   differently, with a thermal-attribution method that does not require root.
+3. A sustained-throughput measurement showing the peak/sustained gap is large
+   enough to change a capacity plan, with a thermal-attribution method that does
+   not require root. An earlier version of this list claimed peak and sustained
+   *rank* the units differently; §3.3 withdraws that, because with the tool fixed
+   the ordering reverses depending on which pair of runs is compared.
 4. An explicit reproducibility floor from physically identical hardware, which
    most single-machine benchmark papers do not establish.
 5. Open tooling: conversion, sweep, soak, and summarisation, reproducible with
@@ -87,10 +94,17 @@ term**. See [CORE-AI.md](CORE-AI.md).
 | --- | --- | --- | ---: | ---: | --- | --- | --- |
 | M4 Pro #1 | Apple M4 Pro | Mac16,11 | 20 | 16 | Mac mini | mains | 26.5.1 |
 | M4 Pro #2 | Apple M4 Pro | Mac16,11 | 20 | 16 | Mac mini | mains | 26.5.1 |
+| M4 Pro #3 | Apple M4 Pro | Mac16,11 | 20 | 16 | Mac mini | mains | 26.5.1 |
 | M5 Max | Apple M5 Max | Mac17,7 | 40 | 16 | MacBook Pro | mains | 26.6 |
 
-The two M4 Pro machines are physically distinct units of identical
-configuration. They exist in this study specifically to measure how much a
+**Four machines.** The three M4 Pro machines are physically distinct units of
+identical configuration; they appear as `experiments`, `inference1` and
+`inference2` in the raw filenames and as box 1, box 2 and box 3 in §3.3. Their
+identity is measured rather than assumed: each reports `Apple M4 Pro`,
+`Mac16,11`, 14 CPU cores, 20 GPU cores and macOS 26.5.1.
+
+The five-repeat reproducibility floor in §3.6 uses two of the three; the soak
+corpus in §3.3 and the cold/warm study use all three. They exist in this study specifically to measure how much a
 result moves for reasons that are not the chip (§3.5).
 
 The M5 Max runs a **non-stock fan curve**, with the die held near 97 °C under
@@ -121,32 +135,41 @@ benchmarked as feature extractors with comparable output structure.
 
 ### 2.4 Conversion correctness
 
-A model that converts incorrectly still produces a throughput number. Every
-converted model is therefore checked against a PyTorch fp32 reference **on the
-Core ML model actually benchmarked**, not against a second PyTorch module, and
-conversion is refused on mismatch.
+A model that converts incorrectly still produces a throughput number. The four
+models built by `models/convert_zoo.py` are therefore checked against a PyTorch
+fp32 reference **on the Core ML model actually benchmarked**, not against a
+second PyTorch module, and conversion is refused on mismatch.
+
+**`siglip` is not gated, and it is the model most of this paper rests on.**
+`models/convert_siglip.py` traces, converts and saves; it performs no reference
+comparison and can refuse nothing. `results/conversion-check.json` accordingly
+carries four models, not five. We report the gate as covering what it covers.
 
 Cosine similarity is the acceptance gate rather than absolute or relative error.
 The outputs of these five models differ in scale by orders of magnitude, so no
 single `atol` is meaningful across the set; and relative error is degenerate for
 post-ReLU activations, where reference values approach zero. ResNet-50 converts
-correctly with a maximum *relative* error of 460, which is why relative
+correctly with a maximum *relative* error of 390, which is why relative
 error is reported but not gated on.
 
 | model | max abs err | max rel err | **min cosine** |
 | --- | ---: | ---: | ---: |
-| resnet50 | 3.4e-02 | 4.6e+02 | 0.999945 |
-| mobilenet | 4.7e-02 | 8.9e+02 | 0.999979 |
-| bert | 6.2e-03 | 1.3e+01 | 0.999990 |
-| whisper | 1.1e-02 | 1.4e+01 | 0.999998 |
+| resnet50 | 2.9e-02 | 3.9e+02 | 0.999953 |
+| mobilenet | 4.7e-02 | 1.0e+03 | 0.999977 |
+| bert | 4.1e-03 | 3.6e+00 | 0.999999 |
+| whisper | 2.7e-03 | 2.3e+00 | 1.000000 |
 
 ### 2.5 Burst protocol
 
 `tools/sweep.py`. For each (model, compute unit): warm-up calls, then a timed
 block of *iters* inference calls, repeated *repeats* times. We report the median
 across repeats and the spread (max - min) / median. Batch 16 throughout.
-`repeats=5, iters=30` for `siglip`; `repeats=3, iters=20` for the four added
-architectures.
+The two chips were not run at the same settings, and we state it rather than
+leave it implicit: on the **M4 Pro**, `repeats=5, iters=30` for `siglip` and
+`repeats=3, iters=20` for the four added architectures; on the **M5 Max**,
+`repeats=5, iters=30` for all five. The M5 Max side is therefore the better
+sampled of the two, which matters for §3.6's spread comparisons and not for the
+medians themselves.
 
 Python call overhead is included in every figure. It is a fixed per-call cost, so
 it penalises faster configurations proportionally more, which **flatters the
@@ -155,8 +178,12 @@ respect to the faster unit.
 
 ### 2.6 Sustained protocol
 
-`tools/thermal_soak.py`. One model, one compute unit, driven continuously for
-120 s, with throughput bucketed into 10 s windows. The reported statistic is
+`tools/thermal_soak.py`. One model, one compute unit, driven continuously, with
+throughput bucketed into fixed windows. **Two protocols are used and the results
+are not pooled:** 120 s in 10 s windows for the survey of §3.3, and 600 s in 20 s
+windows for the duration, cold-start and ANE-control sub-studies. The 120 s set
+is pinned in `results/soak/PAPER-SET.txt`; the 600 s runs are excluded from it, so
+no count in §3.3 mixes the two. The reported statistic is
 
     sustained fraction = (last window) / (best window)
 
@@ -224,7 +251,7 @@ Engine; the GPU count doubles from 20 to 40 and gains a per-core matrix unit
 
 That asymmetry is the whole of the inversion. The ANE improves modestly and
 uniformly, consistent with an engine of the same width described by the vendor as
-"improved" [[1]](#ref1). The GPU improves by between three and six times. Any
+"improved" [[1]](#ref1). The GPU improves by 2.89x to 6.31x. Any
 model whose better unit was the ANE by less than the GPU's gain therefore changes
 hands.
 
@@ -240,9 +267,12 @@ Cost of `ComputeUnit.ALL` relative to the better of the two explicit placements:
 | `resnet50` | **2.41x** | 1.01x |
 | `whisper` | **5.18x** | 1.09x |
 
-On the M5 Max the default is effectively free: it tracks the GPU to within 2% on
-every architecture, because the GPU is the right answer on that chip and the
-runtime selects it. **We report this as prominently as the negative result.**
+On the M5 Max the default is close to free: it costs 1.01x to 1.09x, tracking the
+GPU to within 2% on `resnet50` and `bert` and falling 2.3%, 3.6% and 8.7% below it
+on `siglip`, `mobilenet` and `whisper`. The direction is right — the GPU is the
+better answer on that chip and the runtime selects it — but "within 2% on every
+architecture" was an overstatement of a table that already said 1.09x two lines
+above. **We report this as prominently as the negative result.**
 
 On the M4 Pro the default costs 1.18x to 5.18x. More seriously, on three of five
 architectures it is slower than **both** explicit placements, not merely slower
@@ -257,6 +287,19 @@ than the better one:
 The `whisper` case is the strongest form: the default returns 28.0 img/s where
 the ANE alone returns 56.3 and the GPU alone returns 145.1. **The default is
 half the throughput of the slower of the two engines it is choosing between.**
+
+**A provenance note on `siglip`'s M4 Pro row.** Two runs of that sweep exist, and
+they do not agree equally well on every column. The ANE and GPU medians differ by
+0.012 and 0.148 img/s between them, which is inside the run-to-run peak spread
+this paper measures at 178.7 to 178.8 (§3.3) — two runs of one measurement
+agreeing to within their own noise. The `ALL` column is not like that: it reads
+171.1 from `sweep-m4pro-rerun.json` and 172.2 from `sweep-m4pro.json`, a gap of
+1.04 img/s or 0.6%, several times the spread of the other two columns. We print
+172.2 and note that the default's cost for `siglip` is 1.19x or 1.20x depending
+on which run is used. Nothing in this paper turns on that third decimal, but the
+`ALL` column was the one quantity in the medians table with no check against the
+pinned sources at all, and an unchecked column is where this kind of thing
+lives.
 
 #### The partition, and why the two chips differ
 
@@ -397,8 +440,10 @@ run-to-run noise. The confound therefore appears only on hardware that actually
 throttles under this load, which is why the M4 Pro figures in this section are
 usable and the M5 Max magnitudes are not.
 
-**What survives all of this is the ANE.** It measured 1.000 in every run, on every
-box, on both chips, regardless of starting state. That insensitivity is exactly
+**What survives all of this is the ANE.** It gave back at most 0.14% of its peak
+in every run, on every box, on both chips, regardless of starting state — with a
+single unexplained exception at 2.52%, named and discussed below. That
+insensitivity is exactly
 what an engine that does not degrade should look like, and it is why the ANE
 result is the robust one and the M5 Max magnitudes are not.
 
@@ -414,36 +459,21 @@ nothing.
 The GPU's advantage over the ANE therefore still shrinks with the length of the
 measurement, but the size of the shrink is not a fixed number on this machine.
 
-**Thermal pressure read `nominal` in every window of every soak reported here, and
-that establishes nothing.** Thermal pressure is the operating system's signal that
-it is about to shed user work, not a die temperature; the M5 Max was held near
-97 °C by an aggressive fan curve and still reported nominal throughout. The
-reading is informative in one direction only: above nominal is evidence of
-trouble, nominal is not evidence of its absence.
-
-Two observations argue the decline is a per-engine power limit rather than
-enclosure cooling. The ANE holds 1.000 **on the same machine, in the same session,
-at the same die temperature** as the GPU run that lost 15%; a cooling limit that
-affects one engine and not the other is not a cooling limit. And the M5 Max GPU is
-measured at 39.2 TFLOPS against the M4 Pro's 6.4 (§3.4), so an engine performing
-several times the work per second draws proportionally more power and approaches a
-ceiling the smaller GPU never reaches.
-
-The ANE result is not specific to `siglip`. **28 soaks across five architectures
+The ANE result is not specific to `siglip`. **98 soaks across five architectures
 and three physically distinct M4 Pro machines**, corrected tool, 90 s cooldown
 between runs:
 
 | model | ANE (n) | GPU (n) | GPU peak stability |
 | --- | --- | --- | ---: |
-| `siglip` | 0.9996 to 1.0000 (10) | 0.949 to 0.992 (21) | 0.76% |
+| `siglip` | 0.9996 to 1.0000 (10) | 0.949 to 0.987 (20) | 0.76% |
 | `resnet50` | 0.9988 to 1.0000 (8) | 0.962 to 0.989 (10) | 0.51% |
 | `mobilenet` | 0.9990 to 0.9998 (8) | 0.963 to 0.984 (10) | 0.84% |
-| `bert` | 0.9997 to 1.0000 (8) | 0.952 to 0.984 (8) | 0.08% |
-| `whisper` | **0.9748** to 1.0000 (8) | 0.868 to 0.967 (9) | 0.65% |
-| **all** | **0.9748 to 1.0000 in 42** | **0.868 to 0.992 in 58** | |
+| `bert` | 0.9997 to 1.0000 (6) | 0.952 to 0.984 (8) | 0.08% |
+| `whisper` | **0.9748** to 1.0000 (8) | 0.868 to 0.967 (8) | 0.65% |
+| **all** | **0.9748 to 1.0000 in 40** | **0.868 to 0.989 in 56** | |
 
-**In 41 of 42 M4 Pro soaks the ANE gave back at most 0.12% of its peak, better
-than the best of 58 GPU soaks, which gave back 0.82%.** That holds across a
+**In 39 of 40 M4 Pro soaks the ANE gave back at most 0.12% of its peak, better
+than the best of 56 GPU soaks, which gave back 1.08%.** That holds across a
 vision transformer, a dense CNN, a depthwise CNN, a text encoder and an audio
 encoder.
 
@@ -466,13 +496,13 @@ as a property of the engine.
 
 We report it rather than dropping it. With that run included the ANE and GPU
 ranges overlap at a single point; with it excluded they are disjoint. A reader
-should treat "the ANE does not degrade" as holding in 18 of 19 measurements, not
+should treat "the ANE does not degrade" as holding in 39 of 40 measurements, not
 as a law.
 
 We report the ANE column to four decimals deliberately. At three, every one of
-these sixteen prints as `1.000`, and an earlier draft of this table read
+these forty prints as `1.000`, and an earlier draft of this table read
 "1.000 in 10 of 10" and claimed the ANE "returned exactly 1.000". That was a
-rounding artefact: only 7 of 16 are exactly 1.0000. The distinction matters
+rounding artefact: only 14 of 40 are exactly 1.0000. The distinction matters
 because "exactly" invites a mechanism that does not exist, a hard clamp at peak,
 where what the data supports is the weaker and sufficient claim that ANE
 throughput does not measurably decay over two minutes.
@@ -481,7 +511,7 @@ The GPU peaks are stable to between 0.08% and 0.84% across repeats and across
 boxes, so none of the M4 Pro variation is the thermal-state confound of §3.3;
 these are genuine run-to-run differences of 0.02 to 0.05 in the fraction.
 
-`whisper` declines most (0.938 to 0.955) and is the most arithmetic-dense model in
+`whisper` declines most (0.868 to 0.967) and is the most arithmetic-dense model in
 the set, which is the direction the power explanation in §3.4 predicts, though
 with five models this is a consistent observation rather than a demonstrated
 relationship.
@@ -493,10 +523,11 @@ the opposite of what an earlier version of this paper claimed (§4).
 This has a practical consequence the burst tables alone cannot support: **for a
 continuously loaded service the ANE's advertised rate is the rate you get, and no
 other unit's is.** A capacity plan built from burst numbers will over-provision
-the GPU's contribution by 3 to 16% and the default's by up to 28%.
+the GPU's contribution by 1 to 16% and the default's by up to 28%.
 
-We did not measure beyond 120 s, so nothing here says where the GPU's decline
-stops. On the M4 Pro it had flattened by the end of the soak. On the M5 Max it had
+The 120 s protocol says nothing about where the GPU's decline stops, and the
+600 s runs later in this section say it does not keep going: four of five models
+recover most of the dip and settle. What is unmeasured is beyond **600 s**. On the M4 Pro it had flattened by the end of the soak. On the M5 Max it had
 not, which is part of why the fraction there depends on the starting state (§3.3):
 a run that begins warm has already spent the decline before the clock starts.
 
@@ -525,7 +556,7 @@ enclosure cooling. The ANE holds 0.999 **on the same machine, in the same
 session, at the same die temperature** as the GPU run that lost 16%; a cooling
 limit that affects one engine and not the other is not a cooling limit. And the
 M5 Max GPU is measured at 39.2 TFLOPS against the M4 Pro's 6.4 (§3.4), so an
-engine performing 4.7x the work per second draws proportionally more power and
+engine performing 6.17x the work per second draws proportionally more power and
 approaches a ceiling the smaller GPU never reaches. We regard the direction as
 established and the exact magnitude as chassis-sensitive (§4).
 
@@ -595,16 +626,21 @@ to 3.2. **So the 120 s figure conflates two different things**: a transient dip,
 which is universal across models and is an artefact of when measurement stops,
 and a true steady-state decline, which is not universal at all. After recovery
 `whisper` still gives back 2.6% on the GPU while `resnet50` gives back 0.2%, a
-thirteen-fold spread between architectures on one chip.
+twelve-fold spread between architectures on one chip. From the four-decimal
+values it is (1 − 0.9737) / (1 − 0.9978) = 11.95; "thirteen-fold" only appears
+if the give-backs are rounded to one significant figure first, which is the
+rounding artefact this section warns about two paragraphs earlier.
 
-This also explains the width of the 120 s GPU range, 0.937 to 0.992, without
+This also explains the width of the 120 s M4 Pro GPU range, 0.868 to 0.989, without
 appealing to noise: those runs sample different points on a recovery curve, and
 different architectures settle at different floors.
 
 **What this does not change.** The ANE still sustains better than the GPU on every
 architecture at every duration measured. What changes is the size and the shape of
-the claim: at steady state the advantage is roughly 4x to 13x rather than the
-order of magnitude the two-minute numbers suggest, and the correct statement about
+the claim: at steady state the advantage runs from 4.0x on `bert` to 8.2x on `siglip`, and
+263x on `whisper` whose ANE gives back 0.01% against the GPU's 2.63% — so it is
+not a single multiple at all, rather than the order of magnitude the two-minute
+numbers suggest, and the correct statement about
 the GPU is not "it declines" but "it dips, recovers, and then settles at a
 model-dependent floor".
 
@@ -628,7 +664,7 @@ GPU because it stops in a trough that later recovers. On the M5 Max a 120 s soak
 does **not** understate anything, because there is no recovery to miss. Applying
 one correction to both would be wrong in the second case.
 
-#### The dip happens only on a cold box, and it is a transient, not degradation
+#### The dip is a cold-start transient on four of five models, and on `mobilenet` it is neither
 
 Die temperature would settle this directly, and `powermetrics` requires root,
 which we declined to wire into the tool so that anyone can reproduce these runs.
@@ -691,10 +727,6 @@ of the cold run, as a percentage of peak:
     mobilenet   100.0  99.6  99.2  98.4  98.2  98.3  98.1  97.8  98.0  98.0  98.0  98.0   ... 98.0
     siglip      100.0  99.9  99.8  97.5  97.0  96.9  97.1  97.3  97.7  98.1  98.7  99.0   ... 99.4
 
-`mobilenet` steps down to 98% by the eighth window and stays there for the
-remaining twenty-one. `siglip` bottoms at 96.9% and climbs back to 99.4%. One is a
-settling, the other is an excursion, and only the second recovers.
-
 `mobilenet` settles at 98% by the eighth window and holds it for the remaining
 twenty-one; the second machine settles at 97.7% by the ninth and holds that. Both
 are a settling. `siglip` bottoms at 96.9% and climbs back to 99.4%, which is an
@@ -702,7 +734,7 @@ excursion, and only the second recovers.
 
 So the M4 Pro GPU has **two** behaviours, not one, and which appears depends on
 the model. That also means the "read the 120 s number as a trough" correction
-below applies to the four that recover and not to `mobilenet`, whose 120 s number
+above applies to the four that recover and not to `mobilenet`, whose 120 s number
 is already its steady state.
 
 **The two machines agree more closely here than §3.6's floor would suggest.** The
@@ -713,9 +745,10 @@ not transfer to another, and the honest reading of §3.6 is that 2.7% is what th
 comparison gave, not a constant.
 
 **On three of five the effect disappears rather than shrinking.** For `siglip`,
-`resnet50` and `bert` the dip falls to 0.5% or less *and* the minimum stops
-occupying the 4 to 6 band, landing at 13, 15, 19, 27 and 29 where its position
-carries no information. Losing both the magnitude and the location is what a
+`resnet50` and `bert` the dip falls to 0.70% or less *and* the minimum stops
+occupying the 4 to 6 band. Across all twelve warm runs of those three models the
+minima land at 8, 10, 13, 14, 15, 17, 19, 21, 22, 22, 27 and 29, where the
+position carries no information. Losing both the magnitude and the location is what a
 signature going away looks like; losing only the magnitude would not be.
 
 #### Every model, on both machines
@@ -779,27 +812,37 @@ window length, no cooldown:
 | `mobilenet` | experiments | 0.76% | 0.77% | 0.77% | 0.01 pp | 2, 2, 1 |
 | `mobilenet` | inference1 | 0.77% | 0.69% | 0.73% | 0.08 pp | 1, 27, 10 |
 
-**Starting cold changes nothing on any of the four.** The spread across the three
-runs is 0.01 to 0.02 percentage points, and on three of four the cold run is the
-*smallest* of the three. The GPU's cold run is larger than its warm runs by 1.9 to
-2.6 percentage points on the same two machines. Peaks agree to two decimals across
+**Starting cold changes nothing on any of the five.** The spread across the three
+runs is 0.01 to 0.02 percentage points on four of them and 0.08 pp on
+`mobilenet`/inference1, and on three of six rows the cold run is the *smallest*.
+The GPU's cold run is larger than its warm runs by 1.22 to 2.56 percentage points
+across the four models that dip, on the same two machines — and by **−0.24 and
++0.19 pp** on `mobilenet`, which does not. Peaks agree to within 0.06% across
 runs on every model. Anything living in the tool, the model load, or the first
 minute of a measurement would have moved this too, so the excursion is the GPU's.
 
 **The ANE's floor is model-dependent, which we did not expect.** `siglip` and
-`whisper` give back 0.04 to 0.06%; `resnet50` and `bert` give back 0.23 to 0.32%,
-five times more. That is still 7 to 16 times below the GPU's cold dip and it is
-reproducible rather than noisy — three runs per model agree to 0.02 pp — so it is
-a real property of those graphs on that engine and not a measurement artefact. It
-is reported because it was predicted otherwise: a pre-registered expectation of
-0.04 to 0.08% for all four was written before these two ran, and it was wrong.
+`whisper` give back 0.04 to 0.06%; `resnet50` and `bert` give back 0.23 to 0.36%,
+five times more; and `mobilenet` gives back **0.69 to 0.77%**, the largest of the
+five and more than ten times `siglip`. So the spread across models is not five-fold
+but closer to twenty-fold. Against the GPU's cold dip of roughly 2 to 4% that
+still leaves the ANE 3 to 50 times better depending on the model, rather than the
+uniform 7 to 16 times an earlier version claimed from the four models it had. It
+is reproducible rather than noisy — three runs per model agree to 0.08 pp or
+better — so it is a real property of those graphs on that engine and not a
+measurement artefact. It is reported because it was predicted otherwise: a
+pre-registered expectation of 0.04 to 0.08% for all four was written before these
+ran, and it was wrong twice over, since `mobilenet` is further out again.
 
 That also qualifies an argument made above. `resnet50`'s minimum sits at windows
 8, 5 and 6 — inside the early band — in all three runs *including the warm ones*,
-so "the position is uninformative on the ANE" is not universal. What matters for
-the control is that the position does not **move** between cold and warm, which is
-exactly what distinguishes it from the GPU, where the minimum leaves the 4-to-6
-band as soon as the box is warm.
+so "the position is uninformative on the ANE" is not universal. The stronger form of that
+argument does not survive either: on `whisper`/experiments the minimum sits at
+4, 4 and then 25, and on `mobilenet`/inference1 at 1, 27 and 10, so the position
+*does* move between cold and warm on two of the six rows. What distinguishes the
+ANE from the GPU is therefore not that its minimum stays put — sometimes it does
+not — but that its **magnitude** stays put: 0.01 to 0.08 pp across cold and warm,
+against the GPU's 1.2 to 2.6.
 
 So the excursion is a property of **the GPU**, not of the tool, the model load, or
 the first minute of a measurement. Any of those would have moved the ANE too.
@@ -850,9 +893,6 @@ the slower unit on an M5 Max for the same model.
 comparable runtime, one arithmetic-bound and one bandwidth-bound
 (`tools/probe_gpu.py`):
 
-Two synthetic Core ML models of comparable runtime, one arithmetic-bound and one
-bandwidth-bound (`tools/probe_gpu.py`):
-
 | probe | M5 Max | M4 Pro | ratio |
 | --- | ---: | ---: | ---: |
 | matmul, 103.1 GFLOP/call | 2.63 ms (**39.2 TFLOPS**) | 16.21 ms (**6.4 TFLOPS**) | **6.17x** |
@@ -863,19 +903,33 @@ count alone cannot produce that; the surplus is the per-core matrix accelerator.
 Bandwidth-bound work moves only 1.27x on the same pair of chips, so the gain is
 specific to arithmetic and not a general uplift.
 
-Two independent cross-checks on that 6.17x. Apple claims "over 4x peak GPU
+Two vendor figures BOUND that 6.17x, and we call them bounds rather than
+cross-checks because neither can fail on its own. Apple claims "over 4x peak GPU
 compute" for M5 against M4 at equal core count [[1]](#ref1); doubling the cores
-on top of that predicts something approaching 8x, and 6.17x sits below it, which
-is the expected direction once clocks and scaling losses are included. Apple
-separately claims the M5 Max is 3.9x faster than the M4 **Max** on AI
-[[2]](#ref2); since the M4 Max has roughly twice the GPU of the M4 **Pro** used
-here, a figure well above 3.9x against an M4 Pro is what that implies.
+on top of that predicts something approaching 8x. Apple separately claims the M5
+Max is 3.9x faster than the M4 **Max** on AI [[2]](#ref2); since the M4 Max has
+roughly twice the GPU of the M4 **Pro** used here, that implies well above 3.9x
+against an M4 Pro.
+
+**Together they admit anything between about 3.9x and 8x, and 6.17x is simply
+inside that window.** A GPU improvement produced entirely by clocks, process or
+compiler would land in the same window, so agreement here is consistency, not
+evidence for the matrix unit specifically. What would actually discriminate is
+the *shape* of the gain across workloads — 6.17x arithmetic-bound against 1.27x
+bandwidth-bound on the same chip pair — and that is the probe above, not these
+two numbers.
 
 Every cross-chip GPU gain in §3.1 sits **at or between the two probe bounds**:
 2.89x for `mobilenet` up to 6.31x for `bert`, against 1.27x bandwidth-bound and
-6.17x arithmetic-bound. `bert` slightly exceeds the matmul probe, by 2%, which is
-inside the probe's own repeat spread and so is not evidence of anything beyond
-the arithmetic ceiling. That is the expected ordering if each model sits somewhere
+6.17x arithmetic-bound. `bert` exceeds the matmul probe, by 2.2%, and **we cannot
+dismiss that as probe noise, because the probe has no repeat spread to appeal
+to**: `results/gpu-probe.json` carries repeats on the M4 Pro side only (matmul
+16.08 and 16.35 ms, 1.65% apart) and a single M5 Max timing, so the *ratio* was
+measured once. Even taking the M4 Pro's slowest repeat, which is the direction
+that flatters the ceiling, gives 16.35/2.63 = 6.22x, still short of `bert`'s
+6.31x. The honest statement is that one of five models sits 2.2% above a ceiling
+measured without repeats on the side that matters, which is a caveat on the probe
+rather than a finding about `bert`. That is the expected ordering if each model sits somewhere
 on the spectrum between bandwidth- and compute-bound: the most arithmetic-dense
 model sits at the matmul ceiling and none clears it materially.
 
@@ -889,17 +943,47 @@ per-model roofline analysis, so we do not claim to know where each of the five
 architectures sits on that spectrum; we claim only that all five land inside the
 bounds, which is what the mechanism predicts.
 
-**A falsifiable prediction.** If the mechanism is the per-GPU-core matrix
-accelerator, then the inversion should appear on **any** M5-family part and on no
-M4-or-earlier part, independent of tier. A base M5, an M5 Pro or an M5 Ultra
-should rank the units as the M5 Max does here. An M4 Max, which has twice the
-M4 Pro's GPU but still no per-core matrix unit, should rank them as the M4 Pro
-does, and should *not* invert merely because it has more GPU cores. We do not have
-those machines. This is the cheapest experiment that could falsify the
-explanation, and we invite it.
+**A falsifiable prediction.** An earlier version of this section predicted that
+the inversion would appear on **any** M5-family part and on no M4-or-earlier part,
+*independent of tier* — that a base M5 would rank the units as the M5 Max does,
+and that an M4 Max would not invert merely for having more GPU cores. That
+prediction is wrong, and the medians in §3.1 are enough to show it. Tier cannot
+drop out, because the ranking is a race between a GPU that scales with core count
+and an ANE that is 16 cores on **both** chips: core count is a first-order term in
+the mechanism, not a nuisance parameter.
+
+Scaling the M5 Max GPU medians by 10/40 for a base M5 and leaving the ANE alone:
+
+| model | base M5 GPU, scaled | M5 Max ANE | winner |
+| --- | ---: | ---: | --- |
+| `siglip` | 269.4 | 232.9 | GPU |
+| `resnet50` | 819.4 | 1094.6 | **ANE** |
+| `mobilenet` | 2604.6 | 3602.2 | **ANE** |
+| `bert` | 879.3 | 822.5 | GPU |
+| `whisper` | 151.4 | 65.9 | GPU |
+
+So the mechanism predicts a base M5 inverts on **three of five**, not five of
+five: `resnet50` and `mobilenet` should go back to the ANE. And an M4 Max, at
+twice the M4 Pro's GPU and no matrix unit, should invert `siglip`, `resnet50` and
+`bert` — every model the M4 Pro gives to the ANE — which it also does at only 71%
+of linear core scaling. It should invert, on the paper's own arithmetic.
+
+That makes for a sharper test than the original, because the two parts now differ
+in *pattern* rather than in a yes-or-no: an M4 Max should invert everything, while
+a base M5 — despite the per-core matrix unit — should still leave two models on
+the ANE. Pure core-count scaling and the matrix-unit mechanism predict different
+sets, so one machine of either kind discriminates between them.
+
+Both extrapolations assume linear core scaling, which our own probe says is
+generous — 6.17x arithmetic for a 2.0x core increase means the M5 gains more than
+cores alone — and neither accounts for memory bandwidth scaling sub-linearly. We
+do not have those machines. This remains the cheapest experiment that could
+falsify the explanation, and we invite it.
 
 The ANE's much smaller movement is consistent with both chips carrying the same
-16-core Neural Engine, though it does not explain the regression noted in §3.1.
+16-core Neural Engine. It moves 1.09x to 1.18x between chips, in the M5 Max's
+favour on all five models; the regression an earlier version reported here was a
+contended measurement and does not exist (§4).
 
 ### 3.5 What is chip and what is OS build
 
@@ -913,14 +997,15 @@ doing the work. The answer is not the same for every result.
 probe, and a falsifiable prediction. It also survives deleting the ANE side
 entirely: hold the ANE at its measured M4 Pro value and combine with the measured
 M5 Max GPU, and all three inversions still occur, because every GPU gain
-(2.81x to 6.13x) exceeds the largest M4 Pro ANE/GPU ratio (1.410). The inversion is
+(2.89x to 6.31x) exceeds the largest M4 Pro ANE/GPU ratio (1.410). The inversion is
 carried by the GPU, which is the side with the documented mechanism.
 
-**The magnitudes for the two non-inverting models are not clean.** `mobilenet`
-"moves 4.5x" and `whisper` "moves 6.6x" between chips. With the ANE held flat
-those become 2.81x and 3.98x. The published figures are inflated roughly 1.6x by
-the ANE regression, which we cannot attribute (§3.1). Read the direction, not the
-multiple.
+**Retracted.** This paragraph read that `mobilenet` "moves 4.5x" and `whisper`
+"moves 6.6x", and that both were inflated roughly 1.6x by the ANE regression. Both
+halves are dead: §3.1 measures those moves at 2.44x and 3.56x from the clean
+sources, and §4 finds the regression does not exist. Holding the ANE at its M4 Pro
+value gives 2.89x and 4.17x — larger than the published figures, not smaller — so
+the correction, had it been needed, pointed the other way.
 
 **The default (§3.2) has no chip attribution at all, and we withdraw the claim
 that it has one.** Which engine `ALL` resolves to is an output of a runtime
@@ -953,9 +1038,11 @@ this residency check was run to explain it. The regression was an artefact; the
 residency result stands on its own as a control.
 
 **The experiment that would settle this is cheap and we have the hardware.**
-Update M4 Pro #2 to 26.6, keep M4 Pro #1 on 26.5.1, and rerun both sweeps. That
+Update M4 Pro #3 to 26.6, keep #1 and #2 on 26.5.1, and rerun both sweeps. That
 gives a third cell and separates OS build from silicon for every result in the
-paper. We have not done it.
+paper. Upgrading the third rather than the second matters: it leaves a *pair* on
+the old build, so the OS difference can be read against the between-machine floor
+§3.6 measures rather than against a single machine. We have not done it.
 
 ### 3.6 Measurement reproducibility
 
@@ -977,6 +1064,72 @@ the run-to-run range, so a single sustained GPU figure should not be quoted to
 three decimals. Three separate M4 Pro boxes measured with the corrected tool give
 0.987, 0.979 and 0.960, and their absolute last-window rates agree to 2.7%.
 
+**The 1.7x was the wrong comparison, and re-measuring replaces it with a
+stronger result.** It set a *range* against a *difference of means*, which are
+different statistics: a range grows with n, so the same machine that gives 0.011
+over five runs gives more over twelve, and the comparison moves without the
+hardware moving. The five runs behind the 0.011 were also pre-correction — twelve
+windows with the final one clamped to 9.04 to 9.11 s, the signature the corrected
+tool removed — so the floor and the figures compared against it did not come from
+the same tool.
+
+Re-measured with the corrected tool, twelve repeats on each of two physically
+identical M4 Pro Mac minis, same 120 s protocol and 90 s cooldown on both:
+
+| | M4 Pro #2 | M4 Pro #3 |
+| --- | ---: | ---: |
+| `siglip` GPU, mean of 12 | 0.9726 | 0.9597 |
+| within-machine sd | 0.0042 | 0.0047 |
+| `siglip` ANE, mean of 4 | 0.9997 | 0.9995 |
+| within-machine ANE sd | **0.0002** | **0.0001** |
+
+**The between-machine difference is 0.0130 with a standard error of 0.0018, or
+7.1 sigma.** Identical hardware is genuinely not identical, and the effect is
+larger than a range-versus-difference comparison could establish either way.
+
+Two things make this stronger than the figure it replaces. The ANE arm is the
+control: run on the same boxes, in the same session, through the same harness,
+it holds to an sd of 0.0002, twenty times tighter than the GPU's, so the spread
+is a property of the GPU under sustained load and not of the measurement. And the
+n-dependence is quantified rather than assumed — over all C(12,5) subsets a
+five-run range averages 0.0094 and 0.0101 on the two boxes against full twelve-run
+ranges of 0.0142 and 0.0163, so any range quoted without its n is uninterpretable.
+
+**Most of that within-machine spread is a warm-up, not noise, and a 90 s cooldown
+does not remove it.** The twelve runs are not exchangeable — they settle:
+
+    experiments  0.9831 0.9781 0.9751 0.9694 0.9696 0.9703 0.9700 0.9711 0.9689 0.9713 0.9725 0.9718
+    inference1   0.9721 0.9642 0.9618 0.9598 0.9594 0.9571 0.9568 0.9589 0.9568 0.9562 0.9558 0.9569
+
+On both boxes the first run is the highest of the twelve, and the first three
+average 0.008 to 0.009 above the last six. The rank correlation between run index
+and sustained fraction is −0.28 on `experiments` and **−0.89** on `inference1`.
+Each soak therefore starts a little warmer than the one before it despite the
+cooldown, and the sd over all twelve measures that drift as much as any
+run-to-run variability.
+
+Excluding the settling sharpens the result without moving it:
+
+| | between-machine difference | se | sigma | within-machine sd |
+| --- | ---: | ---: | ---: | ---: |
+| all 12 runs | 0.0130 | 0.0018 | 7.1 | 0.0042 / 0.0047 |
+| dropping run 1 | 0.0131 | 0.0011 | 11.4 | 0.0028 / 0.0026 |
+| dropping runs 1–3 | 0.0130 | 0.0006 | **20.7** | 0.0012 / 0.0015 |
+
+**The effect is invariant to the treatment; only the noise estimate moves.** The
+difference between the machines stays at 0.0130 to 0.0131 in all three rows while
+the within-machine sd falls by a factor of three and a half. We report 7.1 sigma
+as the headline because it makes no choice about which runs to keep, but the
+settled rows say the steady-state repeatability of this measurement is about
+0.0013 rather than 0.0045.
+
+This has a consequence beyond this section. **Any back-to-back soak series in
+this paper carries the same drift**, so a protocol that compares its first run
+against its later ones — which is what §3.3's cold-start study does by
+construction — measures the drift along with whatever else it intends to. §3.3's
+effect is 2 to 4 percentage points against this 0.8 to 0.9, so it survives, but
+by a smaller margin than it appears to.
+
 **The cross-chip sustained comparison does NOT clear that floor reliably, and an
 earlier version of this paper claimed it did.** It said the cross-chip effect
 exceeded both sources of variation by roughly an order of magnitude, computed from
@@ -985,9 +1138,10 @@ the same configuration (§3.3), so the gap against the M4 Pro mean ranges 0.129
 down to **0.023**, and the low end is comparable to the between-machine difference
 itself. The claim is withdrawn.
 
-What survives is the comparison the confound cannot touch. The ANE measured 1.000
-on four machines across two chips in every run, so its zero decline is not a
-number that could have been produced by a lucky starting state. And the absolute
+What survives is the comparison the confound cannot touch. The ANE gave back at
+most 0.14% on four machines across two chips in 41 of 42 runs, with the single
+`whisper` exception of §3.3, so its flat line is not a number that could have been
+produced by a lucky starting state. And the absolute
 throughputs are not close: M4 Pro GPU sustains 172 to 177 img/s while the M5 Max
 sustains 762 to 888, which no amount of thermal-state variation reconciles.
 
@@ -1017,12 +1171,29 @@ corresponding 600 s soak bounds it:
 | `siglip` | 1.03% | 0.22% |
 | `whisper` | **2.98%** | 0.11% |
 
-The ANE is within 0.25% either way, which is what an engine whose opening rate and
-plateau are the same thing looks like — consistent with its 0.04 to 0.06% dip in
-§3.3. The GPU is inflated by up to 3%.
+The ANE is within 0.25% either way on these four, which is what an engine whose
+opening rate and plateau are the same thing looks like. The GPU is inflated by up
+to 3%.
+
+**Two caveats on this table, both against it.** `mobilenet` is absent, and it is
+the model whose ANE floor §3.3 measures at 0.69 to 0.77% — the largest of the
+five — so the four rows here are not a random subset with respect to the quantity
+being bounded. And **we cannot reproduce the table from the
+committed data.** Reading the caption literally — each burst median against the
+mean of the last six windows of the corresponding 600 s soaks — gives 0.20/0.36
+for `bert`, 0.74/−0.15 for `resnet50`, 0.95/0.20 for `siglip` and **1.77**/0.14
+for `whisper` against a printed 2.98%. We then tried six plateau definitions
+(last six windows, final window, last 30%, minimum window, mean and median of all
+windows) across both boxes and each box alone, and the 120 s soaks in place of
+the 600 s ones: eighteen combinations, none of which brings `whisper`'s GPU cell
+within 0.86 pp of 2.98%, and none of which reproduces all eight cells. Three of
+the four GPU figures are stable to within 0.08 pp under every variant, so the
+problem is confined to one cell — but the derivation is not recorded and we
+could not recover it. Read the row-to-row *ordering* here, which every variant
+preserves, rather than the absolute percentages.
 
 **This does not threaten §3.1 or §3.2, and it makes their M4 Pro results
-conservative.** The smallest margin in §3.1 is `mobilenet` at 1.19x, which 3%
+conservative.** The smallest margin in §3.1 is `siglip` at 1.14x, which 3%
 cannot invert, and the default costs in §3.2 run from 1.18x to 5.18x, where 3% on
 one term moves 5.18x to about 5.03x. But the direction matters: the bias flatters
 the GPU, so the M4 Pro cases where the *ANE* wins are understated, and the M5 Max
@@ -1075,10 +1246,12 @@ within-machine ratios at burst.
 
 **Small repeat counts on the added architectures.** `n=3` for the four models
 added in §3.1, against `n=5` for `siglip`. This is adequate for effects of
-4x to 17x and thin for the two high-variance M5 Max ANE cells noted in §3.5, where
-the reported medians (`mobilenet` 1897.7, `bert` 454.6) should be treated as
-approximate. No conclusion in this paper depends on those two cells: both are
-cases where the GPU wins by more than 5x.
+4x to 17x. It was previously called thin for "the two high-variance M5 Max ANE
+cells", quoting medians of 1897.7 for `mobilenet` and 454.6 for `bert`. Those are
+the retracted contended figures; the clean re-run gives 3602.2 and 822.5, and its
+ANE repeat spreads are 0.76% and 0.62%, so neither cell is high-variance any more.
+The GPU margins on the two are 2.89x and 4.28x, not "more than 5x". The caveat
+that remains is the plain one: `n=3` is fewer repeats than `n=5`.
 
 **One batch size.** Batch 16 throughout. Small-batch behaviour is known to be
 dominated by per-call overhead and is not measured here.
@@ -1180,8 +1353,11 @@ decoder structure those recipes route to the ANE. Details in
 ./run.sh --soak
 ```
 
-builds the models, sweeps the three compute-unit settings, runs the sustained
-soaks, and prints both tables ready to paste. Raw per-run JSON for every figure
+builds **the two `siglip` variants**, sweeps the three compute-unit settings on
+them, runs the sustained soaks, and prints both tables ready to paste. It does
+not invoke `models/convert_zoo.py`, so it does not reproduce the four added
+architectures of §2.3 — those were built and swept separately, and their raw
+JSON is committed rather than regenerated by this script. Raw per-run JSON for every figure
 in this paper is under `results/`; the sustained runs and their conditions are in
 `results/soak/`.
 
@@ -1197,7 +1373,14 @@ we most want to see.
 
 ## Data availability
 
-Every number in this paper is derived from JSON committed in this repository.
+Every number in this paper is derived from JSON committed in this repository,
+with one exception we name rather than leave for a reader to find: the **97 °C**
+die temperature in §2.1, §3.3 and §4 is not in any committed file. The soak JSON
+records the `notify(3)` thermal-pressure level and nothing else -- there is no
+temperature field anywhere in `results/` -- because we declined to wire
+`powermetrics` and its root requirement into the tool (§3.3). That figure was
+read off the fan-control utility by hand and should be treated as context for
+the fan curve, not as a measurement this repository backs.
 `results/sweep-*.json` and `results/zoo-*.json` hold burst runs with per-repeat
 values; `results/soak/*.json` hold per-window sustained runs with the power and
 thermal state of each.

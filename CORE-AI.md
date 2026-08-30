@@ -78,9 +78,12 @@ presented as a result.
   needs exactly the treatment finding 3 gave `ALL`: measure where the work landed
   rather than where it was asked to land.
 - **Whether the inversion holds for a `chunkedStatic` decoder-LLM.** That is the
-  structure the heuristic sends to the ANE, and everything measured in this repo
-  so far is a vision transformer ([one model family](README.md#limitations) is
-  already the first stated limitation). Until that is measured, the tension is an
+  structure the heuristic sends to the ANE, and nothing measured in this repo is
+  a decoder-LLM: the five architectures of PAPER.md §2.3 are a vision
+  transformer, two CNNs, a text encoder and an audio encoder. An earlier version
+  of this line said everything measured here was a vision transformer, which
+  stopped being true when the zoo was added, and §3.1 makes a point of the
+  inversion not being a ViT property. Until that is measured, the tension is an
   inference.
 
 ## Core AI cannot be measured on this hardware at all

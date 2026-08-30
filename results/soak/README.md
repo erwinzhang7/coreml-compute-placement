@@ -6,12 +6,28 @@ are directly comparable.
 
 ## Read this before the tables
 
-Three things below were wrong for a while and are now corrected in place.
+Four things below were wrong for a while and are now corrected in place.
+
+-1. **A sixty-second run on battery was counted as a two-minute soak.**
+   `battery-m5max-CPU_AND_NE.json` is `seconds=60.0`, six windows, `power_start`
+   and `power_end` both `battery`. It sat inside `PAPER-SET.txt` and counted
+   toward "44 of 45", so a claim about *two-minute soaks on mains* was being
+   supported in part by a run that was neither. It read 1.0000, so it flattered
+   the ANE; removing it moves the count to **43 of 44** and changes nothing else.
+
+   The cause is worth more than the number. The set was filtered by FILENAME
+   PREFIX — `("long600", "dip", "aned")` — under a comment noting that filtering
+   by prefix rather than by content had already been the bug once. Nothing about
+   the name `battery-m5max` would ever have caught it. The filter now reads
+   `seconds` and `power_start.source` out of each file, and keeps a prefix list
+   only for deliberate sub-studies, whose purpose is not recorded anywhere in
+   the JSON.
 
 0. **Only soaks carrying a `concurrent_load` field recorded what else was running.**
-   The sampler was added to `thermal_soak.py` after the `mx*` batch had already
-   been collected, so those 32 runs are blind to the one confound the field
-   exists to catch. The boxes were checked by hand and were quiet at the time
+   The sampler was added to `thermal_soak.py` only for the `mx*` batch, so 32 of the
+   157 soaks in `PAPER-SET.txt` carry it and **the other 125 are blind** to the one
+   confound the field exists to catch. An earlier version of this note had the
+   count inverted, naming the 32 that record as the ones that do not. The boxes were checked by hand and were quiet at the time
    (largest non-soak process 0.2 GB at 0.0% CPU), but that is a point-in-time
    check rather than a per-run record and is weaker evidence.
 
@@ -115,18 +131,19 @@ difference itself.
 
 ### What survives
 
-The ANE, in 44 of 45 soaks. Across four machines and two chips those 44 measured
+The ANE, in 41 of 42 soaks. Across four machines and two chips those 41 measured
 0.9986 to 1.0000, giving back at most 0.14% of peak regardless of starting state,
 which is what an engine that does not degrade should look like, and it is that
-insensitivity that makes it immune to the confound above. All 44 sustain better
+insensitivity that makes it immune to the confound above. All 41 sustain better
 than the best of 60 GPU soaks (0.9892). Counts are the 120 s protocol only; the
 600 s runs are analysed separately and deliberately excluded (PAPER.md §3.3).
 
-**The twenty-second is a `whisper` ANE soak on inference2 at 0.9748**, and it is
+**The forty-second is a `whisper` ANE soak on inference2 at 0.9748**, and it is
 not dismissed. It ran flat at 56.3 img/s for seven windows, then fell monotonically
 to 54.9 and plateaued. It is not the contended-peak artefact that cost us the M5
 Max numbers: contention lowers the peak, and this run reached 56.34 against 56.34
-and 56.35 for the two whisper ANE runs on other boxes that held their rate. The
+and 56.35 for the seven other `whisper` ANE runs in the paper set, all of which
+held their rate. The
 engine reached full speed and then lost 2.5% of it.
 
 We could not say why at the time, because `thermal_soak.py` recorded the machine and
@@ -162,15 +179,28 @@ almost nothing to lose, so the two agree.
 
 ### Conditions, and what is still unseparated
 
-Both M4 Pros are Mac minis on mains with stock cooling and nothing else running
-(each soak logged `0 avm procs` and no resident chat model at start). The M5 Max
-is a MacBook Pro with a custom fan curve.
+All **three** M4 Pros are Mac minis on mains with stock cooling. The M5 Max is a
+MacBook Pro with a custom fan curve.
+
+An earlier version of this paragraph said "both" M4 Pros, and claimed each soak
+"logged `0 avm procs` and no resident chat model at start". **No soak file
+records anything of the kind.** The only keys any of them carry are model, units,
+batch, seconds, window, machine, power_start, power_end, thermal_readable,
+summary, windows and — in the `mx*` batch and later — concurrent_load. What the
+boxes were doing was checked by hand at the time and not written down, which is
+weaker evidence than a per-run record and should not have been described as one.
+The `concurrent_load` field is that record, and it exists for 130 of the runs;
+see item −1 above for what it can and cannot see.
 
 An earlier version of this file said the chip/chassis pair was unseparated and
 left it there. That was too weak a reading: the two-mini floor plus the ANE's
 flat 0.999 on the hot laptop are evidence, and they point the same way. What
-remains genuinely unseparated is narrower: **how much of the 0.124 and 0.278 is
-the enclosure rather than the silicon.** Settling that needs an M5 Max in a
+remains genuinely unseparated is narrower: **how much of the 0.129 and 0.278 is
+the enclosure rather than the silicon.** The second reproduces as the extreme M4
+Pro `ALL` against the extreme M5 Max `ALL`, 1.0000 − 0.7209 = 0.279. The first
+was printed as 0.124 and does not reproduce from any comparison of these files;
+PAPER.md §3.6 derives the corresponding GPU gap against the M4 Pro mean as 0.129,
+which is the figure used here now. Settling that needs an M5 Max in a
 desktop chassis, or an M4 Pro laptop, and neither exists here.
 
 It does not need settling for the claim being made, which is that the units'
@@ -184,8 +214,19 @@ durability is ordered differently on the two chips.
 | `CPU_AND_GPU` | 1020.7 | 854.3 | **0.837** | falls ~16% in 20 s, then plateaus |
 | `ALL` (default) | 1006.5 | 725.6 | **0.721** | still falling at 120 s |
 
-**The ANE gives up nothing. The GPU gives up a sixth. The default gives up more
-than a quarter and had not stabilised when the run ended.**
+**These three runs are from the OLD tool** — `ac-m5max-*.json`, twelve windows with
+the final one clamped to 9.31-9.42 s rather than a full 10 s, which is the exact
+signature the correction removed. They predate it by two hours. Item 1 above says
+every figure here is from the corrected tool; that is true of the rest of this
+file and not of this table, which is kept because it is the run the retraction is
+*about*.
+
+**The ANE gives up nothing. The GPU gives up a sixth.** The third line does not
+survive: a repeat with the corrected tool put `ALL` and the GPU within noise of
+each other, and the ordering reverses depending on which pair of runs is compared,
+so "the default gives up more than a quarter" is withdrawn (PAPER.md §3.3). What
+holds on this chip is that both the GPU and the default give back roughly a sixth
+over two minutes, and the ANE gives back nothing.
 
 The GPU's advantage over the ANE therefore shrinks with the length of the
 measurement:

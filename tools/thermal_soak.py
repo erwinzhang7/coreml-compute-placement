@@ -205,6 +205,10 @@ class LoadSampler(threading.Thread):
         self.stop = threading.Event()
         self.me = os.getpid()
         self.peak_cpu = 0.0
+        # The busiest SINGLE process seen, kept separately from the sum.
+        # The sum divided by core count is what hid a saturated core.
+        self.peak_cpu_single = 0.0
+        self.rival = None
         self.peak_at = None
         self.peak_procs = []
         self.samples = 0
@@ -234,8 +238,20 @@ class LoadSampler(threading.Thread):
                 if pid == self.me:
                     continue
                 total += cpu
+                comm = parts[2].strip()[:60]
                 if cpu >= self.threshold:
-                    busy.append({"cpu": round(cpu, 1), "comm": parts[2].strip()[:60]})
+                    busy.append({"cpu": round(cpu, 1), "comm": comm})
+                # Tracked on EVERY sample, not only at the peak of the total. A
+                # rival can be running while the machine-wide sum is unremarkable
+                # -- that is precisely the case the machine fraction misses -- so
+                # looking only at busiest_at_peak would reintroduce the blind
+                # spot one level down.
+                if cpu > self.peak_cpu_single:
+                    self.peak_cpu_single = cpu
+                if cpu >= 50.0 and any(h in comm.lower() for h in self.RIVAL_HINTS):
+                    if not self.rival or cpu > self.rival["cpu"]:
+                        self.rival = {"comm": comm, "cpu": round(cpu, 1),
+                                      "at_s": round(time.perf_counter() - self.t0, 1)}
             self.samples += 1
             if total > self.peak_cpu:
                 self.peak_cpu = total
@@ -260,12 +276,35 @@ class LoadSampler(threading.Thread):
             "peak_other_cpu_of_machine": round(frac, 4),
             "peak_at_s": self.peak_at,
             "busiest_at_peak": self.peak_procs,
-            # A soak on a box never above this is a soak with no competition
-            # worth blaming. Read only in that direction: a quiet sample set does
-            # not prove the GPU was uncontended, since GPU work from another
-            # process need not show as CPU at all.
-            "quiet": frac < self.quiet_frac,
+            # TWO conditions, because the machine fraction alone has a blind spot
+            # that cost real measurements. A concurrent soak driver is ONE
+            # single-threaded Python process at ~100% of ONE core. On a 14-core
+            # box that is 7.1% of the machine, so `frac` calls it quiet -- and a
+            # second soak is the single condition these runs must not have. It
+            # happened: a whisper GPU soak ran beside resnet50 ANE soaks, its own
+            # record shows peak_other_cpu_pct 99.4, and the tool printed "box was
+            # quiet". Four files had to be deleted.
+            #
+            # The single-process condition is NOT a bare CPU threshold. Sweeping
+            # the corpus, 79 of 130 runs have some process above 50% of a core
+            # and nearly all of them are WindowServer, PerfPowerServices,
+            # airportd and friends -- ordinary background on any Mac. Rejecting
+            # those would reject most of the corpus for nothing. What matters is
+            # whether the competitor is doing COMPUTE, so the second condition
+            # tests identity and load together.
+            "quiet": frac < self.quiet_frac and not self._rival(),
+            "peak_other_single_core_pct": round(self.peak_cpu_single, 1),
+            "rival_at_peak": self._rival(),
         }
+
+    # A process is a rival if it is working hard AND looks like a compute driver
+    # rather than a system daemon. Named separately so the JSON records WHICH
+    # process disqualified a run, not merely that one did.
+    RIVAL_HINTS = ("python", "thermal_soak", "sweep.py", "coremltools",
+                   "coverage_walk", "rolling_validate", "lightgbm", "mlx")
+
+    def _rival(self):
+        return self.rival
 
 
 def machine():
@@ -296,7 +335,58 @@ def main():
                     help="seconds between concurrent-load samples, 0 to disable. "
                          "Sampled from a separate thread so the predict loop "
                          "never waits on it")
+    ap.add_argument("--allow-concurrent", action="store_true",
+                    help="run even if another thermal_soak.py is active. Off by "
+                         "default because two soaks on one box contend and the "
+                         "load sampler cannot detect it")
     args = ap.parse_args()
+
+    # REFUSE TO RUN BESIDE ANOTHER SOAK. This is the specific, decisive guard;
+    # the load sampler is the diagnostic one and it cannot be relied on here,
+    # because a second soak driver is a single-threaded process at ~100% of ONE
+    # core, which is 7% of a fourteen-core machine and reads as quiet. That
+    # happened, produced four unusable files, and the tool reported "box was
+    # quiet" for every one of them.
+    #
+    # Checked by PID rather than by name matching alone, so this cannot find
+    # itself -- the same trap the load sampler documents for `ps`.
+    if not args.allow_concurrent:
+        # Exclude by PROCESS GROUP, not by pid. Excluding only self and parent
+        # still matched the shell that launched this run -- its command line
+        # contains "thermal_soak.py" because it typed it -- so the guard fired
+        # on an idle box. That is the pgrep-matches-itself trap this file warns
+        # about in LoadSampler, walked into one function later.
+        mypgid = os.getpgid(0)
+        try:
+            ps = subprocess.run(["ps", "-Ao", "pid=,pgid=,command="],
+                                capture_output=True, text=True).stdout
+        except OSError:
+            ps = ""
+        others = []
+        for line in ps.splitlines():
+            parts = line.split(None, 2)
+            if len(parts) < 3 or not parts[0].isdigit():
+                continue
+            pid, pgid, cmd = parts[0], parts[1], parts[2]
+            if pgid.isdigit() and int(pgid) == mypgid:
+                continue
+            # A real soak is an INTERPRETER running the script, not a shell that
+            # happens to name it.
+            if "thermal_soak.py" not in cmd:
+                continue
+            head = cmd.split()[0].rsplit("/", 1)[-1].lower()
+            if not head.startswith("python"):
+                continue
+            others.append(f"pid {pid}: {cmd.strip()[:70]}")
+        if others:
+            print("REFUSING: another soak is already running on this box.",
+                  file=sys.stderr)
+            for o in others:
+                print("  " + o, file=sys.stderr)
+            print("Two soaks on one machine contend, and the load sampler cannot "
+                  "see it. Pass --allow-concurrent if that is genuinely what you "
+                  "want to measure.", file=sys.stderr)
+            return 2
 
     model = ct.models.MLModel(args.model, compute_units=ct.ComputeUnit[args.units])
     spec = model.get_spec()
@@ -479,4 +569,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # sys.exit, not a bare call: main() returns 2 when it refuses to run
+    # beside another soak, and discarding that made the refusal exit 0.
+    # A guard that declines to work and then reports success is worse
+    # than no guard, because the chain believes it.
+    sys.exit(main())

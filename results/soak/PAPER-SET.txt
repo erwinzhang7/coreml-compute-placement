@@ -1,7 +1,6 @@
 ac-m5max-ALL.json
 ac-m5max-CPU_AND_GPU.json
 ac-m5max-CPU_AND_NE.json
-battery-m5max-CPU_AND_NE.json
 coupling-inf2-gpu-1.json
 coupling-inf2-gpu-2.json
 coupling-inf2-gpu-3.json
@@ -95,7 +94,6 @@ mx1-inference2-siglip-vision-CPU_AND_NE.json
 mx1-inference2-whisper-ALL.json
 mx1-inference2-whisper-CPU_AND_GPU.json
 mx1-inference2-whisper-CPU_AND_NE.json
-mx2-experiments-bert-CPU_AND_NE.json
 mx2-experiments-mobilenet-ALL.json
 mx2-experiments-mobilenet-CPU_AND_GPU.json
 mx2-experiments-mobilenet-CPU_AND_NE.json
@@ -105,7 +103,6 @@ mx2-experiments-resnet50-CPU_AND_NE.json
 mx2-experiments-siglip-vision-ALL.json
 mx2-experiments-siglip-vision-CPU_AND_GPU.json
 mx2-experiments-siglip-vision-CPU_AND_NE.json
-mx2-inference1-bert-CPU_AND_NE.json
 mx2-inference1-mobilenet-ALL.json
 mx2-inference1-mobilenet-CPU_AND_GPU.json
 mx2-inference1-mobilenet-CPU_AND_NE.json

@@ -12,9 +12,13 @@ sometimes the slowest of the available options.**
 | chip | GPU cores | NPU cores | ANE | GPU | default (`ALL`) |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | M4 Pro (Mac16,11) | 20 | 16 | **204.4** | 178.8 | **172.2** (slowest) |
-| M5 Max (Mac17,7) | 40 | 16 | 233.0 | **1085.7** | 1068.0 |
+| M5 Max (Mac17,7) | 40 | 16 | 232.9 | **1077.7** | 1053.2 |
 
-images/s, SigLIP-base-224 vision tower, batch 16, fp16, median of 5. On the M4 Pro the
+images/s, SigLIP-base-224 vision tower, batch 16, fp16, median of 5, from the same pinned
+sources as PAPER.md §3.1 (`results/zoo-m5max-v2.json`). The ANE-rewrite figures further down
+quote 1085.7 for the M5 Max GPU instead: those come from `results/sweep-m5max.json`, where the
+naive and rewritten models were measured in one run, and a before/after has to use two numbers
+from the same run rather than a headline from one file and a variant from another. On the M4 Pro the
 Neural Engine is the fastest unit and the default is the slowest option. On the M5 Max the
 GPU is 4.7x faster than the ANE. Neither result generalises to the other chip, and nothing
 in the API tells you which situation you are in.
@@ -48,7 +52,7 @@ one above, with method, mechanism, threats to validity and citations. In short:
 - **§3.2** The default costs 1.18x to 5.18x on the M4 Pro, and on three of five is slower
   than *both* explicit placements. On the M5 Max it is free.
 - **§3.3** Peak does not predict sustained. Over two minutes the ANE gives back at most 0.14%
-  in 44 of 45 soaks; the GPU gives back 0.8 to 16.3% in 60.
+  in 41 of 42 soaks; the GPU gives back 1.1 to 16.3% in 60.
 - **§3.4** Mechanism: the M5's per-GPU-core neural accelerators, with a falsifiable prediction.
 - **§4** Threats to validity. Read these before citing any number.
 
@@ -77,12 +81,12 @@ memory-bandwidth limit, so the ANE's traffic displaces it; the M4 Pro's GPU at 1
 far from that limit and both units run unimpeded. So concurrency is worth most exactly where
 it is cheapest.
 
-### The CPU's share of its own memory bus nearly doubles between chips
+### The CPU's share of its own memory bus nearly halves between chips
 
 Whether the CPU is a candidate at all, and it changes by chip the same way. Measured
 streaming-read bandwidth per engine (`tools/membw.c`, `tools/gpu_bw.py`), GB/s:
 
-| chip | CPU cores | GPU cores | bus peak | 1 core | CPU all cores | GPU | CPU share | CPU/GPU |
+| chip | CPU cores | GPU cores | bus peak | 1 core | CPU all cores | GPU | CPU share | GPU/CPU |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | M4 Pro | 14 | 20 | 273 | 89.8 | 249.5 | 253.5 | **91%** | **1.02x** |
 | M5 Max | 18 | 40 | 614 | 87.8 | 303.8 | 566.7 | **49%** | **1.87x** |
@@ -142,7 +146,9 @@ M5 Max, `powermetrics`, sustained load, batch 16:
 
 The ANE is ~1.2x better per image end to end at 5x lower power. But **45% of the ANE
 configuration's power is CPU**, Python `predict()` driving overhead, against 11% for the GPU
-configuration. On silicon alone the ANE is ~20.6 mJ/image, about 2.2x better. Any serious ANE
+configuration. On silicon alone the ANE is ~20.6 mJ/image against the GPU's ~41.0 mJ, about 2.0x better;
+the 2.2x an earlier version gave here compared the ANE's silicon-only figure with the GPU's
+end-to-end one, which is not a like-for-like ratio. Any serious ANE
 deployment must eliminate that driving overhead before its efficiency can be judged.
 `ANE Power: 0 mW` under `CPU_AND_GPU` independently confirms the compute plan: placement
 analysis and the wattmeter agree.
@@ -158,12 +164,13 @@ hand, and it answers the asymmetry in PAPER.md §3.2:
 | `siglip` | **78.9% ANE / 21.1% GPU** | 100% GPU |
 | `bert` | 77.5% ANE / 17.3% GPU / 5.1% CPU | 100% GPU |
 | `whisper` | 64.1% ANE / 35.9% GPU | 100% GPU |
-| `resnet50` | measuring | 100% GPU |
-| `mobilenet` | measuring | 100% GPU |
+| `resnet50` | **87.6% ANE / 12.4% GPU** | 100% GPU |
+| `mobilenet` | **100% ANE** | 100% GPU |
 
 **On the M5 Max `ALL` never splits.** One engine every time, always the GPU, which is the
 right answer on that chip, and the default costs 1.01x to 1.09x. **On the M4 Pro it splits
-on every architecture measured**, and there it costs 1.19x to 5.18x. So the default is free
+on four of five architectures**, and there it costs 1.18x to 5.18x. `mobilenet` is the
+exception: the runtime puts it entirely on the ANE and it still costs 1.18x. So the default is free
 on the M5 Max because it is not doing anything.
 
 `siglip` on the M4 Pro is the clearest case: the 79/21 split runs slower than pure ANE
