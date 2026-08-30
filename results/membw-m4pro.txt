@@ -1,4 +1,4 @@
-host: Erwins-Mac-mini-inference1
+host: inference1
 chip: Apple M4 Pro  cores=14 (P=10 E=4)  mem=64GB
 date: 2026-08-09T05:03:15Z
 

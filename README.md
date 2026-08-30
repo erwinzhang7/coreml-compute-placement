@@ -283,7 +283,6 @@ verdict if run-to-run spread exceeds 20%.
 | `tools/verify_claims.py` | recomputes PAPER.md's headline numbers from `results/` and fails on disagreement |
 | `tools/summarise.py` | renders a sweep JSON into the reporting table, stdlib only |
 | `tools/summarise_soak.py` | renders soak JSONs into the sustained table, flagging battery, power-source changes and interruptions |
-| `tools/fleet_busy.sh` | which machines are running work, distinguishing "between chain steps" from idle |
 
 ## Core AI
 

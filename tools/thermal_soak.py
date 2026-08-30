@@ -300,8 +300,12 @@ class LoadSampler(threading.Thread):
     # A process is a rival if it is working hard AND looks like a compute driver
     # rather than a system daemon. Named separately so the JSON records WHICH
     # process disqualified a run, not merely that one did.
-    RIVAL_HINTS = ("python", "thermal_soak", "sweep.py", "coremltools",
-                   "coverage_walk", "rolling_validate", "lightgbm", "mlx")
+    # Extend via SOAK_RIVAL_EXTRA (comma-separated) for whatever else competes
+    # for the machine locally. Kept out of the source because the useful entries
+    # are the names of one's own private jobs, which mean nothing to anyone else.
+    RIVAL_HINTS = tuple(
+        ["python", "thermal_soak", "sweep.py", "coremltools", "lightgbm", "mlx"]
+        + [h for h in os.environ.get("SOAK_RIVAL_EXTRA", "").split(",") if h])
 
     def _rival(self):
         return self.rival

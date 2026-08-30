@@ -1,0 +1,87 @@
+# Does every headline number in PAPER.md still recompute from results/?
+#
+# tools/verify_claims.py has existed and passed for weeks, and nothing ran it.
+# A checker nobody runs is a checker that has stopped checking: the first time
+# it went red would be the first time anyone looked, which is exactly the
+# failure it was written to prevent. So it runs here, on every push and every
+# pull request.
+#
+# NO APPLE HARDWARE, NO INSTALL STEP. verify_claims imports only argparse,
+# collections, itertools, json, math, pathlib, statistics and sys. It re-reads
+# the committed JSON in results/ and re-derives each number quoted in PAPER.md.
+# It does not run a model, so it does not need coremltools, a GPU, or a Neural
+# Engine -- an ubuntu runner with the stock Python is enough, and that keeps this
+# job fast and free of the version drift that would make it flaky.
+#
+# WHAT IT CANNOT CATCH, said plainly so nobody reads a green tick for more than
+# it is worth: it checks that the PAPER agrees with the RESULTS FILES. It cannot
+# tell you the measurements were taken correctly, that the machine was quiet, or
+# that a number is not an artefact. Those are the paper's own arguments and its
+# other tools. This job catches the narrow, common failure -- prose and data
+# drifting apart when one of them is edited.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  claims:
+    name: PAPER.md recomputes from results/
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # No pip install. If this ever needs one, the dependency crept into a
+      # checker that is supposed to read committed data and nothing else.
+      - name: verify_claims
+        run: python3 tools/verify_claims.py
+
+      # Every results file must be readable JSON. A truncated write produces a
+      # file that looks present and parses nowhere, and the .partial rename
+      # exists to prevent exactly that -- this is the check that it worked.
+      #
+      # rglob, NOT glob. The first version of this step used glob("*.json") and
+      # would have validated 18 files of 403, printing "18 JSON file(s)" and
+      # passing -- the soaks live in results/soak/ and results/residency/, which
+      # is 96% of them. A checker that reports a confident count for a fraction
+      # of its subject is worse than no checker.
+      - name: results/ is valid JSON
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, sys
+          bad = []
+          files = sorted(pathlib.Path("results").rglob("*.json"))
+          for f in files:
+              try:
+                  json.loads(f.read_text())
+              except Exception as e:
+                  bad.append((f.name, str(e)[:120]))
+          print(f"{len(files)} JSON file(s) in results/")
+          for n, e in bad:
+              print(f"  UNPARSEABLE  {n}: {e}")
+          if not files:
+              print("REFUSING: results/*.json matched nothing")
+              sys.exit(1)
+          sys.exit(1 if bad else 0)
+          PY
+
+      # A .partial is a soak in progress, never a result. One committed means a
+      # run was captured mid-write.
+      - name: no .partial files committed
+        run: |
+          if git ls-files | grep -q '\.partial$'; then
+            echo "committed .partial file(s):"
+            git ls-files | grep '\.partial$'
+            exit 1
+          fi
+          echo "none"
