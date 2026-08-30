@@ -41,11 +41,11 @@ Three things below were wrong for a while and are now corrected in place.
 4%. The default gives back under 1%, so on this chip it sustains slightly
 *better* than the pure GPU placement.
 
-**Read that GPU number as a trough, not a steady state.** 600-second soaks
-(`long600-*.json`) show the M4 Pro GPU dips to a minimum around 80 to 100 seconds
-and then recovers to a plateau just under peak. A 120-second run stops inside that
-dip. Measured from the *same* 600 s runs, taking the window that ends at 120 s
-against the mean of the last six:
+**Read that GPU number as a trough, not a steady state — for four of the five
+models.** 600-second soaks (`long600-*.json`) show the M4 Pro GPU dipping to a
+minimum around 80 to 100 seconds and then recovering to a plateau just under peak.
+A 120-second run stops inside that dip. Measured from the *same* 600 s runs,
+taking the window that ends at 120 s against the mean of the last six:
 
 | model | unit | at 120 s | at steady state |
 | --- | --- | ---: | ---: |
@@ -59,6 +59,16 @@ slowest window falls in the last 30% of the run 77% of the time, against 10% for
 40 ANE soaks and ~30% for chance. **This is M4 Pro only.** The M5 Max GPU loses
 about 15% inside two windows and holds, with no recovery to miss. PAPER.md §3.3
 has the full treatment.
+
+**`mobilenet` is the exception and it was added last.** It does not dip and
+recover; it settles at about 98% of peak by the eighth window and holds that for
+the remaining twenty-one, on both M4 Pro machines and whether the box starts cold
+or warm — six runs spanning 2.10 to 2.44%. So there is no trough to correct for: its
+120 s figure is already its steady state, and applying the "read it as a trough"
+adjustment to `mobilenet` would overstate it.
+
+The M4 Pro GPU has two behaviours, not one, and which appears depends on the
+model. That is the reason to run all five rather than four.
 
 The three ANE cells print as `1.000` at the precision of this table. They are not
 exactly 1: at four decimals they are 1.0000, 1.0000 and 0.9999. An earlier draft

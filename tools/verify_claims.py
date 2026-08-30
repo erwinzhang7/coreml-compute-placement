@@ -242,6 +242,22 @@ def main():
                             "than the best of %d GPU soaks (%.4f)" % (len(gpu), max(gpu)))):
                 checks.append((lbl, s, s in sr))
 
+            # The mobilenet exception. This file tells a reader to treat a 120 s
+            # GPU figure as a trough, and doing that to mobilenet OVERSTATES it,
+            # so the range that justifies the exception has to stay true.
+            mob = []
+            for box in ("inference1", "experiments"):
+                for i in (1, 2, 3):
+                    f = (REPO / "results" / "soak"
+                         / ("dip%d-%s-mobilenet-CPU_AND_GPU.json" % (i, box)))
+                    if not f.exists():
+                        continue
+                    r = [w["images_per_s"] for w in json.loads(f.read_text())["windows"]]
+                    mob.append(100 * (max(r) - min(r)) / max(r))
+            if len(mob) == 6:
+                s = "six runs spanning %.2f to %.2f%%" % (min(mob), max(mob))
+                checks.append(("soak README mobilenet range", s, s in sr))
+
         require_readme("README 3.3 summary",
                        "in %d of %d soaks; the GPU gives back 0.8 to 16.3%% in %d"
                        % (len(above), len(ane), len(gpu)))
@@ -257,13 +273,62 @@ def main():
     for base, lbl in (("inference1-siglip-vision", "siglip"),
                       ("inference1-resnet50", "resnet50"),
                       ("experiments-bert", "bert"),
-                      ("experiments-whisper", "whisper")):
+                      ("experiments-whisper", "whisper"),
+                      ("inference1-mobilenet", "mobilenet"),
+                      ("experiments-mobilenet", "mobilenet2"),
+                      ("experiments-siglip-vision", "siglip2"),
+                      ("inference1-whisper", "whisper2"),
+                      ("experiments-resnet50", "resnet502"),
+                      ("inference1-bert", "bert2")):
         for i in (1, 2, 3):
             f = REPO / "results" / "soak" / ("dip%d-%s-CPU_AND_GPU.json" % (i, base))
             if not f.exists():
                 continue
             r = [w["images_per_s"] for w in json.loads(f.read_text())["windows"]]
             require("3.3 %s dip run %d" % (lbl, i),
+                    "%.2f%%" % (100 * (max(r) - min(r)) / max(r)))
+
+    # The window-1 table that REFUTES the cold-boost reading. These four numbers
+    # are the whole argument: if the cold advantage at the start is the same size
+    # as the dip, the old explanation was right after all. Guard them so nobody
+    # has to take the refutation on trust.
+    def w1(path):
+        f = REPO / "results" / "soak" / path
+        return [w["images_per_s"] for w in json.loads(f.read_text())["windows"]][0] \
+            if f.exists() else None
+
+    for base, lbl in (("inference1-siglip-vision", "siglip"),
+                      ("inference1-resnet50", "resnet50"),
+                      ("experiments-bert", "bert"),
+                      ("experiments-whisper", "whisper")):
+        cold = w1("dip1-%s-CPU_AND_GPU.json" % base)
+        warm = [w1("dip%d-%s-CPU_AND_GPU.json" % (i, base)) for i in (2, 3)]
+        if cold is None or None in warm:
+            continue
+        mean = sum(warm) / len(warm)
+        require("3.3 %s w1 cold" % lbl, "%.2f" % cold)
+        require("3.3 %s w1 warm mean" % lbl, "%.2f" % mean)
+        require("3.3 %s w1 cold advantage" % lbl, "+%.2f%%" % (100 * (cold - mean) / mean))
+
+    # The ANE control. Same protocol, other engine. Only the runs that exist are
+    # checked, so a chain still mid-flight does not fail the paper -- but any run
+    # the prose quotes must be on disk, because require() fails on a missing
+    # string rather than skipping it.
+    for base, lbl in (("inference1-siglip-vision", "siglip"),
+                      ("experiments-whisper", "whisper"),
+                      ("inference1-resnet50", "resnet50"),
+                      ("experiments-bert", "bert"),
+                      ("experiments-mobilenet", "mobilenet"),
+                      ("inference1-mobilenet", "mobilenet2")):
+        for i in (1, 2, 3):
+            f = REPO / "results" / "soak" / ("aned%d-%s-CPU_AND_NE.json" % (i, base))
+            if not f.exists():
+                continue
+            r = [w["images_per_s"] for w in json.loads(f.read_text())["windows"]
+                 if w.get("complete", True)]
+            if len(r) < 20:          # still being written
+                continue
+            require("3.3 %s ANE control run %d" % (lbl, i),
                     "%.2f%%" % (100 * (max(r) - min(r)) / max(r)))
 
     for label, s, ok in checks:

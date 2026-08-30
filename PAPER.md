@@ -628,7 +628,7 @@ GPU because it stops in a trough that later recovers. On the M5 Max a 120 s soak
 does **not** understate anything, because there is no recovery to miss. Applying
 one correction to both would be wrong in the second case.
 
-#### The dip is a cold-start boost being given up, not degradation
+#### The dip happens only on a cold box, and it is a transient, not degradation
 
 Die temperature would settle this directly, and `powermetrics` requires root,
 which we declined to wire into the tool so that anyone can reproduce these runs.
@@ -645,28 +645,164 @@ that has been at full GPU load for the preceding ten and twenty minutes.
 
 **The steady state does not move.** siglip settles at 176.7, 176.6, 176.8 img/s and
 `whisper` at 144.0, 144.1, 144.1 across the three runs. Warming the machine removes
-the early loss and changes nothing else, so the plateau is the engine's real
-capability and the cold peak is transient headroom. Run 2 also begins at the level
-run 1 recovered to, and its peak is slightly *below* run 1's, which is what having
-no cold boost left to spend looks like.
+the early loss and changes nothing else.
 
-So the large component is a **cold-start boost being given up**, not an engine
-degrading under load. A soak started on an idle box measures how much initial
-headroom the GPU surrenders before settling. That is a different claim, and it is
-the one the data supports.
+**Neither does the starting point, and that rules out the obvious explanation.**
+An earlier draft of this section called the dip a cold-start *boost* being given
+up. It is not, and the first window refutes it: if a cold box were boosting, it
+would start measurably faster than a warm one, and it does not.
 
-**On three of four the effect disappears rather than shrinking.** For `siglip`,
+| model | window 1, cold | window 1, warm (mean) | difference | dip, cold |
+| --- | ---: | ---: | ---: | ---: |
+| `siglip` | 177.69 | 177.19 | +0.28% | 3.05% |
+| `resnet50` | 656.88 | 656.38 | +0.08% | 2.71% |
+| `whisper` | 145.63 | 145.35 | +0.19% | 3.83% |
+| `bert` | 557.69 | 557.16 | +0.09% | 2.13% |
+
+The cold advantage at the start is **0.08 to 0.28%**, an order of magnitude too
+small to be the 2.13 to 3.83% that is subsequently lost. Cold and warm runs begin
+at the same rate and end at the same rate; the only difference is in between.
+
+What the series actually shows is an **excursion**. A cold run holds its opening
+rate for two or three windows, drops in a single step — siglip goes 177.3 to 173.2
+between windows 3 and 4 — bottoms around 80 to 120 s, and then climbs back to the
+plateau over the following minutes. A warm run does not take the step at all.
+
+So the finding is that **the excursion is conditional on starting cold**, and that
+it is transient rather than degradation, since the endpoint is identical either
+way. Naming its cause needs die temperature and clock residency, which need root,
+and this paper does not claim one. A control loop converging once on a cold ramp
+fits, and so do other things.
+
+**`mobilenet` does neither of those things, and it is the reason to run all five.**
+Added to the protocol after the other four, and run on **both** M4 Pro machines
+rather than one, so box and engine are not aliased:
+
+| box | run 1, idle | run 2, warm | run 3, warm | plateau, last 6 windows |
+| --- | ---: | ---: | ---: | ---: |
+| inference1 | 2.15% | 2.35% | 2.44% | 0.980, 0.977, 0.976 |
+| experiments | 2.31% | 2.10% | 2.15% | 0.979, 0.980, 0.980 |
+
+Two claims above fail on it. The dip does **not** shrink on a warm box — six runs
+spanning 2.10 to 2.44% with no cold/warm ordering on either machine — so it is not
+conditional on starting cold. And the shape is not an excursion. Windows 1 to 12
+of the cold run, as a percentage of peak:
+
+    mobilenet   100.0  99.6  99.2  98.4  98.2  98.3  98.1  97.8  98.0  98.0  98.0  98.0   ... 98.0
+    siglip      100.0  99.9  99.8  97.5  97.0  96.9  97.1  97.3  97.7  98.1  98.7  99.0   ... 99.4
+
+`mobilenet` steps down to 98% by the eighth window and stays there for the
+remaining twenty-one. `siglip` bottoms at 96.9% and climbs back to 99.4%. One is a
+settling, the other is an excursion, and only the second recovers.
+
+`mobilenet` settles at 98% by the eighth window and holds it for the remaining
+twenty-one; the second machine settles at 97.7% by the ninth and holds that. Both
+are a settling. `siglip` bottoms at 96.9% and climbs back to 99.4%, which is an
+excursion, and only the second recovers.
+
+So the M4 Pro GPU has **two** behaviours, not one, and which appears depends on
+the model. That also means the "read the 120 s number as a trough" correction
+below applies to the four that recover and not to `mobilenet`, whose 120 s number
+is already its steady state.
+
+**The two machines agree more closely here than §3.6's floor would suggest.** The
+six GPU peaks span 3615.6 to 3632.0 img/s, 0.5%, and the six ANE peaks 3075.8 to
+3077.2, 0.05% — against the 2.7% agreement on `siglip` last-window rates that
+§3.6 reports. A between-machine floor measured on one model and one metric does
+not transfer to another, and the honest reading of §3.6 is that 2.7% is what that
+comparison gave, not a constant.
+
+**On three of five the effect disappears rather than shrinking.** For `siglip`,
 `resnet50` and `bert` the dip falls to 0.5% or less *and* the minimum stops
 occupying the 4 to 6 band, landing at 13, 15, 19, 27 and 29 where its position
 carries no information. Losing both the magnitude and the location is what a
 signature going away looks like; losing only the magnitude would not be.
 
-**`whisper` is the exception, and it is model-specific.** Its dip stalls near 1.2
-to 1.4% with the minimum still at window 4 or 5 on a machine that has been at full
-GPU load for twenty minutes. Three architectures on the same two machines under
-the same protocol lose it entirely, so whatever survives a warm start belongs to
-that model rather than to the engine or the harness. Model load and cache warming
-are candidates; neither is measured, and we do not claim which.
+#### Every model, on both machines
+
+The four findings above each rested on one model measured on one box. `mobilenet`
+showed what that can hide, so the whole protocol was repeated for all five models
+on both M4 Pro machines — thirty runs, ten model-box cells:
+
+| model | box | cold | warm | warm | minima |
+| --- | --- | ---: | ---: | ---: | --- |
+| `siglip` | inference1 | 3.05% | 0.70% | 0.50% | 6, 19, 29 |
+| `siglip` | experiments | 2.59% | 0.26% | 0.21% | 4, 21, 22 |
+| `resnet50` | inference1 | 2.71% | 0.34% | 0.34% | 5, 15, 27 |
+| `resnet50` | experiments | 1.49% | 0.21% | 0.34% | 5, 22, 8 |
+| `bert` | experiments | 2.13% | 0.21% | 0.28% | 4, 14, 13 |
+| `bert` | inference1 | 2.33% | 0.22% | 0.28% | 5, 10, 17 |
+| `whisper` | experiments | 3.83% | 1.14% | 1.40% | 4, 4, 5 |
+| `whisper` | inference1 | 4.01% | 2.63% | 2.50% | 6, 15, 28 |
+| `mobilenet` | inference1 | 2.15% | 2.35% | 2.44% | 8, 9, 28 |
+| `mobilenet` | experiments | 2.31% | 2.10% | 2.15% | 22, 9, 19 |
+
+**The pattern is robust and the magnitude is not.** On four of five models, on both
+machines, the cold run's dip is several times the warm runs' and the warm minimum
+leaves the 4-to-6 band. `mobilenet` fails to be cold-conditional on *both*
+machines, so it is a consistent exception rather than a one-box artefact. But the
+size of the cold dip moves between physically identical boxes — `resnet50` reads
+2.71% on one and 1.49% on the other, `siglip` 3.05% against 2.59% — so **the
+direction transfers and the number does not**. A single-box cold dip should be
+quoted as a pattern, not as a value.
+
+`bert` is the closest thing to a clean replication in the set: 2.13 / 0.21 / 0.28
+against 2.33 / 0.22 / 0.28.
+
+**`whisper`'s warm residual is the one thing that does not survive the second
+machine.** Its cold dip reproduces closely, 3.83 against 4.01. Its warm residual
+does not: roughly twice as large on `inference1` **and its minimum leaves the
+4-to-6 band**, landing at 15 and 28, which is the pattern this section calls a
+signature going away. The two pieces of evidence that made `whisper` look
+model-specific — a residual that survives warming, and a minimum that stays put —
+point in opposite directions once a second machine is used.
+
+So we weaken that claim rather than repeat it. `whisper` retains more of its dip
+on a warm box than the other four do, on both machines. Whether that residual is a
+property of the **model** is not established: its size and its position both move
+between two identical machines, which is what a machine effect looks like. Model
+load and cache warming remain candidates; so does something about the individual
+box, and none of the three is measured.
+
+**The ANE, run through the identical protocol, shows none of it.** Every run above
+is `CPU_AND_GPU`, so the design cannot by itself distinguish a property of the GPU
+from a property of the harness or of the first seconds of any measurement. Three
+back-to-back 600 s `CPU_AND_NE` soaks on the same two boxes, same script, same
+window length, no cooldown:
+
+| model | box | run 1, idle | run 2, warm | run 3, warm | cold−warm spread | minimum at window |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| `siglip` | inference1 | 0.06% | 0.05% | 0.06% | 0.01 pp | 21, 23, 10 |
+| `whisper` | experiments | 0.05% | 0.04% | 0.05% | 0.02 pp | 4, 4, 25 |
+| `resnet50` | inference1 | 0.30% | 0.31% | 0.32% | 0.02 pp | 8, 5, 6 |
+| `bert` | experiments | 0.23% | 0.25% | 0.25% | 0.01 pp | 24, 13, 26 |
+| `mobilenet` | experiments | 0.76% | 0.77% | 0.77% | 0.01 pp | 2, 2, 1 |
+| `mobilenet` | inference1 | 0.77% | 0.69% | 0.73% | 0.08 pp | 1, 27, 10 |
+
+**Starting cold changes nothing on any of the four.** The spread across the three
+runs is 0.01 to 0.02 percentage points, and on three of four the cold run is the
+*smallest* of the three. The GPU's cold run is larger than its warm runs by 1.9 to
+2.6 percentage points on the same two machines. Peaks agree to two decimals across
+runs on every model. Anything living in the tool, the model load, or the first
+minute of a measurement would have moved this too, so the excursion is the GPU's.
+
+**The ANE's floor is model-dependent, which we did not expect.** `siglip` and
+`whisper` give back 0.04 to 0.06%; `resnet50` and `bert` give back 0.23 to 0.32%,
+five times more. That is still 7 to 16 times below the GPU's cold dip and it is
+reproducible rather than noisy — three runs per model agree to 0.02 pp — so it is
+a real property of those graphs on that engine and not a measurement artefact. It
+is reported because it was predicted otherwise: a pre-registered expectation of
+0.04 to 0.08% for all four was written before these two ran, and it was wrong.
+
+That also qualifies an argument made above. `resnet50`'s minimum sits at windows
+8, 5 and 6 — inside the early band — in all three runs *including the warm ones*,
+so "the position is uninformative on the ANE" is not universal. What matters for
+the control is that the position does not **move** between cold and warm, which is
+exactly what distinguishes it from the GPU, where the minimum leaves the 4-to-6
+band as soon as the box is warm.
+
+So the excursion is a property of **the GPU**, not of the tool, the model load, or
+the first minute of a measurement. Any of those would have moved the ANE too.
 
 What this does **not** identify is the physical variable. On a cold machine clock
 headroom, power budget and fan state all move together, and this design separates
@@ -865,12 +1001,14 @@ burst measurement, it should.
 
 ## 4. Threats to validity
 
-**Burst figures carry a cold-start boost, and it is asymmetric.** §3.3 shows the
-M4 Pro GPU gives up 2 to 3% of an initial boost within the first 100 seconds and
-then holds; on a box already at load the effect is 0.2 to 1.4%. Every burst number
-in §3.1 and §3.2 is measured from a cold start, so it captures some of that boost.
-Comparing each burst median against the steady state of the corresponding 600 s
-soak bounds it:
+**Burst figures read above the steady state, and asymmetrically.** A burst is over
+in about two seconds, so it samples the opening rate, and §3.3 shows the opening
+rate sits slightly above the plateau the same run settles to. Every burst number
+in §3.1 and §3.2 is measured from a cold start, and the cold excursion documented
+in §3.3 has not begun that early, so the burst misses it entirely — this is not
+the 2 to 3% dip reappearing, it is a much smaller offset between the first seconds
+and the plateau. Comparing each burst median against the steady state of the
+corresponding 600 s soak bounds it:
 
 | model | GPU inflation | ANE inflation |
 | --- | ---: | ---: |
@@ -879,8 +1017,9 @@ soak bounds it:
 | `siglip` | 1.03% | 0.22% |
 | `whisper` | **2.98%** | 0.11% |
 
-The ANE is within 0.25% either way, which is what an engine with no boost to lose
-looks like. The GPU is inflated by up to 3%.
+The ANE is within 0.25% either way, which is what an engine whose opening rate and
+plateau are the same thing looks like — consistent with its 0.04 to 0.06% dip in
+§3.3. The GPU is inflated by up to 3%.
 
 **This does not threaten §3.1 or §3.2, and it makes their M4 Pro results
 conservative.** The smallest margin in §3.1 is `mobilenet` at 1.19x, which 3%
