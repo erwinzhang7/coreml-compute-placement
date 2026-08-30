@@ -14,6 +14,52 @@ import sys
 import time
 
 
+def power_and_thermal():
+    """Power source, Low Power Mode, and thermal pressure at sweep time.
+
+    None of this was recorded for the two sweeps already in results/, and it
+    should have been: Mac17,7 is a LAPTOP. A sweep on battery is not comparable
+    to one on AC, and nothing in the JSON said which it was. Measured with
+    tools/thermal_soak.py, GPU throughput on this machine falls ~18% within 30
+    seconds on battery while thermal pressure stays nominal, so the difference is
+    large enough to reorder a comparison.
+
+    The burst numbers in those sweeps are still sound as PEAK measurements -- 30
+    iterations is over before any of this bites, and their spread is 0.0-3.5%.
+    The gap is that a reader cannot tell peak from sustained, or AC from battery,
+    without this field.
+
+    Thermal pressure comes from notify(3), which needs no root, so this cannot
+    turn a clone-and-run into a sudo prompt.
+    """
+    out = {}
+    ps = subprocess.run(["pmset", "-g", "ps"], capture_output=True, text=True).stdout
+    out["source"] = ("AC" if "AC Power" in ps else
+                     "battery" if "Battery Power" in ps else "unknown")
+    out["battery"] = next((l.strip() for l in ps.splitlines() if "%" in l), "")
+    # macOS 26 does not list lowpowermode in `pmset -g` or `pmset -g custom` at
+    # all, so absence here is the OS not exposing it rather than a parse miss.
+    # Said explicitly, because a field that reads "unknown" on every machine is
+    # indistinguishable from one that is quietly broken.
+    g = subprocess.run(["pmset", "-g"], capture_output=True, text=True).stdout
+    lpm = next((l for l in g.splitlines() if "lowpowermode" in l), "")
+    out["lowpowermode"] = lpm.split()[-1] if lpm else "not-exposed-by-pmset"
+    try:
+        import ctypes
+        import ctypes.util
+        lib = ctypes.CDLL(ctypes.util.find_library("System"))
+        tok = ctypes.c_int(0)
+        if lib.notify_register_check(
+                ctypes.c_char_p(b"com.apple.system.thermalpressurelevel"),
+                ctypes.byref(tok)) == 0:
+            st = ctypes.c_uint64(0)
+            if lib.notify_get_state(tok, ctypes.byref(st)) == 0:
+                out["thermal"] = int(st.value)
+    except OSError:
+        pass
+    return out
+
+
 def chip():
     out = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"],
                          capture_output=True, text=True).stdout.strip()
@@ -24,7 +70,8 @@ def chip():
     cores = next((l.split(":")[1].strip() for l in gpu.splitlines()
                   if "Total Number of Cores" in l), "?")
     return {"cpu": out, "model": model, "gpu_cores": cores,
-            "macos": platform.mac_ver()[0]}
+            "macos": platform.mac_ver()[0],
+            "power": power_and_thermal()}
 
 
 def bench_once(py, model, units, batch, iters, warmup):

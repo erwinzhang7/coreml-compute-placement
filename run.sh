@@ -2,15 +2,22 @@
 #
 # Reproduce the measurement on your own machine and print a paste-ready table.
 #
-#   ./run.sh
-#   ./run.sh --batch 8 --quick
+#   ./run.sh                      burst throughput (~2 min after setup)
+#   ./run.sh --soak               burst, then a 120 s sustained soak per unit
+#   ./run.sh --batch 8 --quick    faster, noisier
+#   ./run.sh --soak-seconds 300   a longer soak; implies --soak
 #
 # Builds both model variants, sweeps the three compute-unit settings, and
 # summarises. The venv and the built .mlpackages are gitignored; the sweep
 # JSON is written into results/, which is tracked, so you can commit yours.
 #
+# --soak answers a different question from the sweep. The sweep measures the
+# rate a unit can REACH; the soak measures the rate it HOLDS. On an M5 Max the
+# GPU keeps only 0.837 of its peak over two minutes while the ANE keeps 0.999,
+# so a burst-only number can rank the units differently from a long-running job.
+#
 # If your chip disagrees with the two in the README, that is the interesting
-# case: please open an issue with the table this prints.
+# case: please open an issue with the tables this prints.
 
 set -euo pipefail
 
@@ -18,13 +25,17 @@ BATCH=16
 ITERS=30
 REPEATS=5
 LABEL=""
+SOAK=0
+SOAK_SECONDS=120
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --batch)   BATCH="$2"; shift 2 ;;
         --label)   LABEL="$2"; shift 2 ;;
         --quick)   ITERS=10; REPEATS=3; shift ;;
-        -h|--help) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        --soak)    SOAK=1; shift ;;
+        --soak-seconds) SOAK=1; SOAK_SECONDS="$2"; shift 2 ;;
+        -h|--help) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
 done
@@ -79,3 +90,27 @@ python3 tools/summarise.py "$OUT"
 echo "═════════════════════════════════════════════"
 echo
 echo "Raw JSON: $OUT"
+
+if [[ "$SOAK" == "1" ]]; then
+    # Three units at SOAK_SECONDS each, plus a 20 s gap so the next unit does not
+    # start inside the previous one's thermal tail.
+    TOTAL=$(( (SOAK_SECONDS + 20) * 3 / 60 ))
+    echo
+    echo "── sustained soak: 3 units x ${SOAK_SECONDS}s, about ${TOTAL} min ──"
+    echo "   Leave the machine otherwise idle. A soak on a busy box measures the"
+    echo "   other job. On a laptop, plug it in: on battery the GPU throttles for"
+    echo "   reasons that have nothing to do with heat."
+    mkdir -p "results/soak"
+    for U in CPU_AND_NE CPU_AND_GPU ALL; do
+        "$VPY" tools/thermal_soak.py "$NAIVE" --units "$U" \
+            --seconds "$SOAK_SECONDS" --window 10 \
+            --out "results/soak/${LABEL}-${U}.json"
+        sleep 20
+    done
+    echo
+    echo "══════════ sustained, paste this too ══════════"
+    python3 tools/summarise_soak.py "results/soak/${LABEL}-"*.json
+    echo "══════════════════════════════════════════════"
+    echo
+    echo "Raw JSON: results/soak/${LABEL}-*.json"
+fi

@@ -1,0 +1,83 @@
+{
+  "model": "siglip-vision-b16.mlpackage",
+  "units": "CPU_AND_NE",
+  "batch": 16,
+  "seconds": 60.0,
+  "window": 10.0,
+  "machine": {
+    "cpu": "Apple M5 Max",
+    "model": "Mac17,7",
+    "macos": "26.6",
+    "coremltools": "9.0"
+  },
+  "power_start": {
+    "source": "battery",
+    "battery": "-InternalBattery-0 (id=23134307)\t80%; discharging; 6:12 remaining present: true",
+    "lowpowermode": "not-exposed-by-pmset"
+  },
+  "thermal_readable": true,
+  "power_end": {
+    "source": "battery",
+    "battery": "-InternalBattery-0 (id=23134307)\t79%; discharging; 5:52 remaining present: true",
+    "lowpowermode": "not-exposed-by-pmset"
+  },
+  "summary": {
+    "windows": 6,
+    "best_images_per_s": 232.97,
+    "last_images_per_s": 232.97,
+    "sustained_fraction": 1.0,
+    "mean_images_per_s": 232.01,
+    "max_thermal": 0,
+    "interrupted": false
+  },
+  "windows": [
+    {
+      "t": 0.0,
+      "seconds": 10.0303,
+      "calls": 145,
+      "images_per_s": 231.3,
+      "thermal": 0,
+      "thermal_name": "nominal"
+    },
+    {
+      "t": 10.052,
+      "seconds": 10.0105,
+      "calls": 145,
+      "images_per_s": 231.76,
+      "thermal": 0,
+      "thermal_name": "nominal"
+    },
+    {
+      "t": 20.085,
+      "seconds": 10.0067,
+      "calls": 145,
+      "images_per_s": 231.85,
+      "thermal": 0,
+      "thermal_name": "nominal"
+    },
+    {
+      "t": 30.116,
+      "seconds": 10.0137,
+      "calls": 145,
+      "images_per_s": 231.68,
+      "thermal": 0,
+      "thermal_name": "nominal"
+    },
+    {
+      "t": 40.151,
+      "seconds": 10.0462,
+      "calls": 146,
+      "images_per_s": 232.53,
+      "thermal": 0,
+      "thermal_name": "nominal"
+    },
+    {
+      "t": 50.221,
+      "seconds": 9.8211,
+      "calls": 143,
+      "images_per_s": 232.97,
+      "thermal": 0,
+      "thermal_name": "nominal"
+    }
+  ]
+}

@@ -337,7 +337,17 @@ python3.12 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
 # both units at once, optionally with a different variant per unit
 ./.venv/bin/python tools/bench_concurrent.py siglip-vision-b16.mlpackage \
     --model-ane siglip-ane-b16.mlpackage --model-gpu siglip-vision-b16.mlpackage
+
+# what a unit HOLDS rather than what it reaches — see results/soak/
+./.venv/bin/python tools/thermal_soak.py siglip-vision-b16.mlpackage \
+    --units CPU_AND_GPU --seconds 120 --window 10 --out results/soak/mychip-gpu.json
+python3 tools/summarise_soak.py "results/soak/mychip-*.json"
 ```
+
+`./run.sh --soak` does the whole sustained pass for you — all three units, then a
+paste-ready table — and is the easier way in. Run it on an **idle** machine, and on a
+laptop **plug it in**: on battery the GPU throttles for reasons that have nothing to do
+with heat, and the summariser will flag the run if you forget.
 
 `models/ane_siglip.py` verifies numerical equivalence against the HuggingFace model on
 every build and refuses to emit a model that does not match.
@@ -374,7 +384,25 @@ and prints `UNRELIABLE` rather than a verdict if run-to-run spread exceeds 20%.
 | `tools/membw.c` | CPU streaming-read bandwidth, per core tier via QoS, emitting its timed window as `CLOCK_MONOTONIC` timestamps |
 | `tools/gpu_bw.py` | GPU streaming bandwidth via MLX, several op shapes with explicit traffic accounting |
 | `tools/contention.py` | both engines in aligned windows, interleaved repeats, solves for the contended rate and refuses to render a verdict above 20% spread |
+| `tools/thermal_soak.py` | sustained load, throughput bucketed into windows, with thermal pressure and power source per run; writes each window as it completes so a kill costs one window |
 | `tools/summarise.py` | renders a sweep JSON into the reporting table, stdlib only so it runs outside the virtualenv |
+| `tools/summarise_soak.py` | renders soak JSONs into the sustained table, and flags any run that was on battery, changed power source, or was interrupted |
+
+---
+
+## Core AI
+
+Apple shipped Core AI at WWDC 2026, a pipeline layer above Core ML. Placement did not
+go away with it: `MLComputeUnits` becomes
+`SpecializationOptions(preferredComputeUnitKind:)`, an allow-list becomes a single
+*preferred* unit, and it moves to Swift — `coreai-torch` has no placement surface at all.
+
+Apple's own reference recipes choose that unit from **model structure with no chip
+term**: static-shape and segmenter models get `.neuralEngine`, dynamic-shape models get
+`.gpu`. Finding 1 above is that the right unit inverts *between chips* for the same
+model. [**CORE-AI.md**](CORE-AI.md) sets out the tension, what it would take to settle
+it, and why none of it is a measurement yet — the harness here drives Core ML from
+Python, and Core AI inference is Swift.
 
 ---
 
