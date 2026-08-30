@@ -1,0 +1,92 @@
+{
+  "model": "siglip-vision-b16.mlpackage",
+  "units": "CPU_AND_NE",
+  "batch": 16,
+  "seconds": 120.0,
+  "window": 10.0,
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "model": "Mac16,11",
+    "macos": "26.5.1",
+    "coremltools": "9.0"
+  },
+  "power_start": {
+    "source": "AC",
+    "lowpowermode": "not-exposed-by-pmset"
+  },
+  "thermal_readable": true,
+  "windows": [
+    {
+      "t": 0.0,
+      "seconds": 10.0373,
+      "calls": 128,
+      "images_per_s": 204.04,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 10.041,
+      "seconds": 10.0377,
+      "calls": 128,
+      "images_per_s": 204.03,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 20.079,
+      "seconds": 10.0411,
+      "calls": 128,
+      "images_per_s": 203.96,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 30.121,
+      "seconds": 10.0359,
+      "calls": 128,
+      "images_per_s": 204.07,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 40.157,
+      "seconds": 10.0405,
+      "calls": 128,
+      "images_per_s": 203.97,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 50.198,
+      "seconds": 10.0368,
+      "calls": 128,
+      "images_per_s": 204.05,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 60.235,
+      "seconds": 10.04,
+      "calls": 128,
+      "images_per_s": 203.98,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 70.275,
+      "seconds": 10.0387,
+      "calls": 128,
+      "images_per_s": 204.01,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    }
+  ]
+}

@@ -439,8 +439,22 @@ def main():
             header["concurrent_load"] = load.report()
         if not args.out:
             return
-        with open(args.out, "w") as fh:
+        # Windows are streamed as they complete, so for most of a run this file
+        # is a partial one. Under its FINAL name that is indistinguishable from
+        # what a killed run leaves -- same metadata, same requested duration,
+        # same power source, a couple of windows, no summary -- and a file
+        # rsynced off a box mid-run was in fact read as a kill, and written up
+        # as one, before the box's log said otherwise.
+        #
+        # So the final name is only ever created by the rename below, once the
+        # summary exists. An interrupted run leaves a .partial nobody will
+        # mistake for a result, and callers that skip on `[ -f out ]` re-run it,
+        # which is the right thing to do with an unfinished run.
+        with open(args.out + ".partial", "w") as fh:
             json.dump({**header, "windows": windows}, fh, indent=2)
+        if not header.get("summary"):
+            return
+        os.replace(args.out + ".partial", args.out)
 
     print(f"{args.units}  batch {batch}  soaking {args.seconds:.0f}s "
           f"in {args.window:.0f}s windows")

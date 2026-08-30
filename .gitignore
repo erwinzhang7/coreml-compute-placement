@@ -4,3 +4,6 @@ __pycache__/
 *.mlmodelc/
 *.pyc
 membw
+
+# A soak in progress. Never a result -- see the rename in thermal_soak.py.
+*.json.partial

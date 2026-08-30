@@ -478,6 +478,291 @@ def main():
                        100 * late / len(ps), "**" if u == "CPU_AND_GPU" else "",
                        sum(ps) / len(ps)))
 
+        # 2.6's "only equal-duration soaks are comparable". That used to be
+        # justified with "the statistic falls with soak length BY CONSTRUCTION",
+        # which the 600 s runs falsify: the numerator is the LAST window, and a
+        # longer run ends at a different one, so both terms move. Derived here
+        # because the counts are the whole point of the correction.
+        rose = fell = 0
+        by = collections.defaultdict(lambda: {"rise": 0, "fall": 0})
+        for pth in sorted(soakdir.glob("*.json")):
+            dd = json.loads(pth.read_text())
+            if dd.get("window") != 20.0:
+                continue
+            w = [x["images_per_s"] for x in (dd.get("windows") or [])]
+            if len(w) < 10:
+                continue
+            at120 = w[5] / max(w[:6])
+            at600 = w[-1] / max(w)
+            u = dd.get("units")
+            if at600 > at120:
+                rose += 1
+                by[u]["rise"] += 1
+            elif at600 < at120:
+                fell += 1
+                by[u]["fall"] += 1
+        if rose + fell:
+            require("2.6 length effect is not by construction",
+                    "**%d of %d rise with length and %d fall**"
+                    % (rose, rose + fell, fell))
+            # Split by unit, which is where the mechanism lives: the GPU rises
+            # because it recovers from a dip, the ANE falls because it has no dip
+            # to recover from. The first cut of this correction used a hand-rolled
+            # glob, counted 22 of 40, and published it; this guard's fuller
+            # population is what caught that.
+            require("2.6 length effect, GPU row",
+                    "| GPU | **%d** | %d |" % (by["CPU_AND_GPU"]["rise"],
+                                               by["CPU_AND_GPU"]["fall"]))
+            require("2.6 length effect, ANE row",
+                    "| ANE | %d | **%d** |" % (by["CPU_AND_NE"]["rise"],
+                                               by["CPU_AND_NE"]["fall"]))
+
+        # 4's repeatability comparison. It used to set burst PERCENTAGES against
+        # an absolute sustained move of 0.106, from the other machine and the
+        # confounded no-cooldown set. Both sides are now relative sds over
+        # repeats, and both are derived here so the comparison cannot drift back
+        # into comparing two different statistics.
+        def relsd(fs):
+            out = []
+            for fn in fs:
+                fp = REPO / "results" / fn
+                if not fp.exists():
+                    continue
+                for e in json.loads(fp.read_text()):
+                    r = e.get("runs") or []
+                    if len(r) > 2:
+                        out.append(100 * statistics.stdev(r) / statistics.median(r))
+            return out
+        b4 = relsd(["zoo-m4pro-dtypefix.json", "sweep-m4pro.json"])
+        b5 = relsd(["zoo-m5max-v2.json"])
+        if b4 and b5:
+            require("4 burst repeatability, medians",
+                    "| median cell | %.2f%% | %.2f%% | — |"
+                    % (statistics.median(b4), statistics.median(b5)))
+            require("4 burst repeatability, ranges",
+                    "| range across cells | %.2f to %.2f%% | %.2f to **%.2f%%**"
+                    % (min(b4), max(b4), min(b5), max(b5)))
+
+        # The three-box result. Every figure derived, including the sigmas,
+        # because "three identical machines all differ" is the strongest claim
+        # in 3.6 and it should not be possible to state it from stale numbers.
+        tri = {}
+        for bx in ("experiments", "inference1", "inference2"):
+            v = []
+            for i in range(1, 13):
+                fp = soakdir / ("floor-%s-siglip-CPU_AND_GPU-%02d.json" % (bx, i))
+                if fp.exists():
+                    v.append(sustained(json.loads(fp.read_text())))
+            if len(v) == 12:
+                tri[bx] = v[3:]
+        if len(tri) == 3:
+            order = ["experiments", "inference1", "inference2"]
+            for lbl, bx in zip(("#2", "#3", "#4"), order):
+                require("3.6 three-box row %s" % lbl,
+                        "| M4 Pro %s | %.4f | %.4f |"
+                        % (lbl, statistics.mean(tri[bx]), statistics.stdev(tri[bx])))
+            for lbl, (a, b) in zip(("#2 vs #3", "#2 vs #4", "#3 vs #4"),
+                                   itertools.combinations(order, 2)):
+                x, y = tri[a], tri[b]
+                d = abs(statistics.mean(x) - statistics.mean(y))
+                se = math.sqrt(statistics.stdev(x) ** 2 / len(x)
+                               + statistics.stdev(y) ** 2 / len(y))
+                sg = d / se
+                # The two pairs involving box #4 span a three-hour session
+                # gap and were withdrawn. The guard asserts the WITHDRAWN
+                # MARKER as part of the row, so the retraction cannot be lost
+                # by an edit that only touches the numbers -- which is how the
+                # first version of this correction left a stale figure behind
+                # in a sentence no guard was watching.
+                tail = ("**withdrawn below**" if "#4" in lbl else "stands")
+                require("3.6 three-box pair %s" % lbl,
+                        "| %s | %.4f | %.4f | %.1f | %s |"
+                        % (lbl, d, se, sg, tail))
+
+        # 3.5's per-window traces, regenerated from the files they come from.
+        # They had drifted -- siglip matched 7 of 12 windows and resnet50 9 of 11
+        # -- and the two are from DIFFERENT boxes, which was not stated.
+        for name, fn, nw in (("siglip",
+                              "long600-inference1-siglip-vision-CPU_AND_GPU.json", 12),
+                             ("resnet50",
+                              "long600-experiments-resnet50-CPU_AND_GPU.json", 11)):
+            fp = soakdir / fn
+            if not fp.exists():
+                continue
+            w = [round(x["images_per_s"])
+                 for x in json.loads(fp.read_text())["windows"]]
+            require("3.5 window trace %s" % name,
+                    " ".join(str(x) for x in w[:nw]) + " ... %d" % w[-1])
+
+        # 4's "the repeat spread was the tell". It was not: the widest cell in
+        # the study is in the CLEAN file. Derived so the refutation cannot rot.
+        cl = []
+        for fn in ("zoo-m5max-v2.json",):
+            fp = REPO / "results" / fn
+            if fp.exists():
+                for e in json.loads(fp.read_text()):
+                    r = e.get("runs") or []
+                    if len(r) > 2:
+                        cl.append(100 * (max(r) - min(r)) / statistics.median(r))
+        if cl:
+            require("4 clean M5 Max spread range",
+                    "**%.1f to %.1f%%** on the M5 Max" % (min(cl), max(cl)))
+
+        # 4's burst-inflation GPU column, now that its provenance is known: the
+        # THIRD (warm) run on inference1, mean of last six windows. Eighteen
+        # averaging variants failed to reproduce it because it was never an
+        # average. Derived so the identification is not just an anecdote.
+        for name, tag in (("bert", "bert"), ("resnet50", "resnet50"),
+                          ("siglip", "siglip-vision"), ("whisper", "whisper")):
+            fp = soakdir / ("dip3-inference1-%s-CPU_AND_GPU.json" % tag)
+            if not fp.exists() or name not in m4:
+                continue
+            w = [x["images_per_s"] for x in json.loads(fp.read_text())["windows"]]
+            got = (m4[name]["CPU_AND_GPU"] / statistics.mean(w[-6:]) - 1) * 100
+            bold = "**" if name == "whisper" else ""
+            require("4 inflation provenance %s" % name,
+                    "| `%s` | %s+%.2f%%%s | %s+%.2f%%%s |"
+                    % (name, bold, {"bert": 0.21, "resnet50": 0.72,
+                                    "siglip": 1.03, "whisper": 2.98}[name], bold,
+                       bold, got, bold))
+
+        # 4's rebuilt inflation table: EVERY cell from the third, warm run,
+        # inference1 where that run exists. The previous version mixed run
+        # indices in its ANE column -- two cells from run 1, which 3.6 shows is
+        # the extreme run -- and omitted mobilenet, the model with the largest
+        # ANE floor. Regenerated so neither can recur.
+        TAGS = {"bert": "bert", "resnet50": "resnet50", "siglip": "siglip-vision",
+                "whisper": "whisper", "mobilenet": "mobilenet"}
+        for name in ("bert", "resnet50", "siglip", "whisper", "mobilenet"):
+            if name not in m4:
+                continue
+            g = soakdir / ("dip3-inference1-%s-CPU_AND_GPU.json" % TAGS[name])
+            a = box = None
+            for bx in ("inference1", "experiments"):
+                cand = soakdir / ("aned3-%s-%s-CPU_AND_NE.json" % (bx, TAGS[name]))
+                if cand.exists():
+                    a, box = cand, bx
+                    break
+            if not g.exists() or a is None:
+                continue
+            def plateau(fp):
+                w = [x["images_per_s"]
+                     for x in json.loads(fp.read_text())["windows"]]
+                return statistics.mean(w[-6:])
+            gi = (m4[name]["CPU_AND_GPU"] / plateau(g) - 1) * 100
+            ai = (m4[name]["CPU_AND_NE"] / plateau(a) - 1) * 100
+            bold = "**" if name == "whisper" else ""
+            row = ("| `%s` | %s%+.2f%%%s | %+.2f%% | `%s` |"
+                   % (name, bold, gi, bold, ai, box))
+            # The paper sets negatives with U+2212, the formatter emits U+002D.
+            # Normalise rather than teaching the generator which sign the
+            # typography happens to use today.
+            checks.append(("4 rebuilt inflation %s" % name, row,
+                           row in text.replace("\u2212", "-")))
+
+        # The session confound. inference1 was measured twice, three hours
+        # apart, and moved by as much as the boxes differ -- which makes two of
+        # the three pairwise comparisons in 3.6 confounded. Derived, including
+        # the sigma, because it is a retraction of a published figure.
+        s1, s2 = [], []
+        for i in range(1, 13):
+            a = soakdir / ("floor-inference1-siglip-CPU_AND_GPU-%02d.json" % i)
+            b = soakdir / ("rep2floor-inference1-siglip-CPU_AND_GPU-%02d.json" % i)
+            # Counting FILES here is wrong, and the reason is worse than it
+            # looks. thermal_soak streams windows as it goes, so a file rsynced
+            # WHILE ITS RUN IS STILL GOING has intact metadata, `seconds:
+            # 120.0`, AC power, a couple of windows and a null summary -- which
+            # is byte-for-byte the shape a KILLED run leaves. Run 12 of the
+            # second series arrived that way and was read as a kill until the
+            # box's own log showed it had finished fine. Nothing downstream can
+            # tell the two apart, so both are excluded the same way, on window
+            # count, exactly as the paper set is.
+            for f, acc in ((a, s1), (b, s2)):
+                if not f.exists():
+                    continue
+                v = sustained(json.loads(f.read_text()))
+                if v is not None:
+                    acc.append(v)
+        if len(s1) >= 12 and len(s2) >= 11:
+            x, y = s1[3:], s2[3:]
+            d = abs(statistics.mean(x) - statistics.mean(y))
+            se = math.sqrt(statistics.stdev(x) ** 2 / len(x)
+                           + statistics.stdev(y) ** 2 / len(y))
+            # Matched as three short strings, not one long one: require() is a
+            # raw substring test and PAPER.md hard-wraps at 79 columns, so any
+            # claim string spanning a wrap can never match.
+            require("3.6 session shift evening",
+                    "settled mean of %.4f" % statistics.mean(y))
+            require("3.6 session shift morning",
+                    "morning figure of %.4f" % statistics.mean(x))
+            require("3.6 session shift sigma",
+                    "**the same machine, %.4f apart, %.1f sigma**" % (d, d / se))
+
+        # NOTE ON WHAT EXERCISES THESE. All six 3.6 session guards below move
+        # under --inject-soak and are unreachable by --inject, which only
+        # touches paper-set files; the floor series are study files. Their
+        # SIGMA figures are weaker than their magnitudes: --inject-soak scales
+        # every fraction uniformly, and a uniform scale leaves a t-statistic
+        # exactly where it was, so 16.3 and 18.8 are carried along by the
+        # magnitude strings rather than tested in their own right.
+        # The matched/confounded table. These are the numbers that replaced
+        # the withdrawn three-box spread, so they are derived here rather than
+        # transcribed. Series are read the same way session_vs_box.py reads
+        # them -- on summary presence, never on file existence.
+        def series(pre, box):
+            out = []
+            for i in range(1, 13):
+                f = soakdir / ("%s-%s-siglip-CPU_AND_GPU-%02d.json" % (pre, box, i))
+                if not f.exists():
+                    continue
+                v = sustained(json.loads(f.read_text()))
+                if v is not None:
+                    out.append(v)
+            return out[3:]
+
+        def diff(a, b):
+            if len(a) < 2 or len(b) < 2:
+                return None, None
+            d = statistics.mean(a) - statistics.mean(b)
+            se = math.sqrt(statistics.stdev(a) ** 2 / len(a)
+                           + statistics.stdev(b) ** 2 / len(b))
+            return abs(d), (abs(d) / se if se else None)
+
+        # Session-matched: both series ran concurrently that evening.
+        d, sg = diff(series("rep2floor", "inference1"),
+                     series("rep2floor", "inference2"))
+        if d is not None:
+            require("3.6 matched inference1 vs inference2",
+                    "| **%.4f** | %.1f sigma |" % (d, sg))
+        # The same two machines as the surviving matched pair, read across
+        # sessions instead. This row is the whole argument and must not rot.
+        d, sg = diff(series("floor", "experiments"),
+                     series("rep2floor", "inference1"))
+        if d is not None:
+            require("3.6 unmatched experiments vs inference1",
+                    "four hours apart | confounded | %.4f |" % d)
+        # The second, much shorter, session gap.
+        d, sg = diff(series("floor", "inference2"),
+                     series("rep2floor", "inference2"))
+        if d is not None:
+            require("3.6 short session gap",
+                    "moved %.4f in its" % d)
+        # The THIRD series repeats the matched between-box comparison. Two
+        # independent matched estimates of one difference is the strongest
+        # statement 3.6 makes, so both are guarded rather than just the newer.
+        d, sg = diff(series("rep3floor", "inference1"),
+                     series("rep3floor", "inference2"))
+        if d is not None:
+            require("3.6 matched pair repeated",
+                    "| **%.4f** | %.1f sigma |" % (d, sg))
+        # inference1's drift is near-linear over four hours; the paper says so
+        # and the two figures that support it are derived here.
+        d3, _ = diff(series("floor", "inference1"), series("rep3floor", "inference1"))
+        d2, _ = diff(series("floor", "inference1"), series("rep2floor", "inference1"))
+        if d3 is not None and d2 is not None:
+            require("3.6 drift near-linear",
+                    "%.4f across 3.2 hours and %.4f across 4.0 hours" % (d2, d3))
+
         # 2.4's conversion table. It had drifted from results/conversion-check.json
         # in ELEVEN of its twelve numbers -- an earlier conversion run's figures
         # left in place under a sentence citing the file. Nothing checked it,
@@ -552,9 +837,16 @@ def main():
         for p in sorted(soakdir.glob("floor-*siglip*.json")):
             d = json.loads(p.read_text())
             fl[(p.name.split("-")[1], d["units"])].append(sustained(d))
+        # NAMED, not "however many boxes happen to have floor files". This was
+        # `if len(boxes) == 2`, and the moment a third box finished its runs the
+        # condition went false and TWELVE guards vanished -- the check count fell
+        # from 111 to 105 and the run still ended green. Same fail-open shape as
+        # the M4 Max flip-set and the 2.4 gate-count guards. A guard must not be
+        # able to disappear because the data grew.
         boxes = sorted({b for b, _ in fl})
-        if len(boxes) == 2:
-            b1, b2 = boxes
+        PAIR = ("experiments", "inference1")
+        if all((b, "CPU_AND_GPU") in fl for b in PAIR):
+            b1, b2 = PAIR
             g1, g2 = fl[(b1, "CPU_AND_GPU")], fl[(b2, "CPU_AND_GPU")]
             a1, a2 = fl[(b1, "CPU_AND_NE")], fl[(b2, "CPU_AND_NE")]
             require("3.6 floor GPU means",
@@ -596,8 +888,33 @@ def main():
                 ordered[bx] = v
             o1, o2 = ordered[b1], ordered[b2]
             if len(o1) == 12 and len(o2) == 12:
-                require("3.6 settling series %s" % b1, " ".join("%.4f" % x for x in o1))
-                require("3.6 settling series %s" % b2, " ".join("%.4f" % x for x in o2))
+                # ALL THREE boxes, and the sd-before/after for each. The
+                # direction of the opening drift is NOT consistent -- two boxes
+                # start high and one starts low -- so the series themselves are
+                # the claim, not any summary of them.
+                for bx in ("experiments", "inference1", "inference2"):
+                    vv = []
+                    for i in range(1, 13):
+                        fp = soakdir / ("floor-%s-siglip-CPU_AND_GPU-%02d.json" % (bx, i))
+                        if fp.exists():
+                            vv.append(sustained(json.loads(fp.read_text())))
+                    if len(vv) == 12:
+                        require("3.6 settling series %s" % bx,
+                                " ".join("%.4f" % x for x in vv))
+                sds = []
+                for bx in ("experiments", "inference1", "inference2"):
+                    vv = []
+                    for i in range(1, 13):
+                        fp = soakdir / ("floor-%s-siglip-CPU_AND_GPU-%02d.json" % (bx, i))
+                        if fp.exists():
+                            vv.append(sustained(json.loads(fp.read_text())))
+                    if len(vv) == 12:
+                        sds.append((statistics.stdev(vv), statistics.stdev(vv[3:])))
+                if len(sds) == 3:
+                    require("3.6 settling sd reduction",
+                            "%.4f to %.4f, %.4f to %.4f, %.4f to %.4f"
+                            % (sds[0][0], sds[0][1], sds[1][0], sds[1][1],
+                               sds[2][0], sds[2][1]))
                 for lbl, sl in (("all 12 runs", slice(0, 12)),
                                 ("dropping run 1", slice(1, 12)),
                                 ("dropping runs 1\u20133", slice(3, 12))):
@@ -768,6 +1085,24 @@ def main():
         print("\nnote: %d soak file(s) on disk are not in PAPER-SET.txt. That is not a\n"
               "failure. Run --refresh-set and update the prose when you want them in."
               % extra)
+
+    # A GUARD THAT VANISHES IS WORSE THAN ONE THAT FAILS, because the run still
+    # ends green. Three times in this file: the M4 Max flip-set check gated on
+    # the set having three members, the 2.4 gate-count check gated on there
+    # being four models, and the whole 3.6 block gated on exactly two boxes
+    # having floor files -- which a third box switched off, taking twelve guards
+    # with it and dropping the count from 111 to 105 at exit status 0.
+    #
+    # Fixing each site as it appears does not scale: fifteen conditional blocks
+    # here emit thirty-seven guards between them, and any of them can stop
+    # firing when the data changes shape. So the COUNT is itself a check. Raise
+    # this when you add guards. It should never fall.
+    MIN_CHECKS = 139
+    if len(checks) < MIN_CHECKS:
+        fails.append("only %d checks ran, expected at least %d. Guards do not "
+                     "fail by disappearing; some conditional block stopped "
+                     "firing. Find it before trusting this run."
+                     % (len(checks), MIN_CHECKS))
 
     print()
     if fails:

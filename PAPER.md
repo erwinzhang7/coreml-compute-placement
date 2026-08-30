@@ -187,10 +187,28 @@ no count in §3.3 mixes the two. The reported statistic is
 
     sustained fraction = (last window) / (best window)
 
-1.000 means the unit held its peak for the whole soak. This statistic **falls
-with soak length by construction**, since the denominator is a maximum over more
-windows and the numerator is fixed at the end; only equal-duration soaks are
-comparable, and duration is reported with every figure.
+1.000 means the unit held its peak for the whole soak. **Only equal-duration
+soaks are comparable**, and duration is reported with every figure.
+
+An earlier version of this paragraph justified that with "the statistic falls
+with soak length by construction, since the denominator is a maximum over more
+windows and the numerator is fixed at the end". The first half is right and the
+second is not: the numerator is the *last* window, and a longer run ends at a
+different window. Taking every 600 s soak in `results/soak` and reading it both
+ways — the fraction it would have reported at 120 s against the one it reports at
+600 s — **23 of 63 rise with length and 40 fall**, and the split is by *unit*:
+
+| unit | rises with length | falls |
+| --- | ---: | ---: |
+| GPU | **20** | 16 |
+| ANE | 3 | **24** |
+
+The GPU rises more often than not, by as much as +0.031, because it dips early
+and recovers (§3.5), so a longer run ends further into the recovery and the
+numerator climbs faster than the maximum does. The ANE has no dip to recover
+from, so its small decline simply accumulates and the fraction falls. Length
+biases the denominator upward and nothing more; the direction of the net effect
+belongs to the unit, not to the arithmetic.
 
 Thermal pressure is sampled per window through the `notify(3)` name
 `com.apple.system.thermalpressurelevel`, which requires no elevated privilege.
@@ -568,11 +586,13 @@ two-minute protocol systematically understates the GPU. **Everything in this
 subsection is M4 Pro.** The M5 Max behaves differently and is treated at the end.
 
 **The GPU dips and recovers.** It does not decline monotonically. Reading the
-per-window trace rather than only the endpoints:
+per-window trace rather than only the endpoints — `siglip` from
+`long600-inference1-…` and `resnet50` from `long600-experiments-…`, which are
+different boxes and were previously printed together unlabelled:
 
 ```
-siglip    GPU   178 178 173 171 171 171 172 173 174 176 177 177 ... 177
-resnet50  GPU   656 656 656 649 647 647 648 650 652 655 655 ... 655
+siglip    GPU   178 178 173 171 171 171 172 172 173 174 176 176 ... 177
+resnet50  GPU   656 656 656 649 647 648 648 650 652 653 655 ... 655
 ```
 
 Peak, a minimum around 80 to 100 seconds, then monotone recovery to a plateau
@@ -654,9 +674,12 @@ M5 Max GPU   1050  933  907  895  894  896  889  892  892  889  888
 
 So the shape is not a property of "the GPU" but of a particular chip under a
 particular load. On the M5 Max the loss is immediate and permanent within the
-run, which is consistent with the power-limit reading in §3.4: a GPU sustaining
-39.2 TFLOPS against the M4 Pro's 6.4 reaches a ceiling the smaller part never
-approaches. The ANE is flat on **both** chips, 233 and 235 img/s across every
+run, which is consistent with the *arithmetic-throughput* reading in §3.4: a GPU
+sustaining 39.2 TFLOPS against the M4 Pro's 6.4 reaches a ceiling the smaller
+part never approaches. We call it that rather than a "power-limit reading",
+which is what this sentence said before, because **§3.4 contains no power
+measurement** — `results/gpu-probe.json` records times and derived FLOPS and
+nothing electrical. Power is the mechanism we infer, not one we measured. The ANE is flat on **both** chips, 233 and 235 img/s across every
 window of the M5 Max runs.
 
 This matters for the correction above. On the M4 Pro a 120 s soak understates the
@@ -1047,66 +1070,137 @@ the old build, so the OS difference can be read against the between-machine floo
 ### 3.6 Measurement reproducibility
 
 Most single-machine benchmark results do not establish how much they move for
-reasons other than the variable under study. Two physically identical M4 Pro
-machines and five repeats of the noisiest metric give that floor directly.
+reasons other than the variable under study. **Two physically identical M4 Pro
+Mac minis, twelve repeats each, corrected tool, same 120 s protocol and 90 s
+cooldown on both**, give that floor directly. Sustained fraction, GPU, `siglip`:
 
-Sustained fraction, GPU, `siglip`, 120 s:
+| | M4 Pro #2 | M4 Pro #3 |
+| --- | ---: | ---: |
+| mean of 12 | 0.9726 | 0.9597 |
+| within-machine sd | 0.0042 | 0.0047 |
+| ANE control, mean of 4 | 0.9997 | 0.9995 |
+| ANE control, sd | **0.0002** | **0.0001** |
 
-| quantity | value |
-| --- | ---: |
-| M4 Pro #2, five repeats | 0.949, 0.950, 0.951, 0.957, 0.960 (mean 0.954, sd 0.0045) |
-| within-machine range | **0.011** |
-| between-machine difference (#1 at 0.973) | **0.019** (1.7x the within-machine range) |
-| M4 Pro mean 0.975 vs M5 Max 0.846 to 0.952 | **0.023 to 0.129**, see below |
+**The between-machine difference is 0.0130 with a standard error of 0.0018, or
+7.1 sigma. Identical hardware is not identical**, and a single sustained GPU
+figure should not be quoted to three decimals.
 
-**Identical hardware is not identical.** The between-machine difference is 1.7x
-the run-to-run range, so a single sustained GPU figure should not be quoted to
-three decimals. Three separate M4 Pro boxes measured with the corrected tool give
-0.987, 0.979 and 0.960, and their absolute last-window rates agree to 2.7%.
+The ANE arm is the control: same boxes, same session, same harness, holding to an
+sd of 0.0002. Twenty times tighter than the GPU's, so the spread is a property of
+the GPU under sustained load and not of the measurement.
 
-**The 1.7x was the wrong comparison, and re-measuring replaces it with a
-stronger result.** It set a *range* against a *difference of means*, which are
-different statistics: a range grows with n, so the same machine that gives 0.011
-over five runs gives more over twelve, and the comparison moves without the
-hardware moving. The five runs behind the 0.011 were also pre-correction — twelve
+**It is not one odd machine. A third M4 Pro mini, same protocol, differs from
+both of the others** — though only one of the three pairs below turned out to be
+a fair comparison, for reasons the rest of this section is about. Settled means
+over the last nine of twelve repeats, and every pairwise difference as first
+measured:
+
+| box | settled mean | settled sd |
+| --- | ---: | ---: |
+| M4 Pro #2 | 0.9705 | 0.0012 |
+| M4 Pro #3 | 0.9575 | 0.0015 |
+| M4 Pro #4 | 0.9495 | 0.0012 |
+
+| pair | difference | se | sigma | |
+| --- | ---: | ---: | ---: | --- |
+| #2 vs #3 | 0.0130 | 0.0006 | 20.7 | stands |
+| #2 vs #4 | 0.0211 | 0.0006 | 37.4 | **withdrawn below** |
+| #3 vs #4 | 0.0080 | 0.0006 | 12.8 | **withdrawn below** |
+
+Read on its own, that table says three machines of the same model, same OS, same
+tool, same protocol, all on mains, spread over 0.021 of sustained fraction while
+each holds itself to 0.0012 to 0.0015. That is what we published, and two of its
+three rows do not survive.
+
+**Two of those three pairs are confounded with session, and we found it by
+running a second series rather than by re-reading the first.** `experiments` and
+`inference1` were measured concurrently, 16:09 to 16:47. `inference2` was
+measured three hours later, 19:05 to 19:42. Repeating the whole twelve-run series
+on `inference1` that evening gives a settled mean of 0.9703 against its own
+morning figure of 0.9575 — **the same machine, 0.0128 apart, 16.3 sigma**, which
+is the size of the entire between-box effect.
+
+`inference1` and `inference2` then ran concurrent second series that evening,
+which supplies a session-matched replacement for one of the two broken pairs.
+Sorting every pairwise comparison by whether the two series actually overlapped
+in time (`tools/session_vs_box.py`):
+
+| pair | session | difference | |
+| --- | --- | --- | --- |
+| #2 vs #3, both 16:09–16:47 | **matched** | **0.0130** | 20.7 sigma |
+| #3 vs #4, both 20:0x–20:4x | **matched** | **0.0173** | 18.8 sigma |
+| #3 vs #4 again, both 20:4x–21:2x | **matched** | **0.0203** | 23.6 sigma |
+| #2 vs #4, three hours apart | confounded | 0.0211 | withdrawn |
+| #3 vs #4, three hours apart | confounded | 0.0080 | withdrawn |
+| #2 vs #3, four hours apart | confounded | 0.0003 | withdrawn |
+
+The first and last rows are **the same two machines**. Measured at the same time
+they differ at 20.7 sigma; measured four hours apart they are indistinguishable.
+Nothing about the machines changed between those two readings — only whether the
+comparison was matched — and either one, taken alone, is publishable-looking.
+
+The heading claim survives on the matched rows, and is if anything understated:
+the session-matched `inference1` vs `inference2` difference is 0.0173, more than
+twice the 0.0080 the confounded comparison reported. The session term was hiding
+half of that box difference rather than manufacturing it. What does not survive
+is the three-way spread of 0.021, which mixes a box effect with a session effect
+of its own size.
+
+The #3 vs #4 pair was then measured a second time, on concurrent third series,
+and reproduces at 0.0203. Two independent session-matched estimates of the same
+box difference, 0.0173 and 0.0203, differing by about one hour's drift.
+
+The session effect itself scales with elapsed time on both machines. On
+`inference1` the shift is 0.0128 across 3.2 hours and 0.0157 across 4.0 hours —
+0.0040 and 0.0039 per hour, near-linear — while `inference2` moved 0.0035 in its
+first 0.4 hours and then nothing. So this is a drift in time rather than
+independent per-session draws, and the two machines are at different phases of
+it. What it drifts *toward*, and whether it ever returns, is not established:
+every series so far runs later than the last, so a monotone drift and a
+time-of-day cycle fit equally well. Separating them needs a series started at
+the same hour as the first. What distinguishes the
+machines is still unknown: they differ in serial number and in nothing we
+controlled. What is now known is that it can only be measured simultaneously.
+
+**What this replaces.** An earlier version of this section led with five repeats
+on one machine and reported a within-machine *range* of 0.011 against a
+between-machine *difference* of 0.019, calling the ratio 1.7x. That comparison
+was wrong in two ways. It set a *range* against a *difference of means*, which
+are different statistics: a range grows with n, so the same machine that gives
+0.011 over five runs gives more over twelve, and the comparison moves without the
+hardware moving. And the five runs behind the 0.011 were pre-correction — twelve
 windows with the final one clamped to 9.04 to 9.11 s, the signature the corrected
 tool removed — so the floor and the figures compared against it did not come from
 the same tool.
 
-Re-measured with the corrected tool, twelve repeats on each of two physically
-identical M4 Pro Mac minis, same 120 s protocol and 90 s cooldown on both:
-
-| | M4 Pro #2 | M4 Pro #3 |
-| --- | ---: | ---: |
-| `siglip` GPU, mean of 12 | 0.9726 | 0.9597 |
-| within-machine sd | 0.0042 | 0.0047 |
-| `siglip` ANE, mean of 4 | 0.9997 | 0.9995 |
-| within-machine ANE sd | **0.0002** | **0.0001** |
-
-**The between-machine difference is 0.0130 with a standard error of 0.0018, or
-7.1 sigma.** Identical hardware is genuinely not identical, and the effect is
-larger than a range-versus-difference comparison could establish either way.
-
-Two things make this stronger than the figure it replaces. The ANE arm is the
-control: run on the same boxes, in the same session, through the same harness,
-it holds to an sd of 0.0002, twenty times tighter than the GPU's, so the spread
-is a property of the GPU under sustained load and not of the measurement. And the
-n-dependence is quantified rather than assumed — over all C(12,5) subsets a
+The replacement is stronger, not weaker: 7.1 sigma on a valid comparison against
+a ratio of two incommensurable statistics. The n-dependence is also quantified
+rather than assumed — over all C(12,5) subsets a
 five-run range averages 0.0094 and 0.0101 on the two boxes against full twelve-run
 ranges of 0.0142 and 0.0163, so any range quoted without its n is uninterpretable.
 
-**Most of that within-machine spread is a warm-up, not noise, and a 90 s cooldown
-does not remove it.** The twelve runs are not exchangeable — they settle:
+**Most of that within-machine spread is the opening runs, not noise, and a 90 s
+cooldown does not remove it.** The twelve runs are not exchangeable:
 
     experiments  0.9831 0.9781 0.9751 0.9694 0.9696 0.9703 0.9700 0.9711 0.9689 0.9713 0.9725 0.9718
     inference1   0.9721 0.9642 0.9618 0.9598 0.9594 0.9571 0.9568 0.9589 0.9568 0.9562 0.9558 0.9569
+    inference2   0.9385 0.9479 0.9469 0.9500 0.9481 0.9472 0.9495 0.9507 0.9497 0.9502 0.9491 0.9508
 
-On both boxes the first run is the highest of the twelve, and the first three
-average 0.008 to 0.009 above the last six. The rank correlation between run index
-and sustained fraction is −0.28 on `experiments` and **−0.89** on `inference1`.
-Each soak therefore starts a little warmer than the one before it despite the
-cooldown, and the sd over all twelve measures that drift as much as any
-run-to-run variability.
+On every box the first run is the extreme one and the series settles after about
+three. Dropping those three cuts the standard deviation on all three machines —
+0.0042 to 0.0012, 0.0047 to 0.0015, 0.0033 to 0.0012 — so the opening runs are
+reliably unrepresentative and the sd over all twelve is measuring them as much as
+it measures run-to-run variability.
+
+**They are not unrepresentative in a consistent direction, which kills the
+obvious explanation.** An earlier version of this paragraph called it a warm-up
+and said each soak starts a little warmer than the last. That fits `experiments`
+and `inference1`, whose first three run 0.008 and 0.009 *above* their last six
+with rank correlations of −0.28 and −0.89. It does not fit `inference2`, whose
+first run is its **lowest** and whose first three run 0.006 *below* the last six,
+rank correlation **+0.74**. A warming story predicts one direction; two boxes go
+one way and the third goes the other. We report the effect, drop the opening runs
+because doing so demonstrably tightens every box, and do not claim to know why.
 
 Excluding the settling sharpens the result without moving it:
 
@@ -1145,11 +1239,32 @@ produced by a lucky starting state. And the absolute
 throughputs are not close: M4 Pro GPU sustains 172 to 177 img/s while the M5 Max
 sustains 762 to 888, which no amount of thermal-state variation reconciles.
 
-**Burst measurements are far more repeatable than sustained ones**, and this is
-the practical lesson. M4 Pro burst spreads run 0.0 to 3.7% across every model and
-unit; M5 Max burst spreads run 0.3 to 6.5%. Sustained fractions on the same
-hardware move by 0.106 between runs. If a study can answer its question with a
-burst measurement, it should.
+**Which measurement is more repeatable depends on the chip**, and an earlier
+version of this paragraph got that wrong in both the numbers and the conclusion.
+It read "burst measurements are far more repeatable than sustained ones",
+comparing burst *percentages* against 0.106 — an absolute fraction move, on the
+other machine, from the no-cooldown set §3.3 shows is confounded. Three
+mismatches in one sentence.
+
+Compared like with like, as a relative standard deviation across repeats:
+
+| | burst, M4 Pro | burst, M5 Max | 120 s soak, settled |
+| --- | ---: | ---: | ---: |
+| median cell | 0.05% | 0.97% | — |
+| range across cells | 0.00 to 1.72% | 0.05 to **8.42%** | 0.12 to 0.19% |
+
+On the M4 Pro the burst is the tighter measurement, by roughly a factor of three
+at the median. **On the M5 Max it is not: its burst spreads reach 8.42% where a
+settled soak on identical hardware holds 0.12 to 0.19%.** The worst M5 Max burst
+cell spans 22.06% peak to trough. So the advice is not "prefer bursts"; it is
+that a burst is cheap and tight on a part that does not throttle, and is the
+*less* stable instrument on one that does — which is the same chip-dependence
+every other result in this paper has.
+
+The soak figures are the settled runs of §3.6, dropping the three warm-up runs.
+Including them the relative sd is 0.42 to 0.51%, still below the M5 Max burst
+and above the M4 Pro's. Reported both ways because which one is fair depends on
+whether the protocol includes a warm-up, and ours now does not.
 
 ---
 
@@ -1162,35 +1277,81 @@ in §3.1 and §3.2 is measured from a cold start, and the cold excursion documen
 in §3.3 has not begun that early, so the burst misses it entirely — this is not
 the 2 to 3% dip reappearing, it is a much smaller offset between the first seconds
 and the plateau. Comparing each burst median against the steady state of the
-corresponding 600 s soak bounds it:
+**third, warm run** of the corresponding 600 s series — mean of its last six
+windows — bounds it:
 
-| model | GPU inflation | ANE inflation |
+| model | GPU inflation | ANE inflation | ANE run from |
+| --- | ---: | ---: | --- |
+| `bert` | +0.20% | +0.38% | `experiments` |
+| `resnet50` | +0.74% | −0.08% | `inference1` |
+| `siglip` | +1.08% | +0.18% | `inference1` |
+| `whisper` | **+2.94%** | +0.16% | `experiments` |
+| `mobilenet` | +2.01% | −0.39% | `inference1` |
+
+The ANE is within 0.4% either way, which is what an engine whose opening rate and
+plateau are the same thing looks like. The GPU is inflated by up to 3%, and by
+more than 2% on the two models — `whisper` and `mobilenet` — whose GPU dip §3.5
+finds largest.
+
+**This table was rebuilt, and the previous one is worth describing because of how
+it failed.** It printed four models rather than five, and its ANE column mixed
+run indices: `siglip` and `whisper` came from the third run of their series while
+`bert` and `resnet50` came from the **first**. §3.6 shows the first run is the
+extreme one on every machine measured, so two cells were anchored to the least
+representative run available and two were not. Every cell now uses run three. The
+GPU column is unchanged to within 0.05 pp because it was already consistent; the
+ANE column moves, most visibly `resnet50` from −0.25% to −0.08% and `bert` from
++0.24% to +0.38%.
+
+`mobilenet` was missing entirely, and it is not a neutral omission: §3.3 measures
+its ANE floor at 0.69 to 0.77%, the largest of the five, so the four rows shown
+excluded the model most likely to stress the claim. Its GPU inflation of +2.01%
+is the second largest.
+
+The ANE column still cannot be made to match the GPU column's *machine*: there
+are no 600 s ANE runs for `bert` or `whisper` on `inference1`, so those two are
+from `experiments` and the column names its box per row rather than implying one.
+
+**How the previous version was traced, since the method is reusable.** Its
+caption said the same thing this one does, but reading it literally reproduced
+nothing: each burst median against the mean of the last six windows of *the*
+corresponding soaks gave 1.77% for `whisper`'s GPU cell against a printed 2.98%,
+and eighteen further combinations of plateau definition, box selection and soak
+duration all left that cell at least 0.86 pp out. It was recorded as
+unreproducible and the numbers were left alone rather than overwritten with a
+reconstruction that could not be validated.
+
+Inverting the question found it. Rather than guessing a method and comparing,
+solve each printed cell for the plateau it *implies* and ask which committed
+measurement equals that. **All four GPU cells turned out to be a single run: the
+third, warm run on `inference1`**, mean of its last six windows.
+
+| | printed | from `dip3-inference1` |
 | --- | ---: | ---: |
-| `bert` | 0.21% | 0.24% |
-| `resnet50` | 0.72% | -0.25% |
-| `siglip` | 1.03% | 0.22% |
-| `whisper` | **2.98%** | 0.11% |
+| `bert` | +0.21% | +0.20% |
+| `resnet50` | +0.72% | +0.74% |
+| `siglip` | +1.03% | +1.08% |
+| `whisper` | **+2.98%** | **+2.94%** |
 
-The ANE is within 0.25% either way on these four, which is what an engine whose
-opening rate and plateau are the same thing looks like. The GPU is inflated by up
-to 3%.
+That is why averaging failed: the table never averaged. The identification is
+strong rather than coincidental. A 0.05% match is routine in general — across the
+eight cells, 94 of 210 candidate statistics land inside that window — but
+`whisper`'s implied plateau matches only **two of thirty**, and both are that one
+file. Two cells discriminate and six do not, which is why the six alone would
+have identified nothing.
 
-**Two caveats on this table, both against it.** `mobilenet` is absent, and it is
-the model whose ANE floor §3.3 measures at 0.69 to 0.77% — the largest of the
-five — so the four rows here are not a random subset with respect to the quantity
-being bounded. And **we cannot reproduce the table from the
-committed data.** Reading the caption literally — each burst median against the
-mean of the last six windows of the corresponding 600 s soaks — gives 0.20/0.36
-for `bert`, 0.74/−0.15 for `resnet50`, 0.95/0.20 for `siglip` and **1.77**/0.14
-for `whisper` against a printed 2.98%. We then tried six plateau definitions
-(last six windows, final window, last 30%, minimum window, mean and median of all
-windows) across both boxes and each box alone, and the 120 s soaks in place of
-the 600 s ones: eighteen combinations, none of which brings `whisper`'s GPU cell
-within 0.86 pp of 2.98%, and none of which reproduces all eight cells. Three of
-the four GPU figures are stable to within 0.08 pp under every variant, so the
-problem is confined to one cell — but the derivation is not recorded and we
-could not recover it. Read the row-to-row *ordering* here, which every variant
-preserves, rather than the absolute percentages.
+**Its ANE column had not come from the same runs, which is what made the rebuild
+necessary rather than merely tidy.** `siglip` and `whisper` matched the third run
+as the GPU cells did, but `bert` and `resnet50` matched `aned1`, the **first**
+run of their series. §3.6 shows the first run is the extreme one on every machine
+we have measured, so two of the four ANE cells were anchored to the least
+representative run available and two were not. That is why the ANE column moved
+when it was rebuilt and the GPU column did not.
+
+The `bert` identification is firm — two of nine candidates, both `aned1`.
+`resnet50`'s is weaker: seven of eighteen candidates fall within the same window,
+so "run 1" is suggestive there rather than established. Either way the column was
+not built on one rule.
 
 **This does not threaten §3.1 or §3.2, and it makes their M4 Pro results
 conservative.** The smallest margin in §3.1 is `siglip` at 1.14x, which 3%
@@ -1204,10 +1365,17 @@ of the Python call overhead noted in §2.5, and the two push in opposite directi
 reported that the ANE gets *slower* on the M5 Max on four of five architectures,
 called it unexplained, and built a residency investigation around it. That result
 was an artefact. Those M5 Max ANE figures were taken while the machine was running
-other work, and they were low by roughly a factor of two. The repeat spreads at
-the time were the tell: 17.2% on `mobilenet` and 12.3% on `bert` against 0.0% to
-1.3% for every clean measurement in this study. The paper flagged those two cells
-as unreliable and used them anyway, which was the error.
+other work, and they were low by roughly a factor of two. The paper flagged those two cells as unreliable
+and used them anyway, which was the error.
+
+**We described the repeat spread as the tell, and it is not one.** The claim was
+that 17.2% on `mobilenet` and 12.3% on `bert` stood out against "0.0% to 1.3% for
+every clean measurement in this study". Recomputed, the clean files span 0.0 to
+3.3% on the M4 Pro and **0.1 to 22.1%** on the M5 Max — and the widest cell in
+the whole study, `mobilenet` under `ALL` at 22.1%, comes from the *clean* re-run.
+A spread that large is therefore compatible with an uncontended machine on this
+chip, so it could not have identified the contaminated cells and did not. What
+identified them was re-running them idle.
 
 Re-measured on an idle machine, all five architectures are **faster** on the M5
 Max ANE, by 1.09x to 1.18x, with spreads of 0.4% to 0.8%, and the values reproduce

@@ -107,8 +107,9 @@ The M5 Max is done at 8 threads; its remaining ten cores add nothing. Single-cor
 is essentially identical across the two, 89.8 against 87.8, despite a 2.25x difference in bus
 width. Whatever limits one core is not the DRAM.
 
-Running both engines at once adds **4-5%** over the GPU alone on either chip, and
-over-committing takes it below GPU-only. Per-repeat numbers, with the contended rate solved
+Running both engines at once adds **4-5%** over the GPU alone on either chip. Over-committing
+takes it below GPU-only **on the M5 Max only**: at all 18 threads it reads 0.99x (-7.1 GB/s),
+while the M4 Pro at all 14 threads is still 1.03x (+7.5 GB/s). Per-repeat numbers, with the contended rate solved
 for rather than assumed, are in [`results/membw-m4pro.txt`](results/membw-m4pro.txt) and
 [`results/membw-m5max.txt`](results/membw-m5max.txt) (`tools/contention.py`). This bears on CPU/GPU-offload
 designs ported from discrete-GPU systems, where the premise is a slow link between two memory
