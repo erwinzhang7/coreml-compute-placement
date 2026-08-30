@@ -23,8 +23,8 @@ explicit placements. On the M5 Max it is free at peak, which we report as
 prominently. Third, **peak throughput does not predict sustained throughput**:
 over a two-minute soak the ANE gives back at most 0.14% of its peak in 44 of 45
 soaks on both chips and four separate machines, while the GPU gives back 0.8 to
-13.2% on an M4 Pro and 4.8 to 16.3% on an M5 Max across 62. Those 44 ANE soaks all
-sustain better than the best of the 62 GPU soaks. The forty-fifth is a
+13.2% on an M4 Pro and 4.8 to 16.3% on an M5 Max across 60. Those 44 ANE soaks all
+sustain better than the best of the 60 GPU soaks. The forty-fifth is a
 `whisper` run that gave back 2.52% after reaching the same peak as seven runs that
 did not, one of them a repeat on the same machine, which we report and do not
 explain in §3.3. A benchmark of a few seconds, which is the standard form, cannot
@@ -529,6 +529,151 @@ engine performing 4.7x the work per second draws proportionally more power and
 approaches a ceiling the smaller GPU never reaches. We regard the direction as
 established and the exact magnitude as chassis-sensitive (§4).
 
+#### Two minutes measures the GPU's trough, not its steady state
+
+Every figure above comes from a 120-second soak. Extending to 600 seconds on four
+architectures shows that duration is not a neutral choice, and that the
+two-minute protocol systematically understates the GPU. **Everything in this
+subsection is M4 Pro.** The M5 Max behaves differently and is treated at the end.
+
+**The GPU dips and recovers.** It does not decline monotonically. Reading the
+per-window trace rather than only the endpoints:
+
+```
+siglip    GPU   178 178 173 171 171 171 172 173 174 176 177 177 ... 177
+resnet50  GPU   656 656 656 649 647 647 648 650 652 655 655 ... 655
+```
+
+Peak, a minimum around 80 to 100 seconds, then monotone recovery to a plateau
+just below peak. **A 120-second soak ends inside that trough.**
+
+The position of the minimum is the strongest evidence that this is real and
+engine-specific. Across four 600 s runs of each engine, in windows of 20 s:
+
+| | minimum falls in window |
+| --- | --- |
+| GPU | **4, 4, 5, 5** of 29 |
+| ANE | 1, 6, 17, 26 of 29 |
+
+All four GPU minima land in a two-window band. If position were uniform over 29
+windows the chance of that is about 2e-5. The ANE's minima are scattered, which is
+what noise around a flat line looks like rather than a trajectory.
+
+**The same signature is already present in the 120 s corpus**, which is a
+prediction this explanation makes about data collected before it existed. If a
+120 s run ends inside the trough, its slowest window should be near its end.
+Across every M4 Pro 120 s soak:
+
+| | n | minimum in the last 30% of the run | mean position |
+| --- | ---: | ---: | ---: |
+| GPU | 56 | **43 (77%)** | 0.81 |
+| ANE | 40 | 4 (10%) | 0.32 |
+
+Uniform position would put about 30% of minima in the last 30%. The GPU is at
+77%, the ANE at 10%. So the dip is not an artefact of four long runs: it is
+visible in fifty-six independent short ones, and the ANE shows the opposite
+pattern, its slowest window falling early as a flat line with a slight warm-up
+would.
+
+**Both readouts, from the same runs.** Taking the window that ends at 120 s and
+the mean of the last six windows out of the *same* 600 s soak removes every
+between-run confound:
+
+| model | unit | at 120 s | at steady state |
+| --- | --- | ---: | ---: |
+| `siglip` | ANE | 1.0000 | 0.9995 |
+| `siglip` | GPU | 0.9635 | **0.9959** |
+| `resnet50` | ANE | 0.9963 | 0.9995 |
+| `resnet50` | GPU | 0.9876 | **0.9978** |
+| `bert` | ANE | 0.9980 | 0.9994 |
+| `bert` | GPU | 0.9835 | **0.9976** |
+| `whisper` | ANE | 0.9996 | 0.9999 |
+| `whisper` | GPU | 0.9496 | **0.9737** |
+
+The ANE moves by at most 0.4 points between the two readouts. The GPU moves by up
+to 3.2. **So the 120 s figure conflates two different things**: a transient dip,
+which is universal across models and is an artefact of when measurement stops,
+and a true steady-state decline, which is not universal at all. After recovery
+`whisper` still gives back 2.6% on the GPU while `resnet50` gives back 0.2%, a
+thirteen-fold spread between architectures on one chip.
+
+This also explains the width of the 120 s GPU range, 0.937 to 0.992, without
+appealing to noise: those runs sample different points on a recovery curve, and
+different architectures settle at different floors.
+
+**What this does not change.** The ANE still sustains better than the GPU on every
+architecture at every duration measured. What changes is the size and the shape of
+the claim: at steady state the advantage is roughly 4x to 13x rather than the
+order of magnitude the two-minute numbers suggest, and the correct statement about
+the GPU is not "it declines" but "it dips, recovers, and then settles at a
+model-dependent floor".
+
+**The M5 Max does not do this.** Its GPU drops roughly 15% within the first two
+windows and then holds, rather than dipping a few percent and recovering:
+
+```
+M4 Pro GPU    178  178  173  171  171  171  172  173  174  176  177 ... 177
+M5 Max GPU   1050  933  907  895  894  896  889  892  892  889  888
+```
+
+So the shape is not a property of "the GPU" but of a particular chip under a
+particular load. On the M5 Max the loss is immediate and permanent within the
+run, which is consistent with the power-limit reading in §3.4: a GPU sustaining
+39.2 TFLOPS against the M4 Pro's 6.4 reaches a ceiling the smaller part never
+approaches. The ANE is flat on **both** chips, 233 and 235 img/s across every
+window of the M5 Max runs.
+
+This matters for the correction above. On the M4 Pro a 120 s soak understates the
+GPU because it stops in a trough that later recovers. On the M5 Max a 120 s soak
+does **not** understate anything, because there is no recovery to miss. Applying
+one correction to both would be wrong in the second case.
+
+#### The dip is a cold-start boost being given up, not degradation
+
+Die temperature would settle this directly, and `powermetrics` requires root,
+which we declined to wire into the tool so that anyone can reproduce these runs.
+A back-to-back design discriminates without it. Three 600 s GPU soaks per box with
+**no cooldown between them**: run 1 starts idle, runs 2 and 3 start on a machine
+that has been at full GPU load for the preceding ten and twenty minutes.
+
+| model | run 1, idle | run 2, warm | run 3, warm | minimum at window |
+| --- | ---: | ---: | ---: | --- |
+| `siglip` | **3.05%** | 0.70% | 0.50% | 6, 19, 29 |
+| `resnet50` | **2.71%** | 0.34% | 0.34% | 5, 15, 27 |
+| `bert` | **2.13%** | 0.21% | 0.28% | 4, 14, 13 |
+| `whisper` | **3.83%** | 1.14% | 1.40% | 4, 4, 5 |
+
+**The steady state does not move.** siglip settles at 176.7, 176.6, 176.8 img/s and
+`whisper` at 144.0, 144.1, 144.1 across the three runs. Warming the machine removes
+the early loss and changes nothing else, so the plateau is the engine's real
+capability and the cold peak is transient headroom. Run 2 also begins at the level
+run 1 recovered to, and its peak is slightly *below* run 1's, which is what having
+no cold boost left to spend looks like.
+
+So the large component is a **cold-start boost being given up**, not an engine
+degrading under load. A soak started on an idle box measures how much initial
+headroom the GPU surrenders before settling. That is a different claim, and it is
+the one the data supports.
+
+**On three of four the effect disappears rather than shrinking.** For `siglip`,
+`resnet50` and `bert` the dip falls to 0.5% or less *and* the minimum stops
+occupying the 4 to 6 band, landing at 13, 15, 19, 27 and 29 where its position
+carries no information. Losing both the magnitude and the location is what a
+signature going away looks like; losing only the magnitude would not be.
+
+**`whisper` is the exception, and it is model-specific.** Its dip stalls near 1.2
+to 1.4% with the minimum still at window 4 or 5 on a machine that has been at full
+GPU load for twenty minutes. Three architectures on the same two machines under
+the same protocol lose it entirely, so whatever survives a warm start belongs to
+that model rather than to the engine or the harness. Model load and cache warming
+are candidates; neither is measured, and we do not claim which.
+
+What this does **not** identify is the physical variable. On a cold machine clock
+headroom, power budget and fan state all move together, and this design separates
+warm from cold without separating those. The 120 s tables above are retained
+because the five-architecture comparison rests on them, and they are now labelled
+for what they measure.
+
 ### 3.4 Mechanism: Apple moved matrix acceleration into the GPU
 
 The inversion in §3.1 is not an accident of these particular models. It is the
@@ -719,6 +864,31 @@ burst measurement, it should.
 ---
 
 ## 4. Threats to validity
+
+**Burst figures carry a cold-start boost, and it is asymmetric.** §3.3 shows the
+M4 Pro GPU gives up 2 to 3% of an initial boost within the first 100 seconds and
+then holds; on a box already at load the effect is 0.2 to 1.4%. Every burst number
+in §3.1 and §3.2 is measured from a cold start, so it captures some of that boost.
+Comparing each burst median against the steady state of the corresponding 600 s
+soak bounds it:
+
+| model | GPU inflation | ANE inflation |
+| --- | ---: | ---: |
+| `bert` | 0.21% | 0.24% |
+| `resnet50` | 0.72% | -0.25% |
+| `siglip` | 1.03% | 0.22% |
+| `whisper` | **2.98%** | 0.11% |
+
+The ANE is within 0.25% either way, which is what an engine with no boost to lose
+looks like. The GPU is inflated by up to 3%.
+
+**This does not threaten §3.1 or §3.2, and it makes their M4 Pro results
+conservative.** The smallest margin in §3.1 is `mobilenet` at 1.19x, which 3%
+cannot invert, and the default costs in §3.2 run from 1.18x to 5.18x, where 3% on
+one term moves 5.18x to about 5.03x. But the direction matters: the bias flatters
+the GPU, so the M4 Pro cases where the *ANE* wins are understated, and the M5 Max
+cases where the GPU wins are slightly overstated. This is a second asymmetry on top
+of the Python call overhead noted in §2.5, and the two push in opposite directions.
 
 **Measurement hygiene, and a retraction.** An earlier version of this paper
 reported that the ANE gets *slower* on the M5 Max on four of five architectures,

@@ -41,6 +41,25 @@ Three things below were wrong for a while and are now corrected in place.
 4%. The default gives back under 1%, so on this chip it sustains slightly
 *better* than the pure GPU placement.
 
+**Read that GPU number as a trough, not a steady state.** 600-second soaks
+(`long600-*.json`) show the M4 Pro GPU dips to a minimum around 80 to 100 seconds
+and then recovers to a plateau just under peak. A 120-second run stops inside that
+dip. Measured from the *same* 600 s runs, taking the window that ends at 120 s
+against the mean of the last six:
+
+| model | unit | at 120 s | at steady state |
+| --- | --- | ---: | ---: |
+| `siglip` | GPU | 0.9635 | 0.9959 |
+| `resnet50` | GPU | 0.9876 | 0.9978 |
+| `whisper` | GPU | 0.9496 | 0.9737 |
+| `siglip` | ANE | 1.0000 | 0.9995 |
+
+The signature is in the short runs too: across 56 M4 Pro 120 s GPU soaks the
+slowest window falls in the last 30% of the run 77% of the time, against 10% for
+40 ANE soaks and ~30% for chance. **This is M4 Pro only.** The M5 Max GPU loses
+about 15% inside two windows and holds, with no recovery to miss. PAPER.md §3.3
+has the full treatment.
+
 The three ANE cells print as `1.000` at the precision of this table. They are not
 exactly 1: at four decimals they are 1.0000, 1.0000 and 0.9999. An earlier draft
 read "holds its peak exactly", which is a rounding artefact rather than a result.
@@ -86,11 +105,12 @@ difference itself.
 
 ### What survives
 
-The ANE, in 21 of 22 soaks. Across four machines and two chips those 21 measured
+The ANE, in 44 of 45 soaks. Across four machines and two chips those 44 measured
 0.9986 to 1.0000, giving back at most 0.14% of peak regardless of starting state,
 which is what an engine that does not degrade should look like, and it is that
-insensitivity that makes it immune to the confound above. All 21 sustain better
-than the best of 41 GPU soaks (0.9918).
+insensitivity that makes it immune to the confound above. All 44 sustain better
+than the best of 60 GPU soaks (0.9892). Counts are the 120 s protocol only; the
+600 s runs are analysed separately and deliberately excluded (PAPER.md §3.3).
 
 **The twenty-second is a `whisper` ANE soak on inference2 at 0.9748**, and it is
 not dismissed. It ran flat at 56.3 img/s for seven windows, then fell monotonically
@@ -99,10 +119,17 @@ Max numbers: contention lowers the peak, and this run reached 56.34 against 56.3
 and 56.35 for the two whisper ANE runs on other boxes that held their rate. The
 engine reached full speed and then lost 2.5% of it.
 
-We cannot say why, because **`thermal_soak.py` records the machine and the thermal
-level but not what else was running**. That is the same blind spot that made the
-M5 Max figures unexplainable until they were re-run on an idle box, and it is now
-the most valuable thing to fix in the tool.
+We could not say why at the time, because `thermal_soak.py` recorded the machine and
+the thermal level but not what else was running, the same blind spot that made the
+M5 Max figures unexplainable until they were re-run on an idle box. **That is now
+fixed**: every soak records peak non-self CPU, when it peaked, and the busiest
+processes, in a `concurrent_load` field. The original run predates it and remains
+unexplainable from its own file.
+
+It did not reproduce. A repeat on the same machine returned 0.9998 with the box
+recorded at 3.7% of its 14 cores, and a 600 s `whisper` ANE run is flat at 0.9998
+over 29 windows. One reading, never seen again at its own duration or at five
+times it.
 
 And the absolute rates, which are not close: M4 Pro GPU sustains 172 to 177 img/s,
 M5 Max 762 to 888.
@@ -169,10 +196,17 @@ different things, and only one of them is what a long-running job gets.
 - **AC power.** Recorded per run in the JSON. An earlier GPU soak was discarded:
   the machine was plugged in mid-run and the guard in `thermal_soak.py` caught the
   battery-to-AC transition. A 60 s GPU soak on battery gave 0.879, but that is **not**
-  comparable to the 0.837 above. The AC run is 120 s, and sustained fraction falls
-  with soak length by construction, since the denominator is the best window and
-  the numerator is the last one. Comparing AC against battery needs equal
-  durations and has not been done.
+  comparable to the 0.837 above, because the durations differ. Comparing AC against
+  battery needs equal durations and has not been done.
+
+  An earlier version of this note argued that sustained fraction falls with soak
+  length **by construction**, since the denominator is the best window and the
+  numerator is the last one. **That is wrong, and the 600 s runs falsify it.** The
+  denominator is fixed once the peak has passed, usually within two windows, while
+  the numerator can *rise* if the engine recovers. On the M4 Pro it does: `siglip`
+  on the GPU reads 0.9635 at 120 s and 0.9959 at 600 s, in the same run. The
+  argument only holds where throughput decreases monotonically, which is the M5 Max
+  and not the M4 Pro.
 - **Custom fan curve, die pinned at ~97 °C.** This is not a stock machine. A
   stock MacBook Pro will ramp its fans differently and may land somewhere else
   entirely. Sustained numbers are more sensitive to cooling than burst numbers

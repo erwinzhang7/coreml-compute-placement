@@ -32,8 +32,6 @@ fixed-inference2-siglip-CPU_AND_NE.json
 fixed-m5max-siglip-ALL.json
 fixed-m5max-siglip-CPU_AND_GPU.json
 fixed-m5max-siglip-CPU_AND_NE.json
-long600--siglip-vision-gpu.json
-long600--whisper-gpu.json
 m4pro-ALL.json
 m4pro-CPU_AND_GPU.json
 m4pro-CPU_AND_NE.json

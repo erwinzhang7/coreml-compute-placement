@@ -48,7 +48,7 @@ one above, with method, mechanism, threats to validity and citations. In short:
 - **§3.2** The default costs 1.18x to 5.18x on the M4 Pro, and on three of five is slower
   than *both* explicit placements. On the M5 Max it is free.
 - **§3.3** Peak does not predict sustained. Over two minutes the ANE gives back at most 0.14%
-  in 44 of 45 soaks; the GPU gives back 0.8 to 16.3% in 62.
+  in 44 of 45 soaks; the GPU gives back 0.8 to 16.3% in 60.
 - **§3.4** Mechanism: the M5's per-GPU-core neural accelerators, with a falsifiable prediction.
 - **§4** Threats to validity. Read these before citing any number.
 

@@ -179,7 +179,20 @@ def main():
     # --refresh-set, then update the prose, then commit both together.
     setf = REPO / "results" / "soak" / "PAPER-SET.txt"
     soakdir = REPO / "results" / "soak"
-    on_disk = sorted(p.name for p in soakdir.glob("*.json"))
+    # The headline in 3.3 is about the 120 s protocol: "over a two-minute soak".
+    # The 600 s runs are a separate sub-analysis that qualifies it, and folding
+    # them into the same count would make the count mean nothing, since it would
+    # be a mix of durations described as one. They are excluded here and analysed
+    # in their own subsection.
+    # Any 600 s run, whatever it is named. long600-* are the duration study and
+    # dip*-* are the back-to-back cold-start experiment; both are 600 s and both
+    # would silently inflate a count the abstract calls "a two-minute soak".
+    # Excluding by prefix list rather than by a single name was the bug: dip*
+    # arrived after the exclusion was written and would have been folded in by
+    # the next --refresh-set.
+    LONG = ("long600", "dip", "aned")
+    on_disk = sorted(p.name for p in soakdir.glob("*.json")
+                     if not p.name.startswith(LONG))
     if refresh:
         setf.write_text("\n".join(on_disk) + "\n")
         print("refreshed PAPER-SET.txt to %d files; now update the prose to match\n"
@@ -216,6 +229,19 @@ def main():
         require("ANE beats every GPU soak, abstract",
                 "sustain better than the best of the %d GPU soaks" % len(gpu))
         # Same numbers, the README's one-line summary of 3.3.
+        # results/soak/README.md restates the same counts in prose and has now
+        # gone stale twice: once on "21 of 22 / 41 GPU soaks" and once on a
+        # paragraph calling a gap "the most valuable thing to fix" after it was
+        # fixed. Guard its numbers here rather than finding them by grep again.
+        soak_readme = (REPO / "results" / "soak" / "README.md")
+        if soak_readme.exists():
+            sr = soak_readme.read_text()
+            for lbl, s in (("soak README ANE count",
+                            "The ANE, in %d of %d soaks." % (len(above), len(ane))),
+                           ("soak README GPU count",
+                            "than the best of %d GPU soaks (%.4f)" % (len(gpu), max(gpu)))):
+                checks.append((lbl, s, s in sr))
+
         require_readme("README 3.3 summary",
                        "in %d of %d soaks; the GPU gives back 0.8 to 16.3%% in %d"
                        % (len(above), len(ane), len(gpu)))
@@ -225,10 +251,26 @@ def main():
                          "rewrite the claim rather than widening the exception."
                          % (len(ane) - len(above), len(ane)))
 
+    # 3.3's cold-start mechanism. Three back-to-back 600 s GPU soaks per model,
+    # no cooldown. Every dip figure and every steady-state value the section
+    # quotes is recomputed here, so the subsection cannot drift from its files.
+    for base, lbl in (("inference1-siglip-vision", "siglip"),
+                      ("inference1-resnet50", "resnet50"),
+                      ("experiments-bert", "bert"),
+                      ("experiments-whisper", "whisper")):
+        for i in (1, 2, 3):
+            f = REPO / "results" / "soak" / ("dip%d-%s-CPU_AND_GPU.json" % (i, base))
+            if not f.exists():
+                continue
+            r = [w["images_per_s"] for w in json.loads(f.read_text())["windows"]]
+            require("3.3 %s dip run %d" % (lbl, i),
+                    "%.2f%%" % (100 * (max(r) - min(r)) / max(r)))
+
     for label, s, ok in checks:
         print("%-38s %s  %r" % (label, "ok  " if ok else "FAIL", s))
         if not ok:
-            where = "README.md" if label.startswith("README") else "PAPER.md"
+            where = ("results/soak/README.md" if label.startswith("soak README")
+                     else "README.md" if label.startswith("README") else "PAPER.md")
             fails.append("%s: %s does not contain %r" % (label, where, s))
 
     if extra:
