@@ -17,7 +17,7 @@ authors:
     affiliation: University of Toronto
 doi: "10.5281/zenodo.22136103"
 repository-code: "https://github.com/erwinzhang7/coreml-compute-placement"
-url: "https://erwinzhang.com/projects/#research"
+url: "https://erwinzhang.com/research/core-ml-compute-placement/"
 license: MIT
 keywords:
   - Core ML
