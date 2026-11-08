@@ -1,0 +1,182 @@
+[
+  {
+    "host": {
+      "cpu": "Apple M6",
+      "model": "Mac18,1",
+      "gpu_cores": "12",
+      "macos": "27.2",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "0",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-vision-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      429.3586338588799,
+      430.8837094477773,
+      430.51664963183833,
+      426.36451635064475,
+      428.7880718328408
+    ],
+    "median": 429.3586338588799,
+    "min": 426.36451635064475,
+    "max": 430.8837094477773,
+    "stdev": 1.7889729749076502
+  },
+  {
+    "host": {
+      "cpu": "Apple M6",
+      "model": "Mac18,1",
+      "gpu_cores": "12",
+      "macos": "27.2",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "0",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-vision-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      436.83570008218885,
+      436.45725961606496,
+      436.72085416797063,
+      437.3803468642381,
+      436.7687727537562
+    ],
+    "median": 436.7687727537562,
+    "min": 436.45725961606496,
+    "max": 437.3803468642381,
+    "stdev": 0.3381854850000564
+  },
+  {
+    "host": {
+      "cpu": "Apple M6",
+      "model": "Mac18,1",
+      "gpu_cores": "12",
+      "macos": "27.2",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "0",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-vision-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      427.4764811547458,
+      430.75956833396424,
+      429.5534410518731,
+      429.49354546459676,
+      426.5781753934159
+    ],
+    "median": 429.49354546459676,
+    "min": 426.5781753934159,
+    "max": 430.75956833396424,
+    "stdev": 1.700951281384586
+  },
+  {
+    "host": {
+      "cpu": "Apple M6",
+      "model": "Mac18,1",
+      "gpu_cores": "12",
+      "macos": "27.2",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "0",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      558.31546917469,
+      559.6293038895146,
+      555.5929860664367,
+      559.5511001316412,
+      559.755367693129
+    ],
+    "median": 559.5511001316412,
+    "min": 555.5929860664367,
+    "max": 559.755367693129,
+    "stdev": 1.7619002527538012
+  },
+  {
+    "host": {
+      "cpu": "Apple M6",
+      "model": "Mac18,1",
+      "gpu_cores": "12",
+      "macos": "27.2",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "0",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      156.7878054461095,
+      156.68688838819062,
+      156.820719092994,
+      156.6247390664452,
+      157.1510222137269
+    ],
+    "median": 156.7878054461095,
+    "min": 156.6247390664452,
+    "max": 157.1510222137269,
+    "stdev": 0.20389461768505546
+  },
+  {
+    "host": {
+      "cpu": "Apple M6",
+      "model": "Mac18,1",
+      "gpu_cores": "12",
+      "macos": "27.2",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "0",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      555.7778287364371,
+      558.766821458133,
+      559.715198247888,
+      558.2567584165621,
+      558.7430807187936
+    ],
+    "median": 558.7430807187936,
+    "min": 555.7778287364371,
+    "max": 559.715198247888,
+    "stdev": 1.4805992522619673
+  }
+]

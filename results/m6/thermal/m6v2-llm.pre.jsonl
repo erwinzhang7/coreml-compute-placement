@@ -1,0 +1,3 @@
+{"t": 1794102445.6, "stage": "preflight", "fans": [{"mode": "manual", "rpm": 6734, "target": 6579}], "max_die_C": 42.4, "max_die_key": "Tp0d", "thermal_pressure": 0}
+{"t": 1794102505.9, "stage": "cooldown", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 34.9, "max_die_key": "Tp0g", "thermal_pressure": 0}
+{"t": 1794102505.9, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 34.9, "max_die_key": "Tp0g", "thermal_pressure": 0}

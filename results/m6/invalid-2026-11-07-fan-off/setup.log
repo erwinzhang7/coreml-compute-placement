@@ -1,0 +1,46 @@
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+coremltools 9.0 numpy 2.5.2 torch 2.8.0
+building ANE rewrite of google/siglip-base-patch16-224
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 42364.65it/s]
+[transformers] [1mSiglipVisionModel LOAD REPORT[0m from: google/siglip-base-patch16-224
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+text_model.head.bias                                         | UNEXPECTED |  | 
+text_model.head.weight                                       | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+logit_bias                                                   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+verifying against HuggingFace reference
+  max abs diff 3.695e-06   max rel 3.946e-03   min cosine 0.99999988
+  numerical equivalence: PASS
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+converting to Core ML (fp16, mlprogram, macOS15)
+Converting PyTorch Frontend ==> MIL Ops:   0%|          | 0/1818 [00:00<?, ? ops/s]Converting PyTorch Frontend ==> MIL Ops:  21%|██        | 382/1818 [00:00<00:00, 3760.24 ops/s]Converting PyTorch Frontend ==> MIL Ops:  42%|████▏     | 759/1818 [00:00<00:00, 3109.60 ops/s]Converting PyTorch Frontend ==> MIL Ops:  62%|██████▏   | 1127/1818 [00:00<00:00, 3317.85 ops/s]Converting PyTorch Frontend ==> MIL Ops:  81%|████████  | 1465/1818 [00:00<00:00, 2964.53 ops/s]Converting PyTorch Frontend ==> MIL Ops: 100%|█████████▉| 1817/1818 [00:00<00:00, 3247.92 ops/s]
+Running MIL frontend_pytorch pipeline:   0%|          | 0/5 [00:00<?, ? passes/s]Running MIL frontend_pytorch pipeline:  60%|██████    | 3/5 [00:00<00:00, 22.58 passes/s]Running MIL frontend_pytorch pipeline: 100%|██████████| 5/5 [00:00<00:00, 24.04 passes/s]
+Running MIL default pipeline:   0%|          | 0/95 [00:00<?, ? passes/s]Running MIL default pipeline:   3%|▎         | 3/95 [00:00<00:03, 26.08 passes/s]Running MIL default pipeline:   6%|▋         | 6/95 [00:00<00:03, 25.13 passes/s]Running MIL default pipeline:   9%|▉         | 9/95 [00:00<00:03, 25.84 passes/s]Running MIL default pipeline:  13%|█▎        | 12/95 [00:00<00:05, 14.11 passes/s]Running MIL default pipeline:  17%|█▋        | 16/95 [00:00<00:04, 19.06 passes/s]Running MIL default pipeline:  21%|██        | 20/95 [00:00<00:03, 22.13 passes/s]Running MIL default pipeline:  24%|██▍       | 23/95 [00:01<00:03, 23.78 passes/s]Running MIL default pipeline:  28%|██▊       | 27/95 [00:01<00:02, 27.01 passes/s]Running MIL default pipeline:  33%|███▎      | 31/95 [00:01<00:02, 29.48 passes/s]Running MIL default pipeline:  37%|███▋      | 35/95 [00:01<00:02, 21.10 passes/s]Running MIL default pipeline:  40%|████      | 38/95 [00:01<00:02, 22.82 passes/s]Running MIL default pipeline:  43%|████▎     | 41/95 [00:01<00:02, 22.74 passes/s]Running MIL default pipeline:  47%|████▋     | 45/95 [00:01<00:01, 25.68 passes/s]Running MIL default pipeline:  51%|█████     | 48/95 [00:02<00:01, 26.26 passes/s]Running MIL default pipeline:  55%|█████▍    | 52/95 [00:02<00:01, 28.36 passes/s]Running MIL default pipeline:  59%|█████▉    | 56/95 [00:02<00:01, 20.33 passes/s]Running MIL default pipeline:  62%|██████▏   | 59/95 [00:03<00:05,  6.51 passes/s]Running MIL default pipeline:  64%|██████▍   | 61/95 [00:03<00:04,  7.47 passes/s]Running MIL default pipeline:  66%|██████▋   | 63/95 [00:04<00:03,  8.38 passes/s]Running MIL default pipeline:  68%|██████▊   | 65/95 [00:04<00:03,  9.23 passes/s]Running MIL default pipeline:  76%|███████▌  | 72/95 [00:04<00:01, 17.50 passes/s]Running MIL default pipeline:  84%|████████▍ | 80/95 [00:04<00:00, 27.61 passes/s]Running MIL default pipeline:  93%|█████████▎| 88/95 [00:04<00:00, 37.01 passes/s]Running MIL default pipeline:  99%|█████████▉| 94/95 [00:04<00:00, 27.46 passes/s]Running MIL default pipeline: 100%|██████████| 95/95 [00:04<00:00, 19.41 passes/s]
+Running MIL backend_mlprogram pipeline:   0%|          | 0/12 [00:00<?, ? passes/s]Running MIL backend_mlprogram pipeline:  75%|███████▌  | 9/12 [00:00<00:00, 79.51 passes/s]Running MIL backend_mlprogram pipeline: 100%|██████████| 12/12 [00:00<00:00, 81.42 passes/s]
+saved models/siglip-ane-b32.mlpackage
+xcrun: error: unable to find utility "coremlcompiler", not a developer tool or in PATH

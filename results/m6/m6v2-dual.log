@@ -1,0 +1,56 @@
+{"t": 1794099072.2, "stage": "preflight", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 32.5, "max_die_key": "Tp0d", "thermal_pressure": 0}
+{"t": 1794099132.5, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 30, "max_die_key": "Tp0d", "thermal_pressure": 0}
+  procs       CPU_AND_NE  k=1 rep0: total   558.4 img/s per [558.4]  ANE 15.76 W  all 16.14 W
+  procs       CPU_AND_NE  k=1 rep1: total   558.3 img/s per [558.3]  ANE 15.77 W  all 16.14 W
+  procs       CPU_AND_NE  k=1 rep2: total   558.3 img/s per [558.3]  ANE 15.74 W  all 16.16 W
+procs       CPU_AND_NE  k=1: median   558.3 img/s spread  0.0%   28.92 mJ/img (CPU+GPU+ANE)
+  procs       CPU_AND_NE  k=2 rep0: total   574.8 img/s per [287.8, 287.0]  ANE 16.16 W  all 16.54 W
+  procs       CPU_AND_NE  k=2 rep1: total   574.9 img/s per [287.9, 287.0]  ANE 16.15 W  all 16.47 W
+  procs       CPU_AND_NE  k=2 rep2: total   574.8 img/s per [287.8, 287.0]  ANE 16.15 W  all 16.49 W
+procs       CPU_AND_NE  k=2: median   574.8 img/s spread  0.0%   28.69 mJ/img (CPU+GPU+ANE)
+  procs       CPU_AND_NE  k=4 rep0: total   576.4 img/s per [144.0, 143.5, 144.7, 144.2]  ANE 16.14 W  all 16.50 W
+  procs       CPU_AND_NE  k=4 rep1: total   576.1 img/s per [143.9, 143.5, 144.6, 144.1]  ANE 16.14 W  all 16.51 W
+  procs       CPU_AND_NE  k=4 rep2: total   576.3 img/s per [143.9, 143.5, 144.7, 144.2]  ANE 16.14 W  all 16.49 W
+procs       CPU_AND_NE  k=4: median   576.3 img/s spread  0.1%   28.63 mJ/img (CPU+GPU+ANE)
+  inproc      ne          k=1 rep0: total   568.4 img/s per [568.4]  ANE 16.00 W  all 16.24 W
+  inproc      ne          k=1 rep1: total   568.0 img/s per [568.0]  ANE 15.98 W  all 16.24 W
+  inproc      ne          k=1 rep2: total   567.9 img/s per [567.9]  ANE 16.00 W  all 16.25 W
+inproc      ne          k=1: median   568.0 img/s spread  0.1%   28.60 mJ/img (CPU+GPU+ANE)
+  inproc      ne          k=2 rep0: total   570.0 img/s per [285.4, 284.6]  ANE 16.03 W  all 16.26 W
+  inproc      ne          k=2 rep1: total   570.1 img/s per [285.4, 284.6]  ANE 16.02 W  all 16.22 W
+  inproc      ne          k=2 rep2: total   570.1 img/s per [285.4, 284.6]  ANE 16.02 W  all 16.24 W
+inproc      ne          k=2: median   570.1 img/s spread  0.0%   28.48 mJ/img (CPU+GPU+ANE)
+  inproc      ne          k=4 rep0: total   571.5 img/s per [143.5, 142.7, 143.1, 142.3]  ANE 16.02 W  all 16.30 W
+  inproc      ne          k=4 rep1: total   571.1 img/s per [143.4, 142.6, 143.0, 142.2]  ANE 16.00 W  all 16.30 W
+  inproc      ne          k=4 rep2: total   571.6 img/s per [143.5, 142.7, 143.1, 142.3]  ANE 16.00 W  all 16.26 W
+inproc      ne          k=4: median   571.5 img/s spread  0.1%   28.51 mJ/img (CPU+GPU+ANE)
+  shared      ne          k=2 rep0: total   569.9 img/s per [285.4, 284.6]  ANE 16.01 W  all 16.24 W
+  shared      ne          k=2 rep1: total   570.2 img/s per [285.5, 284.7]  ANE 16.00 W  all 16.22 W
+  shared      ne          k=2 rep2: total   570.0 img/s per [285.4, 284.6]  ANE 16.00 W  all 16.20 W
+shared      ne          k=2: median   570.0 img/s spread  0.1%   28.45 mJ/img (CPU+GPU+ANE)
+  procs       CPU_AND_GPU k=1 rep0: total   156.7 img/s per [156.7]  ANE  0.00 W  all 13.04 W
+  procs       CPU_AND_GPU k=1 rep1: total   156.6 img/s per [156.6]  ANE  0.00 W  all 13.03 W
+  procs       CPU_AND_GPU k=1 rep2: total   156.5 img/s per [156.5]  ANE  0.00 W  all 13.02 W
+procs       CPU_AND_GPU k=1: median   156.6 img/s spread  0.1%   83.22 mJ/img (CPU+GPU+ANE)
+  procs-naive CPU_AND_NE  k=1 rep0: total   428.4 img/s per [428.4]  ANE 12.80 W  all 13.15 W
+  procs-naive CPU_AND_NE  k=1 rep1: total   429.8 img/s per [429.8]  ANE 12.85 W  all 13.19 W
+  procs-naive CPU_AND_NE  k=1 rep2: total   429.3 img/s per [429.3]  ANE 12.83 W  all 13.15 W
+procs-naive CPU_AND_NE  k=1: median   429.3 img/s spread  0.3%   30.63 mJ/img (CPU+GPU+ANE)
+  procs-naive CPU_AND_NE  k=2 rep0: total   438.7 img/s per [219.0, 219.7]  ANE 13.04 W  all 13.32 W
+  procs-naive CPU_AND_NE  k=2 rep1: total   439.5 img/s per [220.2, 219.4]  ANE 13.07 W  all 13.37 W
+  procs-naive CPU_AND_NE  k=2 rep2: total   440.0 img/s per [220.4, 219.6]  ANE 13.08 W  all 13.40 W
+procs-naive CPU_AND_NE  k=2: median   439.5 img/s spread  0.3%   30.42 mJ/img (CPU+GPU+ANE)
+
+scaling vs procs-1 on CPU_AND_NE:
+  procs       k=1: 1.00x
+  procs       k=2: 1.03x
+  procs       k=4: 1.03x
+  inproc      k=1: 1.02x
+  inproc      k=2: 1.02x
+  inproc      k=4: 1.02x
+  shared      k=2: 1.02x
+  procs-naive k=1: 0.77x
+  procs-naive k=2: 0.79x
+wrote out/dual-ane.json
+{"t": 1794099566.0, "stage": "end", "fans": [{"mode": "manual", "rpm": 8248, "target": 8250}], "max_die_C": 55.5, "max_die_key": "Tp0j", "thermal_pressure": 0}
+during: n=84 rpm 0-8270  max die 60.5 C  max pressure 0  modes ['auto', 'manual']  fault samples 0

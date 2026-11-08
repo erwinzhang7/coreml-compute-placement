@@ -1,0 +1,164 @@
+{
+  "model": "siglip-vision-b16.mlpackage",
+  "units": "CPU_AND_NE",
+  "batch": 16,
+  "seconds": 120.0,
+  "window": 10.0,
+  "machine": {
+    "cpu": "Apple M6",
+    "model": "Mac18,1",
+    "macos": "27.2",
+    "coremltools": "9.0"
+  },
+  "power_start": {
+    "source": "AC",
+    "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+    "lowpowermode": "0"
+  },
+  "thermal_readable": true,
+  "summary": {
+    "windows": 11,
+    "best_images_per_s": 429.26,
+    "last_images_per_s": 428.8,
+    "sustained_fraction": 0.9989,
+    "mean_images_per_s": 428.91,
+    "complete_windows": 11,
+    "max_thermal": 0,
+    "interrupted": false
+  },
+  "power_end": {
+    "source": "AC",
+    "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+    "lowpowermode": "0"
+  },
+  "concurrent_load": {
+    "readable": true,
+    "samples": 44,
+    "cores": 12,
+    "peak_other_cpu_pct": 112.6,
+    "peak_other_cpu_of_machine": 0.0938,
+    "peak_at_s": 52.7,
+    "busiest_at_peak": [
+      {
+        "cpu": 57.8,
+        "comm": "/usr/libexec/runningboardd"
+      },
+      {
+        "cpu": 33.3,
+        "comm": "/usr/libexec/PerfPowerServices"
+      },
+      {
+        "cpu": 7.3,
+        "comm": "/Applications/Fan.app/Contents/MacOS/FanApp"
+      },
+      {
+        "cpu": 5.6,
+        "comm": "/System/Library/Frameworks/WebKit.framework/Versions/A/XPCSe"
+      }
+    ],
+    "quiet": true,
+    "peak_other_single_core_pct": 57.8,
+    "rival_at_peak": null
+  },
+  "windows": [
+    {
+      "t": 0.0,
+      "seconds": 10.0009,
+      "calls": 268,
+      "images_per_s": 428.76,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 10.001,
+      "seconds": 10.0354,
+      "calls": 269,
+      "images_per_s": 428.88,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 20.037,
+      "seconds": 10.0341,
+      "calls": 269,
+      "images_per_s": 428.94,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 30.072,
+      "seconds": 10.0337,
+      "calls": 269,
+      "images_per_s": 428.96,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 40.106,
+      "seconds": 10.0342,
+      "calls": 269,
+      "images_per_s": 428.93,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 50.14,
+      "seconds": 10.0017,
+      "calls": 268,
+      "images_per_s": 428.73,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 60.142,
+      "seconds": 10.0266,
+      "calls": 269,
+      "images_per_s": 429.26,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 70.17,
+      "seconds": 10.0064,
+      "calls": 268,
+      "images_per_s": 428.53,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 80.177,
+      "seconds": 10.031,
+      "calls": 269,
+      "images_per_s": 429.07,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 90.208,
+      "seconds": 10.0287,
+      "calls": 269,
+      "images_per_s": 429.17,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 100.237,
+      "seconds": 10.0,
+      "calls": 268,
+      "images_per_s": 428.8,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    }
+  ]
+}

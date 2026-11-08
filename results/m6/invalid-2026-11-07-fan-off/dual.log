@@ -1,0 +1,85 @@
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=1 rep0: total   522.0 img/s per [522.0]  ANE 11.48 W  all 11.72 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=1 rep1: total   512.4 img/s per [512.4]  ANE 10.85 W  all 11.08 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=1 rep2: total   505.6 img/s per [505.6]  ANE 10.47 W  all 10.68 W
+procs       CPU_AND_NE  k=1: median   512.4 img/s spread  3.2%   21.62 mJ/img (CPU+GPU+ANE)
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=2 rep0: total   510.1 img/s per [255.5, 254.6]  ANE 10.18 W  all 10.42 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=2 rep1: total   505.2 img/s per [252.2, 253.0]  ANE  9.94 W  all 10.16 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=2 rep2: total   502.0 img/s per [250.6, 251.4]  ANE  9.79 W  all 10.00 W
+procs       CPU_AND_NE  k=2: median   505.2 img/s spread  1.6%   20.11 mJ/img (CPU+GPU+ANE)
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=4 rep0: total   498.0 img/s per [124.7, 124.3, 123.9, 125.1]  ANE  9.54 W  all  9.79 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=4 rep1: total   495.5 img/s per [124.5, 124.1, 123.7, 123.2]  ANE  9.43 W  all  9.63 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_NE  k=4 rep2: total   493.6 img/s per [122.8, 124.0, 123.6, 123.2]  ANE  9.35 W  all  9.53 W
+procs       CPU_AND_NE  k=4: median   495.5 img/s spread  0.9%   19.43 mJ/img (CPU+GPU+ANE)
+  inproc      ne          k=1 rep0: total   520.8 img/s per [520.8]  ANE 10.91 W  all 11.01 W
+  inproc      ne          k=1 rep1: total   511.2 img/s per [511.2]  ANE 10.39 W  all 10.53 W
+  inproc      ne          k=1 rep2: total   504.3 img/s per [504.3]  ANE 10.07 W  all 10.21 W
+inproc      ne          k=1: median   511.2 img/s spread  3.2%   20.60 mJ/img (CPU+GPU+ANE)
+  inproc      ne          k=2 rep0: total   500.5 img/s per [250.7, 249.9]  ANE  9.83 W  all  9.95 W
+  inproc      ne          k=2 rep1: total   497.4 img/s per [249.1, 248.3]  ANE  9.69 W  all  9.78 W
+  inproc      ne          k=2 rep2: total   495.4 img/s per [248.1, 247.3]  ANE  9.58 W  all  9.66 W
+inproc      ne          k=2: median   497.4 img/s spread  1.0%   19.66 mJ/img (CPU+GPU+ANE)
+  inproc      ne          k=4 rep0: total   494.1 img/s per [124.1, 122.9, 123.7, 123.3]  ANE  9.47 W  all  9.57 W
+  inproc      ne          k=4 rep1: total   492.1 img/s per [123.6, 122.8, 123.2, 122.4]  ANE  9.38 W  all  9.51 W
+  inproc      ne          k=4 rep2: total   491.0 img/s per [123.3, 123.0, 122.5, 122.2]  ANE  9.31 W  all  9.43 W
+inproc      ne          k=4: median   492.1 img/s spread  0.6%   19.32 mJ/img (CPU+GPU+ANE)
+  shared      ne          k=2 rep0: total   489.8 img/s per [245.3, 244.5]  ANE  9.35 W  all  9.45 W
+  shared      ne          k=2 rep1: total   489.0 img/s per [244.9, 244.1]  ANE  9.30 W  all  9.40 W
+  shared      ne          k=2 rep2: total   488.6 img/s per [244.7, 243.9]  ANE  9.31 W  all  9.38 W
+shared      ne          k=2: median   489.0 img/s spread  0.3%   19.22 mJ/img (CPU+GPU+ANE)
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_GPU k=1 rep0: total   156.9 img/s per [156.9]  ANE  0.00 W  all 13.90 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_GPU k=1 rep1: total   156.5 img/s per [156.5]  ANE  0.00 W  all 14.03 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs       CPU_AND_GPU k=1 rep2: total   156.4 img/s per [156.4]  ANE  0.00 W  all 14.16 W
+procs       CPU_AND_GPU k=1: median   156.5 img/s spread  0.3%   89.61 mJ/img (CPU+GPU+ANE)
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs-naive CPU_AND_NE  k=1 rep0: total   410.0 img/s per [410.0]  ANE  9.53 W  all  9.68 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs-naive CPU_AND_NE  k=1 rep1: total   405.0 img/s per [405.0]  ANE  9.12 W  all  9.29 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs-naive CPU_AND_NE  k=1 rep2: total   402.3 img/s per [402.3]  ANE  8.91 W  all  9.12 W
+procs-naive CPU_AND_NE  k=1: median   405.0 img/s spread  1.9%   22.94 mJ/img (CPU+GPU+ANE)
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs-naive CPU_AND_NE  k=2 rep0: total   406.8 img/s per [203.0, 203.8]  ANE  8.65 W  all  8.83 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs-naive CPU_AND_NE  k=2 rep1: total   406.0 img/s per [202.6, 203.4]  ANE  8.58 W  all  8.77 W
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+  procs-naive CPU_AND_NE  k=2 rep2: total   403.9 img/s per [201.6, 202.3]  ANE  8.46 W  all  8.66 W
+procs-naive CPU_AND_NE  k=2: median   406.0 img/s spread  0.7%   21.61 mJ/img (CPU+GPU+ANE)
+
+scaling vs procs-1 on CPU_AND_NE:
+  procs       k=1: 1.00x
+  procs       k=2: 0.99x
+  procs       k=4: 0.97x
+  inproc      k=1: 1.00x
+  inproc      k=2: 0.97x
+  inproc      k=4: 0.96x
+  shared      k=2: 0.95x
+  procs-naive k=1: 0.79x
+  procs-naive k=2: 0.79x
+wrote out/dual-ane.json

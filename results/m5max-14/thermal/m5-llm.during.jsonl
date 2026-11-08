@@ -1,0 +1,3 @@
+{"t": 1794121111.4, "stage": "during", "fans": [{"mode": "manual", "rpm": 2328, "target": 2328}, {"mode": "manual", "rpm": 2328, "target": 2328}], "max_die_C": 44.7, "max_die_key": "Tg4D", "thermal_pressure": 0}
+{"t": 1794121116.6, "stage": "during", "fans": [{"mode": "manual", "rpm": 2328, "target": 2328}, {"mode": "manual", "rpm": 2331, "target": 2328}], "max_die_C": 62.5, "max_die_key": "Tg5h", "thermal_pressure": 0}
+{"t": 1794121121.8, "stage": "during", "fans": [{"mode": "manual", "rpm": 7845, "target": 7826}, {"mode": "manual", "rpm": 7837, "target": 7826}], "max_die_C": 68.5, "max_die_key": "Tg5h", "thermal_pressure": 0}

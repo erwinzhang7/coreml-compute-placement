@@ -1,0 +1,11 @@
+{"t": 1794100751.1, "stage": "preflight", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 35, "max_die_key": "Tp0g", "thermal_pressure": 0}
+{"t": 1794100811.4, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 31, "max_die_key": "Tp0w", "thermal_pressure": 0}
+idle                 0.0 img/s  n=15  {'iop_running_frac ANE': 0.0, 'iop_running_frac ANE1': 0.0, 'irq_per_s ane': 0.0, 'irq_per_s ane1': 0.0, 'irq_per_s dart-ane': 0.0, 'irq_per_s dart-ane1': 0.0, 'sys_on_frac ANE0_SYS': 0.0, 'sys_on_frac ANE1_SYS': 0.0}
+ane-b16 x1         568.6 img/s  n=15  {'iop_running_frac ANE': 1.0, 'iop_running_frac ANE1': 1.0, 'irq_per_s ane': 142.133, 'irq_per_s ane1': 140.0, 'irq_per_s dart-ane': 0.0, 'irq_per_s dart-ane1': 0.0, 'sys_on_frac ANE0_SYS': 0.0, 'sys_on_frac ANE1_SYS': 0.0}
+ane-b1 x1          321.1 img/s  n=17  {'iop_running_frac ANE': 1.0, 'iop_running_frac ANE1': 1.0, 'irq_per_s ane': 1072.588, 'irq_per_s ane1': 1070.118, 'irq_per_s dart-ane': 0.0, 'irq_per_s dart-ane1': 0.0, 'sys_on_frac ANE0_SYS': 0.0, 'sys_on_frac ANE1_SYS': 0.0}
+ane-b16 x2         570.4 img/s  n=15  {'iop_running_frac ANE': 1.0, 'iop_running_frac ANE1': 1.0, 'irq_per_s ane': 146.0, 'irq_per_s ane1': 144.4, 'irq_per_s dart-ane': 0.0, 'irq_per_s dart-ane1': 0.0, 'sys_on_frac ANE0_SYS': 0.0, 'sys_on_frac ANE1_SYS': 0.0}
+naive-b16 x1       437.3 img/s  n=15  {'iop_running_frac ANE': 1.0, 'iop_running_frac ANE1': 1.0, 'irq_per_s ane': 103.6, 'irq_per_s ane1': 101.467, 'irq_per_s dart-ane': 0.0, 'irq_per_s dart-ane1': 0.0, 'sys_on_frac ANE0_SYS': 0.0, 'sys_on_frac ANE1_SYS': 0.0}
+ane-b16 x1 ALL     569.1 img/s  n=15  {'iop_running_frac ANE': 1.0, 'iop_running_frac ANE1': 1.0, 'irq_per_s ane': 133.333, 'irq_per_s ane1': 132.267, 'irq_per_s dart-ane': 0.0, 'irq_per_s dart-ane1': 0.0, 'sys_on_frac ANE0_SYS': 0.0, 'sys_on_frac ANE1_SYS': 0.0}
+wrote out/per-engine.json
+{"t": 1794100892.1, "stage": "end", "fans": [{"mode": "manual", "rpm": 8256, "target": 8250}], "max_die_C": 58.5, "max_die_key": "Tp0j", "thermal_pressure": 0}
+during: n=16 rpm 0-8261  max die 59.6 C  max pressure 0  modes ['auto', 'manual']  fault samples 0

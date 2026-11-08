@@ -1,0 +1,16 @@
+{"t": 1794102355.7, "stage": "during", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 31.8, "max_die_key": "Tp0d", "thermal_pressure": 0}
+{"t": 1794102360.8, "stage": "during", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 40.1, "max_die_key": "Tg1g", "thermal_pressure": 0}
+{"t": 1794102366.0, "stage": "during", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 40.8, "max_die_key": "Tg1g", "thermal_pressure": 0}
+{"t": 1794102371.1, "stage": "during", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 43.1, "max_die_key": "Tg1g", "thermal_pressure": 0}
+{"t": 1794102376.3, "stage": "during", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 44.4, "max_die_key": "Tg1g", "thermal_pressure": 0}
+{"t": 1794102381.5, "stage": "during", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 57.5, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102386.7, "stage": "during", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 63.1, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102391.9, "stage": "during", "fans": [{"mode": "manual", "rpm": 0, "target": 8250}], "max_die_C": 75.1, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102397.1, "stage": "during", "fans": [{"mode": "manual", "rpm": 8231, "target": 8250}], "max_die_C": 77.7, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102402.2, "stage": "during", "fans": [{"mode": "manual", "rpm": 8269, "target": 8250}], "max_die_C": 71, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102407.4, "stage": "during", "fans": [{"mode": "manual", "rpm": 8262, "target": 8250}], "max_die_C": 71, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102412.5, "stage": "during", "fans": [{"mode": "manual", "rpm": 8248, "target": 8250}], "max_die_C": 68.9, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102417.7, "stage": "during", "fans": [{"mode": "manual", "rpm": 8267, "target": 8250}], "max_die_C": 69.3, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102422.9, "stage": "during", "fans": [{"mode": "manual", "rpm": 8257, "target": 8250}], "max_die_C": 70.3, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102428.0, "stage": "during", "fans": [{"mode": "manual", "rpm": 8251, "target": 8250}], "max_die_C": 71, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794102433.2, "stage": "during", "fans": [{"mode": "manual", "rpm": 8244, "target": 8250}], "max_die_C": 72.1, "max_die_key": "Tp09", "thermal_pressure": 0}

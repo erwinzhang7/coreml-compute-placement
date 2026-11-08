@@ -1,0 +1,47 @@
+  procs       CPU_AND_NE  k=1 rep0: total   425.5 img/s per [425.5]  ANE 12.20 W  all 12.56 W
+  procs       CPU_AND_NE  k=1 rep1: total   421.4 img/s per [421.4]  ANE 10.75 W  all 11.09 W
+  procs       CPU_AND_NE  k=1 rep2: total   411.4 img/s per [411.4]  ANE  9.81 W  all 10.17 W
+procs       CPU_AND_NE  k=1: median   421.4 img/s spread  3.4%   26.31 mJ/img (CPU+GPU+ANE)
+  procs       CPU_AND_GPU k=1 rep0: total   434.1 img/s per [434.1]  ANE  0.00 W  all 22.19 W
+  procs       CPU_AND_GPU k=1 rep1: total   389.5 img/s per [389.5]  ANE  0.00 W  all 20.17 W
+  procs       CPU_AND_GPU k=1 rep2: total   351.9 img/s per [351.9]  ANE  0.00 W  all 18.29 W
+procs       CPU_AND_GPU k=1: median   389.5 img/s spread 21.1%   51.79 mJ/img (CPU+GPU+ANE)
+
+scaling vs procs-1 on CPU_AND_NE:
+  procs       k=1: 1.00x
+wrote out/power-naive.json
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/208 [00:00<?, ?it/s]Loading weights: 100%|██████████| 208/208 [00:00<00:00, 53909.36it/s]
+[transformers] [1mSiglipVisionModel LOAD REPORT[0m from: google/siglip-base-patch16-224
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+logit_bias                                                   | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+text_model.head.weight                                       | UNEXPECTED |  | 
+text_model.head.bias                                         | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+verify vs HF fp32: min cosine 0.999999  max abs diff 2.061e-02
+  power: GPU 12.66 W, CPU+GPU+ANE 12.89 W -> 40.5 mJ/img (GPU only 39.8)
+MLX float16 batch 16: median 317.8 img/s  spread 3.0%  runs [317.8, 325.0, 315.6]

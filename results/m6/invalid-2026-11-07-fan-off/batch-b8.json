@@ -1,0 +1,32 @@
+[
+  {
+    "host": {
+      "cpu": "Apple M6",
+      "model": "Mac18,1",
+      "gpu_cores": "12",
+      "macos": "27.2",
+      "power": {
+        "source": "AC",
+        "battery": "-InternalBattery-0 (id=27132003)\t100%; charged; 0:00 remaining present: true",
+        "lowpowermode": "0",
+        "thermal": 0
+      }
+    },
+    "model": "models/siglip-ane-b8.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 8,
+    "iters": 60,
+    "repeats": 5,
+    "runs": [
+      499.0781138230639,
+      507.56064880325226,
+      512.6319726980298,
+      513.1248835913851,
+      513.537897829969
+    ],
+    "median": 512.6319726980298,
+    "min": 499.0781138230639,
+    "max": 513.537897829969,
+    "stdev": 6.146943824163831
+  }
+]

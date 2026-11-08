@@ -1,0 +1,24 @@
+{"t": 1794101824.1, "stage": "preflight", "fans": [{"mode": "manual", "rpm": 7069, "target": 6930}], "max_die_C": 41.8, "max_die_key": "Tp09", "thermal_pressure": 0}
+{"t": 1794101884.4, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 34.4, "max_die_key": "Tp0w", "thermal_pressure": 0}
+CPU_AND_GPU  batch 16  soaking 120s in 10s windows
+  t(s)      img/s   calls    thermal
+     0      436.8     273    nominal
+    10      436.9     274    nominal
+    20      436.9     274    nominal
+    30      436.8     274    nominal
+    40      436.8     274    nominal
+    50      436.9     274    nominal
+    60      436.8     273    nominal
+    70      436.8     274    nominal
+    80      436.2     273    nominal
+    90      436.4     273    nominal
+   100      436.7     273    nominal
+
+best 436.9 img/s, last 436.7 img/s, sustained 1.000 of peak over 11 complete windows
+box was quiet: peak other-process load 7.2% of 12 cores over 44 samples
+
+Peak this run: 436.9 img/s. sustained_fraction is only comparable between runs that STARTED in the same thermal state; a warm start lowers the peak and RAISES the fraction. Compare last-window rates (436.7 img/s here) across runs, not fractions.
+thermal pressure stayed nominal. That does NOT rule heat out: pressure is macOS's signal that it is about to shed user work, not a die temperature. A machine held at 97 C by an aggressive fan curve reports nominal the whole time while its GPU clocks down. To attribute a decline, read the die temperature (sudo powermetrics --samplers smc), not this.
+wrote ../out/soak/m6-CPU_AND_GPU.json
+{"t": 1794101996.5, "stage": "end", "fans": [{"mode": "manual", "rpm": 8264, "target": 8250}], "max_die_C": 81.3, "max_die_key": "Tg1g", "thermal_pressure": 0}
+during: n=22 rpm 0-8263  max die 81.2 C  max pressure 0  modes ['auto', 'manual']  fault samples 0

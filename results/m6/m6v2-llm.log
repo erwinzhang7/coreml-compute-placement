@@ -1,0 +1,10 @@
+{"t": 1794102445.6, "stage": "preflight", "fans": [{"mode": "manual", "rpm": 6734, "target": 6579}], "max_die_C": 42.4, "max_die_key": "Tp0d", "thermal_pressure": 0}
+{"t": 1794102505.9, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 34.9, "max_die_key": "Tp0g", "thermal_pressure": 0}
+  run 0: prefill  1116.8 tok/s (542 tok, ttft 485 ms)  decode  36.14 tok/s  (256 generated)
+  run 1: prefill  1121.3 tok/s (542 tok, ttft 483 ms)  decode  36.05 tok/s  (256 generated)
+  run 2: prefill  1112.9 tok/s (542 tok, ttft 487 ms)  decode  36.16 tok/s  (256 generated)
+  run 3: prefill  1114.7 tok/s (542 tok, ttft 486 ms)  decode  36.03 tok/s  (256 generated)
+  run 4: prefill  1119.7 tok/s (542 tok, ttft 484 ms)  decode  36.09 tok/s  (256 generated)
+decode 36.09 tok/s, prefill 1116.8 tok/s, weights 4.28 GB; ceiling at measured 151 GB/s = 35.1 tok/s (103%); at published 170 GB/s = 39.7 tok/s (91%)
+{"t": 1794102555.5, "stage": "end", "fans": [{"mode": "manual", "rpm": 8261, "target": 8250}], "max_die_C": 59.9, "max_die_key": "Tg1g", "thermal_pressure": 0}
+during: n=10 rpm 0-8005  max die 62.1 C  max pressure 0  modes ['auto', 'manual']  fault samples 0

@@ -1,0 +1,6 @@
+threads 1  101.1 GB/s
+threads 2  149.3 GB/s
+threads 4  145.1 GB/s
+threads 6  141.1 GB/s
+threads 8  164.0 GB/s
+threads 12  166.2 GB/s

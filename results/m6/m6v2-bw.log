@@ -1,0 +1,26 @@
+{"t": 1794102295.4, "stage": "preflight", "fans": [{"mode": "auto", "rpm": 5047, "target": 5043}], "max_die_C": 36.7, "max_die_key": "Tp0g", "thermal_pressure": 0}
+{"t": 1794102355.7, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 31.8, "max_die_key": "Tp0d", "thermal_pressure": 0}
+  copy     150.5 GB/s  spread  0.8%  88.5% of published 170
+  scale    150.1 GB/s  spread  1.4%  88.3% of published 170
+  add      150.1 GB/s  spread  1.8%  88.3% of published 170
+  triad    150.6 GB/s  spread  0.3%  88.6% of published 170
+best 150.6 GB/s = 88.6% of published
+== tools/gpu_bw.py (MLX ops, best of several)
+operand=1.0 GiB each, 3s per op
+
+op                               GB/s   iters
+sum (read 1x)                   157.1     439
+max (read 1x)                   155.4     435
+a+b (read 2x, write 1x)         147.0     137
+a*2 (read 1x, write 1x)         150.4     211
+
+best observed GPU bandwidth: 157.1 GB/s
+== CPU streaming read, tools/membw.c, median of 3 per thread count
+threads 1  101.1 GB/s
+threads 2  149.3 GB/s
+threads 4  145.1 GB/s
+threads 6  141.1 GB/s
+threads 8  164.0 GB/s
+threads 12  166.2 GB/s
+{"t": 1794102434.5, "stage": "end", "fans": [{"mode": "manual", "rpm": 8240, "target": 8250}], "max_die_C": 72, "max_die_key": "Tp09", "thermal_pressure": 0}
+during: n=16 rpm 0-8269  max die 77.7 C  max pressure 0  modes ['auto', 'manual']  fault samples 0

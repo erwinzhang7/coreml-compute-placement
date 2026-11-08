@@ -224,6 +224,21 @@ it, pinned down in [`results/anecc-probe.md`](results/anecc-probe.md).
 
 ---
 
+### A third chip: the M6 (two Neural Engines)
+
+Measured on a base Apple M6 (Mac18,1, 32 GB) with the same models and protocol; full write-up and raw files in
+[`m6/RESULTS.md`](m6/RESULTS.md) and `results/m6/`.
+
+- The M6 is the first chip here whose Neural Engine moved: two engines, exposed to Core ML as one 32-core device.
+  The ANE-rewritten SigLIP runs at 560 img/s on the Neural Engine against 437 img/s for the best GPU path, a
+  ratio of 1.28, and holds it through a 120 s soak (0.99 of the first 20 s).
+- One model instance already drives both engines (equal per-engine interrupt rates); two or four concurrent
+  instances add 1.02-1.03x.
+- Energy per image: Neural Engine 28-30 mJ, GPU 47-51 mJ.
+- Running both units at once reaches 62-78% of the sum of their solo rates (M4 Pro 99%, M5 Max 86%).
+- Memory bandwidth, measured with GPU STREAM: 150 GB/s on the M6 against 537 GB/s on the M5 Max. Qwen2.5-7B
+  (4-bit) decodes at 36 tok/s against 119 tok/s, the same 3.3x.
+
 ## Reproducing
 
 Requires macOS 15+ on Apple silicon and **Python 3.12**: coremltools ships no native

@@ -1,0 +1,27 @@
+{"t": 1794120437.4, "stage": "preflight", "fans": [{"mode": "manual", "rpm": 7374, "target": 7258}, {"mode": "manual", "rpm": 7368, "target": 7258}], "max_die_C": 58.7, "max_die_key": "Tp0C", "thermal_pressure": 1}
+{"t": 1794120497.7, "stage": "start", "fans": [{"mode": "manual", "rpm": 2329, "target": 2328}, {"mode": "manual", "rpm": 2325, "target": 2328}], "max_die_C": 56.7, "max_die_key": "Tp0C", "thermal_pressure": 0}
+  copy     515.5 GB/s  spread 27.5%  84.0% of published 614
+  scale    515.3 GB/s  spread  3.2%  83.9% of published 614
+  add      528.4 GB/s  spread  0.7%  86.1% of published 614
+  triad    529.1 GB/s  spread  0.5%  86.2% of published 614
+best 529.1 GB/s = 86.2% of published
+== tools/gpu_bw.py (MLX ops, best of several)
+operand=1.0 GiB each, 3s per op
+
+op                               GB/s   iters
+sum (read 1x)                   493.3    1379
+max (read 1x)                   506.5    1416
+a+b (read 2x, write 1x)         516.1     481
+a*2 (read 1x, write 1x)         511.6     715
+
+best observed GPU bandwidth: 516.1 GB/s
+== CPU streaming read, tools/membw.c, median of 3 per thread count
+threads 1  68.3 GB/s
+threads 2  98.2 GB/s
+threads 4  94.5 GB/s
+threads 6  93.9 GB/s
+threads 8  95.8 GB/s
+threads 12  97.3 GB/s
+threads 18  105.6 GB/s
+{"t": 1794120579.7, "stage": "end", "fans": [{"mode": "manual", "rpm": 5130, "target": 5047}, {"mode": "manual", "rpm": 5111, "target": 5047}], "max_die_C": 53.4, "max_die_key": "Tg0C", "thermal_pressure": 0}
+during: n=16 rpm 2327-7846  max die 72.2 C  max pressure 0  modes ['manual']  fault samples 0

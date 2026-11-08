@@ -1,0 +1,16 @@
+{"t": 1794099575.5, "stage": "preflight", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 39.1, "max_die_key": "Tp0d", "thermal_pressure": 0}
+{"t": 1794099635.9, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 33.7, "max_die_key": "Tp0g", "thermal_pressure": 0}
+host: Mac18,1  Apple M6  12 GPU cores  macOS 27.2
+  models/siglip-ane-b1.mlpackage CPU_AND_NE   median   316.0 img/s  spread  0.3%  (n=5)
+wrote out/batch-b1.json
+host: Mac18,1  Apple M6  12 GPU cores  macOS 27.2
+  models/siglip-ane-b8.mlpackage CPU_AND_NE   median   554.4 img/s  spread  0.3%  (n=5)
+wrote out/batch-b8.json
+host: Mac18,1  Apple M6  12 GPU cores  macOS 27.2
+  models/siglip-ane-b16.mlpackage CPU_AND_NE   median   559.4 img/s  spread  0.5%  (n=5)
+wrote out/batch-b16.json
+host: Mac18,1  Apple M6  12 GPU cores  macOS 27.2
+  models/siglip-ane-b32.mlpackage CPU_AND_NE   median   565.2 img/s  spread  0.3%  (n=5)
+wrote out/batch-b32.json
+{"t": 1794100718.9, "stage": "end", "fans": [{"mode": "manual", "rpm": 8211, "target": 8250}], "max_die_C": 55.8, "max_die_key": "Tp0j", "thermal_pressure": 0}
+during: n=210 rpm 0-8276  max die 83.4 C  max pressure 0  modes ['auto', 'manual']  fault samples 0

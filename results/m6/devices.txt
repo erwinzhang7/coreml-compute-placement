@@ -1,0 +1,97 @@
+# 2026-11-07 12:09 EST  Apple M6 Mac18,1 macOS 27.2 (26B7124)
+## MLComputeDevice.allComputeDevices
+neuralEngine totalCoreCount=32
+gpu Apple M6
+cpu
+## private AppleNeuralEngine.framework (read-only)
+== _ANEDeviceInfo class getters
+  +aneArchitectureType = h18g
+  +aneBoardType = 784
+  +aneSubType = h18
+  +aneSubTypeAndVariant = h18g
+  +aneSubTypeProductVariant = 
+  +aneSubTypeVariant = g
+  +bootArgs = 
+  +buildVersion = 26B7124
+  +hasANE = true
+  +isExcessivePowerDrainWhenIdle = false
+  +isInternalBuild = false
+  +isVirtualMachine = false
+  +numANECores = 32
+  +numANEs = 2
+  +precompiledModelChecksDisabled = false
+  +productName = macOS
+== _ANEClient: 58 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -doEnqueueSetsWithModel:outputSet:options:qos:error:
+  -doLoadModelNewInstance:options:modelInstParams:qos:error:
+  -enqueueSetsWithModel:outputSet:options:qos:error:
+  -loadModelNewInstance:options:modelInstParams:qos:error:
+  -priorityQ
+== _ANEModel: 79 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -initWithModelAtURL:sourceURL:UUID:key:identifierSource:cacheURLIdentifier:modelAttributes:standardizeURL:string_id:generateNewStringId:mpsConstants:externConstants:programHandle:intermediateBufferHandle:queueDepth:perfStatsMask:state:
+  -inputSymbolIndicesForProcedureIndex:
+  -outputSymbolIndicesForProcedureIndex:
+  -procedureInfoForProcedureIndex:
+  -queueDepth
+  -setQueueDepth:
+  -symbolIndicesForProcedureIndex:indexArrayKey:
+  -updateModelAttributes:state:programHandle:intermediateBufferHandle:queueDepth:numInputs:numOutputs:
+== _ANERequest: 27 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -initWithInputs:inputIndices:outputs:outputIndices:weightsBuffer:perfStats:procedureIndex:sharedEvents:transactionHandle:
+  -inputIndexArray
+  -outputIndexArray
+  -procedureIndex
+  +requestWithInputs:inputIndices:outputs:outputIndices:perfStats:procedureIndex:
+  +requestWithInputs:inputIndices:outputs:outputIndices:procedureIndex:
+  +requestWithInputs:inputIndices:outputs:outputIndices:weightsBuffer:perfStats:procedureIndex:
+  +requestWithInputs:inputIndices:outputs:outputIndices:weightsBuffer:perfStats:procedureIndex:sharedEvents:
+  +requestWithInputs:inputIndices:outputs:outputIndices:weightsBuffer:perfStats:procedureIndex:sharedEvents:transactionHandle:
+  +requestWithInputs:inputIndices:outputs:outputIndices:weightsBuffer:procedureIndex:
+== _ANEDaemonConnection: 26 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -loadModelNewInstance:options:modelInstParams:qos:withReply:
+== _ANEInMemoryModel: 46 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -queueDepth
+  -setQueueDepth:
+== _ANEProgramForEvaluation: 26 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -deviceController
+  -initWithController:intermediateBufferHandle:queueDepth:
+  -processRequest:model:qos:qIndex:modelStringID:options:returnValue:error:
+  -queueDepth
+  +programWithController:intermediateBufferHandle:queueDepth:
+  +programWithHandle:intermediateBufferHandle:queueDepth:
+== _ANEQoSMapper: 12 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  +dispatchQueueArrayByMappingPrioritiesWithTag:
+  +programPriorityForQoS:
+  +qosForProgramPriority:
+  +queueIndexForQoS:
+  +realTimeProgramPriority
+  +realTimeQueueIndex
+== _ANEDeviceController: 16 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -device
+  -setDevice:
+== _ANEVirtualClient: 119 methods; matching ["engine", "device", "core", "cluster", "index", "balanc", "instance", "affinity", "priority", "queue"]:
+  -getDeviceInfo
+  -loadModelNewInstance:options:modelInstParams:qos:error:
+  -loadModelNewInstanceLegacy:options:modelInstParams:qos:error:
+  -numANECores
+  -queue
+## IOKit ANE services
++-o H11ANE  <class H11ANEIn, id 0x10000068f, registered, matched, active, busy 0 (0 ms), retain 14>
++-o H11ANE1  <class H11ANEIn, id 0x100000653, registered, matched, active, busy 0 (4 ms), retain 12>
++-o ANEDriverRoot  <class H1xANELoadBalancer, id 0x10000033a, registered, matched, active, busy 0 (170 ms), retain 6>
+    {
+      "IOProbeScore" = 0
+      "CFBundleIdentifier" = "com.apple.driver.AppleH16ANEInterface"
+      "IOMatchCategory" = "H1xANELoadBalancer"
+      "IOClass" = "H1xANELoadBalancer"
+      "IOPersonalityPublisher" = "com.apple.driver.AppleH16ANEInterface"
+      "IOProviderClass" = "IOResources"
+      "CFBundleIdentifierKernel" = "com.apple.driver.AppleH16ANEInterface"
+      "IOMatchedAtBoot" = Yes
+      "DeviceProperties" = {"ANEDevicePropertyNumANEs"=2}
+      "IOGeneralInterest" = "IOCommand is not serializable"
+      "IOResourceMatch" = "IOKit"
+    }
+    
+
+    | |   |   |   |   "#ane-num-clusters" = 2

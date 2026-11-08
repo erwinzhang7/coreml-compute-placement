@@ -1,0 +1,56 @@
+{
+  "model": "models/qwen2.5-7b-instruct-4bit",
+  "weight_bytes": 4284263424,
+  "gen": 256,
+  "repeats": 5,
+  "chip": "Apple M6",
+  "macos": "27.2",
+  "mlx": "0.32.4",
+  "peak_memory_GB": 4.744803528,
+  "runs": [
+    {
+      "prompt_tokens": 542,
+      "generated": 256,
+      "ttft_s": 0.48533124999084976,
+      "prefill_tps": 1116.7630355766678,
+      "decode_tps": 36.138392183730254
+    },
+    {
+      "prompt_tokens": 542,
+      "generated": 256,
+      "ttft_s": 0.4833596249955008,
+      "prefill_tps": 1121.3183145055714,
+      "decode_tps": 36.05426824828255
+    },
+    {
+      "prompt_tokens": 542,
+      "generated": 256,
+      "ttft_s": 0.4870028750010533,
+      "prefill_tps": 1112.9297747961502,
+      "decode_tps": 36.155421311318975
+    },
+    {
+      "prompt_tokens": 542,
+      "generated": 256,
+      "ttft_s": 0.4862369999900693,
+      "prefill_tps": 1114.6827576080586,
+      "decode_tps": 36.02800181068124
+    },
+    {
+      "prompt_tokens": 542,
+      "generated": 256,
+      "ttft_s": 0.4840628329984611,
+      "prefill_tps": 1119.6893523980245,
+      "decode_tps": 36.09027387411652
+    }
+  ],
+  "median_decode_tps": 36.09027387411652,
+  "median_prefill_tps": 1116.7630355766678,
+  "decode_spread_pct": 0.353057727082307,
+  "measured_bw_GBps": 150.56301622678893,
+  "ceiling_measured_bw_tps": 35.143267657948044,
+  "decode_fraction_of_measured_ceiling": 1.0269470165775634,
+  "ceiling_published_bw_tps": 39.68009974542593,
+  "decode_fraction_of_published_ceiling": 0.9095308254177658,
+  "effective_decode_GBps": 154.62024032102016
+}

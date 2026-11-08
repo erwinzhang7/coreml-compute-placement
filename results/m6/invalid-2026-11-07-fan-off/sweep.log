@@ -1,0 +1,9 @@
+Torch version 2.8.0 has not been tested with coremltools. You may run into unexpected errors. Torch 2.7.0 is the most recent version that has been tested.
+host: Mac18,1  Apple M6  12 GPU cores  macOS 27.2
+  siglip-vision-b16.mlpackage CPU_AND_NE   median   426.4 img/s  spread  0.6%  (n=5)
+  siglip-vision-b16.mlpackage CPU_AND_GPU  median   437.1 img/s  spread  0.2%  (n=5)
+  siglip-vision-b16.mlpackage ALL          median   424.3 img/s  spread  0.7%  (n=5)
+  siglip-ane-b16.mlpackage   CPU_AND_NE   median   530.0 img/s  spread  0.1%  (n=5)
+  siglip-ane-b16.mlpackage   CPU_AND_GPU  median   157.0 img/s  spread  0.6%  (n=5)
+  siglip-ane-b16.mlpackage   ALL          median   523.9 img/s  spread  1.8%  (n=5)
+wrote ../out/sweep-m6.json

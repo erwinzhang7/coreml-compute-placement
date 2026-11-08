@@ -1,0 +1,19 @@
+CPU_AND_NE  batch 16  soaking 120s in 10s windows
+  t(s)      img/s   calls    thermal
+     0      512.9     321   moderate
+    10      493.9     309   moderate
+    20      480.6     301   moderate
+    30      470.9     295   moderate
+    40      463.8     290   moderate
+    50      458.3     287   moderate
+    60      455.0     285   moderate
+    70      447.4     280   moderate
+    80      441.7     277   moderate
+    90      438.6     275   moderate
+   100      437.0     274   moderate
+
+best 512.9 img/s, last 437.0 img/s, sustained 0.852 of peak over 11 complete windows
+box was quiet: peak other-process load 5.6% of 12 cores over 44 samples
+
+Peak this run: 512.9 img/s. sustained_fraction is only comparable between runs that STARTED in the same thermal state; a warm start lowers the peak and RAISES the fraction. Compare last-window rates (437.0 img/s here) across runs, not fractions.
+wrote ../out/soak/m6-ane-CPU_AND_NE.json

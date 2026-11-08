@@ -1,0 +1,12 @@
+{"t": 1794098020.9, "stage": "preflight", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 26.6, "max_die_key": "Tp0d", "thermal_pressure": 0}
+{"t": 1794098081.3, "stage": "start", "fans": [{"mode": "auto", "rpm": 0, "target": 0}], "max_die_C": 26.5, "max_die_key": "Tp0g", "thermal_pressure": 0}
+host: Mac18,1  Apple M6  12 GPU cores  macOS 27.2
+  siglip-vision-b16.mlpackage CPU_AND_NE   median   429.4 img/s  spread  1.1%  (n=5)
+  siglip-vision-b16.mlpackage CPU_AND_GPU  median   436.8 img/s  spread  0.2%  (n=5)
+  siglip-vision-b16.mlpackage ALL          median   429.5 img/s  spread  1.0%  (n=5)
+  siglip-ane-b16.mlpackage   CPU_AND_NE   median   559.6 img/s  spread  0.7%  (n=5)
+  siglip-ane-b16.mlpackage   CPU_AND_GPU  median   156.8 img/s  spread  0.3%  (n=5)
+  siglip-ane-b16.mlpackage   ALL          median   558.7 img/s  spread  0.7%  (n=5)
+wrote ../out/sweep-m6.json
+{"t": 1794099007.1, "stage": "end", "fans": [{"mode": "manual", "rpm": 8254, "target": 8250}], "max_die_C": 58.6, "max_die_key": "Tp0j", "thermal_pressure": 0}
+during: n=180 rpm 0-8278  max die 88.5 C  max pressure 0  fault samples 169

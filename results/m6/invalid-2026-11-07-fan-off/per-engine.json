@@ -1,0 +1,144 @@
+[
+  {
+    "config": {
+      "name": "idle",
+      "kind": "idle"
+    },
+    "img_s": 0.0,
+    "per_img_s": null,
+    "n_samples": 15,
+    "engines": {
+      "iop_running_frac ANE": 0.0,
+      "iop_running_frac ANE1": 0.0,
+      "irq_per_s ane": 0.0,
+      "irq_per_s ane1": 0.0,
+      "irq_per_s dart-ane": 0.0,
+      "irq_per_s dart-ane1": 0.0,
+      "sys_on_frac ANE0_SYS": 0.0,
+      "sys_on_frac ANE1_SYS": 0.0
+    },
+    "load_wall_s": 0.0
+  },
+  {
+    "config": {
+      "name": "ane-b16 x1",
+      "kind": "run",
+      "model": "models/siglip-ane-b16.mlmodelc",
+      "k": 1
+    },
+    "img_s": 549.85,
+    "per_img_s": [
+      549.85
+    ],
+    "n_samples": 16,
+    "engines": {
+      "iop_running_frac ANE": 1.0,
+      "iop_running_frac ANE1": 1.0,
+      "irq_per_s ane": 127.125,
+      "irq_per_s ane1": 127.75,
+      "irq_per_s dart-ane": 0.0,
+      "irq_per_s dart-ane1": 0.0,
+      "sys_on_frac ANE0_SYS": 0.0,
+      "sys_on_frac ANE1_SYS": 0.0
+    },
+    "load_wall_s": 0.3
+  },
+  {
+    "config": {
+      "name": "ane-b1 x1",
+      "kind": "run",
+      "model": "models/siglip-ane-b1.mlmodelc",
+      "k": 1
+    },
+    "img_s": 322.02,
+    "per_img_s": [
+      322.02
+    ],
+    "n_samples": 17,
+    "engines": {
+      "iop_running_frac ANE": 1.0,
+      "iop_running_frac ANE1": 1.0,
+      "irq_per_s ane": 1069.294,
+      "irq_per_s ane1": 1061.412,
+      "irq_per_s dart-ane": 0.0,
+      "irq_per_s dart-ane1": 0.0,
+      "sys_on_frac ANE0_SYS": 0.0,
+      "sys_on_frac ANE1_SYS": 0.0
+    },
+    "load_wall_s": 0.1
+  },
+  {
+    "config": {
+      "name": "ane-b16 x2",
+      "kind": "run",
+      "model": "models/siglip-ane-b16.mlmodelc",
+      "k": 2
+    },
+    "img_s": 526.23,
+    "per_img_s": [
+      263.53,
+      262.71
+    ],
+    "n_samples": 16,
+    "engines": {
+      "iop_running_frac ANE": 1.0,
+      "iop_running_frac ANE1": 1.0,
+      "irq_per_s ane": 140.25,
+      "irq_per_s ane1": 132.375,
+      "irq_per_s dart-ane": 0.0,
+      "irq_per_s dart-ane1": 0.0,
+      "sys_on_frac ANE0_SYS": 0.0,
+      "sys_on_frac ANE1_SYS": 0.0
+    },
+    "load_wall_s": 0.5
+  },
+  {
+    "config": {
+      "name": "naive-b16 x1",
+      "kind": "run",
+      "model": "models/siglip-vision-b16.mlmodelc",
+      "k": 1
+    },
+    "img_s": 424.78,
+    "per_img_s": [
+      424.78
+    ],
+    "n_samples": 15,
+    "engines": {
+      "iop_running_frac ANE": 1.0,
+      "iop_running_frac ANE1": 1.0,
+      "irq_per_s ane": 102.533,
+      "irq_per_s ane1": 102.0,
+      "irq_per_s dart-ane": 0.0,
+      "irq_per_s dart-ane1": 0.0,
+      "sys_on_frac ANE0_SYS": 0.0,
+      "sys_on_frac ANE1_SYS": 0.0
+    },
+    "load_wall_s": 0.3
+  },
+  {
+    "config": {
+      "name": "ane-b16 x1 ALL",
+      "kind": "run",
+      "model": "models/siglip-ane-b16.mlmodelc",
+      "k": 1,
+      "units": "all"
+    },
+    "img_s": 505.3,
+    "per_img_s": [
+      505.3
+    ],
+    "n_samples": 16,
+    "engines": {
+      "iop_running_frac ANE": 1.0,
+      "iop_running_frac ANE1": 1.0,
+      "irq_per_s ane": 117.125,
+      "irq_per_s ane1": 115.75,
+      "irq_per_s dart-ane": 0.0,
+      "irq_per_s dart-ane1": 0.0,
+      "sys_on_frac ANE0_SYS": 0.0,
+      "sys_on_frac ANE1_SYS": 0.0
+    },
+    "load_wall_s": 0.3
+  }
+]

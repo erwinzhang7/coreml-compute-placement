@@ -1,0 +1,11 @@
+{"t": 1794121051.0, "stage": "preflight", "fans": [{"mode": "manual", "rpm": 4474, "target": 4402}, {"mode": "manual", "rpm": 4464, "target": 4402}], "max_die_C": 48.4, "max_die_key": "Tg4D", "thermal_pressure": 0}
+{"t": 1794121111.3, "stage": "start", "fans": [{"mode": "manual", "rpm": 2330, "target": 2328}, {"mode": "manual", "rpm": 2327, "target": 2328}], "max_die_C": 44.8, "max_die_key": "Tg4D", "thermal_pressure": 0}
+Fetching 9 files:   0%|          | 0/9 [00:00<?, ?it/s]Fetching 9 files: 100%|██████████| 9/9 [00:00<00:00, 1730.88it/s]
+  run 0: prefill  3327.9 tok/s (542 tok, ttft 163 ms)  decode 119.64 tok/s  (256 generated)
+  run 1: prefill  3323.8 tok/s (542 tok, ttft 163 ms)  decode 119.38 tok/s  (256 generated)
+  run 2: prefill  3317.4 tok/s (542 tok, ttft 163 ms)  decode 119.79 tok/s  (256 generated)
+  run 3: prefill  3176.5 tok/s (542 tok, ttft 171 ms)  decode 117.74 tok/s  (256 generated)
+  run 4: prefill  3153.2 tok/s (542 tok, ttft 172 ms)  decode 116.10 tok/s  (256 generated)
+decode 119.38 tok/s, prefill 3317.4 tok/s, weights 4.28 GB; ceiling at measured 537 GB/s = 125.3 tok/s (95%); at published 614 GB/s = 143.3 tok/s (83%)
+{"t": 1794121126.5, "stage": "end", "fans": [{"mode": "manual", "rpm": 7848, "target": 7826}, {"mode": "manual", "rpm": 7846, "target": 7826}], "max_die_C": 71.4, "max_die_key": "Tg5h", "thermal_pressure": 0}
+during: n=3 rpm 2328-7845  max die 68.5 C  max pressure 0  modes ['manual']  fault samples 0
