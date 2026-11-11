@@ -75,11 +75,10 @@ Both units driven simultaneously from separate processes, same model:
 | M4 Pro | 204.4 | 178.9 | 381.3 | **99%** | 1.87x |
 | M5 Max | 231.3 | 901.5 | 970.3 | **86%** | 1.08x |
 
-**The GPU pays the contention, not the ANE.** On the M5 Max the GPU drops to 84% of its solo
-rate while the ANE holds 93%. A GPU already sustaining ~900 img/s is near the
-memory-bandwidth limit, so the ANE's traffic displaces it; the M4 Pro's GPU at 179 img/s is
-far from that limit and both units run unimpeded. So concurrency is worth most exactly where
-it is cheapest.
+**On the M5 Max the GPU gave up more than the ANE in these runs.** The GPU dropped to 84% of
+its solo rate while the ANE held 93%; on the M4 Pro both units ran close to their solo rates.
+The cause is not established: no run here tests whether memory bandwidth is the limit, and
+the M5 Max numbers are being re-measured on an idle machine.
 
 ### The CPU's share of its own memory bus nearly halves between chips
 

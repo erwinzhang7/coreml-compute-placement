@@ -182,9 +182,9 @@ Erwin's spec: stop if ANE-optimised Core ML runs below ~60% of Metal GPU through
 
 The ratio is the same at 120 s (553.9 / 436.7 = 1.27). On M6 the criterion does not fire.
 
-What this means for the ANE inference-server direction:
+What this means for serving:
 
-- **The concurrency argument (§6 of the spec) is dead on M6.** One instance already saturates both
+- **Running several ANE instances does not help on M6.** One instance already saturates both
   engines, so running several ANE instances buys nothing.
 - **The ANE's value on M6** is throughput (1.28x the GPU) and 1.6-1.8x lower energy per image. Driving
   ANE and GPU together adds 1.39x over the ANE alone, less than the M4 Pro's near-perfect overlap.

@@ -179,9 +179,9 @@ On M6 the criterion does not fire, and over a 120 s soak the gap widens (1.29x, 
 holds with a third data point: the right unit does not transfer between chips. On M6 the reason is
 that the ANE doubled while a base-tier GPU stayed small.
 
-What it means for the ANE inference-server direction:
+What it means for serving:
 
-- **The concurrency argument (§6 of the spec) is dead on M6.** One instance saturates both engines,
+- **Running several ANE instances does not help on M6.** One instance saturates both engines,
   so a server gains nothing from running several ANE instances; extra callers only add queueing.
   The ANE's value here is raw throughput and ~2x energy per image, not parallel slots.
 - **The ANE + GPU split (both units at once) is now the interesting configuration on M6**, because
