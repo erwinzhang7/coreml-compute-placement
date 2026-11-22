@@ -1,0 +1,160 @@
+{
+  "model": "siglip-vision-b16.mlpackage",
+  "units": "CPU_AND_GPU",
+  "batch": 16,
+  "seconds": 120.0,
+  "window": 10.0,
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "model": "Mac16,11",
+    "macos": "26.5.1",
+    "coremltools": "9.0"
+  },
+  "power_start": {
+    "source": "AC",
+    "lowpowermode": "not-exposed-by-pmset"
+  },
+  "thermal_readable": true,
+  "summary": {
+    "windows": 11,
+    "best_images_per_s": 177.72,
+    "last_images_per_s": 172.18,
+    "sustained_fraction": 0.9688,
+    "mean_images_per_s": 173.79,
+    "complete_windows": 11,
+    "max_thermal": 0,
+    "interrupted": false
+  },
+  "power_end": {
+    "source": "AC",
+    "lowpowermode": "not-exposed-by-pmset"
+  },
+  "concurrent_load": {
+    "readable": true,
+    "samples": 48,
+    "cores": 14,
+    "peak_other_cpu_pct": 69.0,
+    "peak_other_cpu_of_machine": 0.0493,
+    "peak_at_s": 51.6,
+    "busiest_at_peak": [
+      {
+        "cpu": 35.5,
+        "comm": "/System/Library/PrivateFrameworks/SkyLight.framework/Resourc"
+      },
+      {
+        "cpu": 14.2,
+        "comm": "/System/Library/Frameworks/Security.framework/Versions/A/Mac"
+      },
+      {
+        "cpu": 10.8,
+        "comm": "/usr/libexec/PerfPowerServices"
+      },
+      {
+        "cpu": 7.6,
+        "comm": "/usr/libexec/runningboardd"
+      }
+    ],
+    "quiet": true
+  },
+  "windows": [
+    {
+      "t": 0.0,
+      "seconds": 10.0832,
+      "calls": 112,
+      "images_per_s": 177.72,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 10.084,
+      "seconds": 10.0093,
+      "calls": 111,
+      "images_per_s": 177.44,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 20.093,
+      "seconds": 10.0034,
+      "calls": 111,
+      "images_per_s": 177.54,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 30.097,
+      "seconds": 10.0187,
+      "calls": 111,
+      "images_per_s": 177.27,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 40.116,
+      "seconds": 10.0928,
+      "calls": 109,
+      "images_per_s": 172.8,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 50.209,
+      "seconds": 10.0472,
+      "calls": 107,
+      "images_per_s": 170.4,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 60.257,
+      "seconds": 10.0741,
+      "calls": 108,
+      "images_per_s": 171.53,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 70.332,
+      "seconds": 10.1049,
+      "calls": 108,
+      "images_per_s": 171.01,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 80.437,
+      "seconds": 10.0601,
+      "calls": 108,
+      "images_per_s": 171.77,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 90.497,
+      "seconds": 10.0431,
+      "calls": 108,
+      "images_per_s": 172.06,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    },
+    {
+      "t": 100.541,
+      "seconds": 10.036,
+      "calls": 108,
+      "images_per_s": 172.18,
+      "thermal": 0,
+      "thermal_name": "nominal",
+      "complete": true
+    }
+  ]
+}
