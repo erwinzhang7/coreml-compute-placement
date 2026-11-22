@@ -1,0 +1,1146 @@
+{
+  "model": "whisper-b16.mlpackage",
+  "compute_units": "ALL",
+  "summary": {
+    "ane_offered": true,
+    "ops": 101,
+    "total_cost": 0.9999999999999999,
+    "by_count": {
+      "ANE": 64,
+      "GPU": 37
+    },
+    "by_count_fraction": {
+      "ANE": 0.6336633663366337,
+      "GPU": 0.36633663366336633
+    },
+    "by_cost_fraction": {
+      "ANE": 0.6411922181274162,
+      "GPU": 0.35880778187258383
+    },
+    "ane_fraction_by_cost": 0.6411922181274162,
+    "ane_fraction_by_count": 0.6336633663366337,
+    "ane_capable_but_not_placed": {
+      "ios18.gelu": 1,
+      "ios18.transpose": 17,
+      "ios18.add": 9,
+      "ios18.reshape": 4,
+      "ios18.softmax": 4,
+      "ios18.layer_norm": 1,
+      "ios16.reduce_mean": 1
+    },
+    "not_ane_capable": {}
+  },
+  "operations": [
+    {
+      "function": "main",
+      "operator": "ios18.cast",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.001658330136828102
+    },
+    {
+      "function": "main",
+      "operator": "ios18.conv",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.006781023681028055
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.005306656437849926
+    },
+    {
+      "function": "main",
+      "operator": "ios18.conv",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.016247671086039153
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0036932319333189564
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0018697377196636824
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002421641322005159
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.06218738041895837
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0026533290826385764
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0028097147905233586
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.010613312875699853
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.04495542704485846
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002421641322005159
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.06218738041895837
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0026533290826385764
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0028097147905233586
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.010613312875699853
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.04495542704485846
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002421641322005159
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.06218738041895837
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0026533290826385764
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0028097147905233586
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.010613312875699853
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.04495542704485846
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.mul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002421641322005159
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653329370543114
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.softmax",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.06218738041895837
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.matmul",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.03374701828445188
+    },
+    {
+      "function": "main",
+      "operator": "ios18.transpose",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.003693232334060138
+    },
+    {
+      "function": "main",
+      "operator": "ios18.reshape",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0026533290826385764
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002809714333213107
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0028097147905233586
+    },
+    {
+      "function": "main",
+      "operator": "ios18.gelu",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.010613312875699853
+    },
+    {
+      "function": "main",
+      "operator": "ios18.linear",
+      "preferred": "ANE",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.04495542704485846
+    },
+    {
+      "function": "main",
+      "operator": "ios18.add",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0035195062958375193
+    },
+    {
+      "function": "main",
+      "operator": "ios18.layer_norm",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.002653328218924963
+    },
+    {
+      "function": "main",
+      "operator": "ios16.reduce_mean",
+      "preferred": "GPU",
+      "supported": [
+        "ANE",
+        "CPU",
+        "GPU"
+      ],
+      "cost": 0.0013275489120827954
+    }
+  ]
+}

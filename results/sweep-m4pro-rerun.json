@@ -1,0 +1,182 @@
+[
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-vision-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      204.3998088524115,
+      204.45331260740855,
+      204.21670985005932,
+      204.401074514014,
+      204.17927322976865
+    ],
+    "median": 204.3998088524115,
+    "min": 204.17927322976865,
+    "max": 204.45331260740855,
+    "stdev": 0.12317068694411797
+  },
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-vision-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      177.62280464403713,
+      178.7486477486995,
+      178.72522555185816,
+      178.67362190987376,
+      178.65102291965684
+    ],
+    "median": 178.67362190987376,
+    "min": 177.62280464403713,
+    "max": 178.7486477486995,
+    "stdev": 0.48315070457922193
+  },
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-vision-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      172.23283726551034,
+      172.24578280827834,
+      170.93010919391114,
+      171.11803290263467,
+      170.9054608188194
+    ],
+    "median": 171.11803290263467,
+    "min": 170.9054608188194,
+    "max": 172.24578280827834,
+    "stdev": 0.6921840330608556
+  },
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "CPU_AND_NE",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      231.22987013187122,
+      231.24465811055703,
+      231.17681416463782,
+      231.1498732626826,
+      231.1987639505214
+    ],
+    "median": 231.1987639505214,
+    "min": 231.1498732626826,
+    "max": 231.24465811055703,
+    "stdev": 0.038530416904389055
+  },
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "CPU_AND_GPU",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      149.4360288456382,
+      149.3789860411327,
+      149.2975956356847,
+      149.28327504339515,
+      149.0846879434917
+    ],
+    "median": 149.2975956356847,
+    "min": 149.0846879434917,
+    "max": 149.4360288456382,
+    "stdev": 0.1335214876439817
+  },
+  {
+    "host": {
+      "cpu": "Apple M4 Pro",
+      "model": "Mac16,11",
+      "gpu_cores": "20",
+      "macos": "26.5.1",
+      "power": {
+        "source": "AC",
+        "battery": "",
+        "lowpowermode": "not-exposed-by-pmset",
+        "thermal": 0
+      }
+    },
+    "model": "siglip-ane-b16.mlpackage",
+    "units": "ALL",
+    "batch": 16,
+    "iters": 30,
+    "repeats": 5,
+    "runs": [
+      240.76559450927778,
+      240.76095510016444,
+      240.80698936762056,
+      240.66109603573483,
+      240.84294017395072
+    ],
+    "median": 240.76559450927778,
+    "min": 240.66109603573483,
+    "max": 240.84294017395072,
+    "stdev": 0.06822554340251052
+  }
+]

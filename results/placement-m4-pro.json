@@ -1,0 +1,214 @@
+{
+  "chip": "m4-pro",
+  "macos": "26.5.1",
+  "coremltools": "9.0",
+  "rows": [
+    {
+      "model": "siglip-vision-b16.mlpackage",
+      "units": "ALL",
+      "ops": 282,
+      "by_cost_fraction": {
+        "ANE": 0.7894156295294094,
+        "GPU": 0.21058437047059037
+      },
+      "by_count_fraction": {
+        "ANE": 0.6170212765957447,
+        "GPU": 0.3829787234042553
+      },
+      "ane_fraction_by_cost": 0.7894156295294094,
+      "median_images_per_s": null
+    },
+    {
+      "model": "siglip-vision-b16.mlpackage",
+      "units": "CPU_AND_NE",
+      "ops": 282,
+      "by_cost_fraction": {
+        "ANE": 1.0
+      },
+      "by_count_fraction": {
+        "ANE": 1.0
+      },
+      "ane_fraction_by_cost": 1.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "siglip-vision-b16.mlpackage",
+      "units": "CPU_AND_GPU",
+      "ops": 282,
+      "by_cost_fraction": {
+        "GPU": 1.0
+      },
+      "by_count_fraction": {
+        "GPU": 1.0
+      },
+      "ane_fraction_by_cost": 0.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "resnet50-b16.mlpackage",
+      "units": "ALL",
+      "ops": 122,
+      "by_cost_fraction": {
+        "ANE": 0.8760420464636597,
+        "GPU": 0.12395795353634033
+      },
+      "by_count_fraction": {
+        "ANE": 0.9426229508196722,
+        "GPU": 0.05737704918032787
+      },
+      "ane_fraction_by_cost": 0.8760420464636597,
+      "median_images_per_s": null
+    },
+    {
+      "model": "resnet50-b16.mlpackage",
+      "units": "CPU_AND_NE",
+      "ops": 122,
+      "by_cost_fraction": {
+        "ANE": 1.0
+      },
+      "by_count_fraction": {
+        "ANE": 1.0
+      },
+      "ane_fraction_by_cost": 1.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "resnet50-b16.mlpackage",
+      "units": "CPU_AND_GPU",
+      "ops": 122,
+      "by_cost_fraction": {
+        "GPU": 1.0
+      },
+      "by_count_fraction": {
+        "GPU": 1.0
+      },
+      "ane_fraction_by_cost": 0.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "mobilenet-b16.mlpackage",
+      "units": "ALL",
+      "ops": 118,
+      "by_cost_fraction": {
+        "ANE": 1.0
+      },
+      "by_count_fraction": {
+        "ANE": 1.0
+      },
+      "ane_fraction_by_cost": 1.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "mobilenet-b16.mlpackage",
+      "units": "CPU_AND_NE",
+      "ops": 118,
+      "by_cost_fraction": {
+        "ANE": 1.0
+      },
+      "by_count_fraction": {
+        "ANE": 1.0
+      },
+      "ane_fraction_by_cost": 1.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "mobilenet-b16.mlpackage",
+      "units": "CPU_AND_GPU",
+      "ops": 118,
+      "by_cost_fraction": {
+        "GPU": 1.0
+      },
+      "by_count_fraction": {
+        "GPU": 1.0
+      },
+      "ane_fraction_by_cost": 0.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "bert-b16.mlpackage",
+      "units": "ALL",
+      "ops": 148,
+      "by_cost_fraction": {
+        "CPU": 0.051424143506432735,
+        "ANE": 0.7752315455780391,
+        "GPU": 0.17334431091552746
+      },
+      "by_count_fraction": {
+        "CPU": 0.0472972972972973,
+        "ANE": 0.5878378378378378,
+        "GPU": 0.36486486486486486
+      },
+      "ane_fraction_by_cost": 0.7752315455780391,
+      "median_images_per_s": null
+    },
+    {
+      "model": "bert-b16.mlpackage",
+      "units": "CPU_AND_NE",
+      "ops": 148,
+      "by_cost_fraction": {
+        "CPU": 0.04753797725059842,
+        "ANE": 0.9524620227494013
+      },
+      "by_count_fraction": {
+        "CPU": 0.0472972972972973,
+        "ANE": 0.9527027027027027
+      },
+      "ane_fraction_by_cost": 0.9524620227494013,
+      "median_images_per_s": null
+    },
+    {
+      "model": "bert-b16.mlpackage",
+      "units": "CPU_AND_GPU",
+      "ops": 148,
+      "by_cost_fraction": {
+        "GPU": 1.0
+      },
+      "by_count_fraction": {
+        "GPU": 1.0
+      },
+      "ane_fraction_by_cost": 0.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "whisper-b16.mlpackage",
+      "units": "ALL",
+      "ops": 101,
+      "by_cost_fraction": {
+        "ANE": 0.6411922181274162,
+        "GPU": 0.35880778187258383
+      },
+      "by_count_fraction": {
+        "ANE": 0.6336633663366337,
+        "GPU": 0.36633663366336633
+      },
+      "ane_fraction_by_cost": 0.6411922181274162,
+      "median_images_per_s": null
+    },
+    {
+      "model": "whisper-b16.mlpackage",
+      "units": "CPU_AND_NE",
+      "ops": 101,
+      "by_cost_fraction": {
+        "ANE": 1.0
+      },
+      "by_count_fraction": {
+        "ANE": 1.0
+      },
+      "ane_fraction_by_cost": 1.0,
+      "median_images_per_s": null
+    },
+    {
+      "model": "whisper-b16.mlpackage",
+      "units": "CPU_AND_GPU",
+      "ops": 101,
+      "by_cost_fraction": {
+        "GPU": 1.0
+      },
+      "by_count_fraction": {
+        "GPU": 1.0
+      },
+      "ane_fraction_by_cost": 0.0,
+      "median_images_per_s": null
+    }
+  ]
+}
